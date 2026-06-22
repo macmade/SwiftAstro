@@ -1,0 +1,513 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		05E974CA2FE921070078F616 /* SwiftAstro.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05E974C02FE921070078F616 /* SwiftAstro.framework */; };
+		05E975192FE922A40078F616 /* SwiftAstro.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05E975172FE922A40078F616 /* SwiftAstro.swift */; };
+		05E9751C2FE922A70078F616 /* SwiftAstroTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05E9751A2FE922A70078F616 /* SwiftAstroTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		05E974CB2FE921070078F616 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 05E974B72FE921070078F616 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 05E974BF2FE921070078F616;
+			remoteInfo = SwiftAstro;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		05E974C02FE921070078F616 /* SwiftAstro.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SwiftAstro.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		05E974C92FE921070078F616 /* SwiftAstroTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftAstroTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		05E974DC2FE922850078F616 /* CODE_OF_CONDUCT.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CODE_OF_CONDUCT.md; sourceTree = "<group>"; };
+		05E974DD2FE922850078F616 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		05E974DE2FE922850078F616 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		05E974DF2FE9229C0078F616 /* FUNDING.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = FUNDING.yml; sourceTree = "<group>"; };
+		05E974E12FE9229C0078F616 /* C++.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "C++.xcconfig"; sourceTree = "<group>"; };
+		05E974E22FE9229C0078F616 /* Modules.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Modules.xcconfig; sourceTree = "<group>"; };
+		05E974E32FE9229C0078F616 /* Objective-C.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Objective-C.xcconfig"; sourceTree = "<group>"; };
+		05E974E52FE9229C0078F616 /* All-Languages.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "All-Languages.xcconfig"; sourceTree = "<group>"; };
+		05E974E62FE9229C0078F616 /* C++.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "C++.xcconfig"; sourceTree = "<group>"; };
+		05E974E72FE9229C0078F616 /* Objective-C.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Objective-C.xcconfig"; sourceTree = "<group>"; };
+		05E974E82FE9229C0078F616 /* Objective-C-ARC.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Objective-C-ARC.xcconfig"; sourceTree = "<group>"; };
+		05E974EA2FE9229C0078F616 /* Address-Sanitizer.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Address-Sanitizer.xcconfig"; sourceTree = "<group>"; };
+		05E974EB2FE9229C0078F616 /* Code-Generation.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Code-Generation.xcconfig"; sourceTree = "<group>"; };
+		05E974EC2FE9229C0078F616 /* Language.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Language.xcconfig; sourceTree = "<group>"; };
+		05E974ED2FE9229C0078F616 /* Preprocessing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Preprocessing.xcconfig; sourceTree = "<group>"; };
+		05E974EE2FE9229C0078F616 /* Undefined-Behavior-Sanitizer.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Undefined-Behavior-Sanitizer.xcconfig"; sourceTree = "<group>"; };
+		05E974EF2FE9229C0078F616 /* Warning-Policies.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Warning-Policies.xcconfig"; sourceTree = "<group>"; };
+		05E974F02FE9229C0078F616 /* Warnings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Warnings.xcconfig; sourceTree = "<group>"; };
+		05E974F22FE9229C0078F616 /* Analysis-Policy.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Analysis-Policy.xcconfig"; sourceTree = "<group>"; };
+		05E974F32FE9229C0078F616 /* Apple-APIs.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Apple-APIs.xcconfig"; sourceTree = "<group>"; };
+		05E974F42FE9229C0078F616 /* Generic-Issues.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Generic-Issues.xcconfig"; sourceTree = "<group>"; };
+		05E974F52FE9229C0078F616 /* Objective-C.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Objective-C.xcconfig"; sourceTree = "<group>"; };
+		05E974F62FE9229C0078F616 /* Security.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Security.xcconfig; sourceTree = "<group>"; };
+		05E974F82FE9229C0078F616 /* Issues.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Issues.xcconfig; sourceTree = "<group>"; };
+		05E974FA2FE9229C0078F616 /* Code-Generation.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Code-Generation.xcconfig"; sourceTree = "<group>"; };
+		05E974FB2FE9229C0078F616 /* General.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = General.xcconfig; sourceTree = "<group>"; };
+		05E974FC2FE9229C0078F616 /* Language.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Language.xcconfig; sourceTree = "<group>"; };
+		05E974FD2FE9229C0078F616 /* Warnings-Policies.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Warnings-Policies.xcconfig"; sourceTree = "<group>"; };
+		05E974FF2FE9229C0078F616 /* Apple-LLVM.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Apple-LLVM.xcconfig"; sourceTree = "<group>"; };
+		05E975002FE9229C0078F616 /* Architectures.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Architectures.xcconfig; sourceTree = "<group>"; };
+		05E975012FE9229C0078F616 /* Build-Options.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Build-Options.xcconfig"; sourceTree = "<group>"; };
+		05E975022FE9229C0078F616 /* Deployment.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Deployment.xcconfig; sourceTree = "<group>"; };
+		05E975032FE9229C0078F616 /* Search-Paths.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Search-Paths.xcconfig"; sourceTree = "<group>"; };
+		05E975042FE9229C0078F616 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
+		05E975052FE9229C0078F616 /* Static-Analyzer.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Static-Analyzer.xcconfig"; sourceTree = "<group>"; };
+		05E975062FE9229C0078F616 /* Swift-Compiler.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Swift-Compiler.xcconfig"; sourceTree = "<group>"; };
+		05E975082FE9229C0078F616 /* ccache.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = ccache.sh; sourceTree = "<group>"; };
+		05E975092FE9229C0078F616 /* ccache-config.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "ccache-config.sh"; sourceTree = "<group>"; };
+		05E9750B2FE9229C0078F616 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		05E9750C2FE9229C0078F616 /* CODE_OF_CONDUCT.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CODE_OF_CONDUCT.md; sourceTree = "<group>"; };
+		05E9750D2FE9229C0078F616 /* Common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Common.xcconfig; sourceTree = "<group>"; };
+		05E9750E2FE9229C0078F616 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
+		05E9750F2FE9229C0078F616 /* Debug - ccache.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Debug - ccache.xcconfig"; sourceTree = "<group>"; };
+		05E975102FE9229C0078F616 /* Debug - Library.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Debug - Library.xcconfig"; sourceTree = "<group>"; };
+		05E975112FE9229C0078F616 /* Debug - zld.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Debug - zld.xcconfig"; sourceTree = "<group>"; };
+		05E975122FE9229C0078F616 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		05E975132FE9229C0078F616 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
+		05E975142FE9229C0078F616 /* Release - ccache.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Release - ccache.xcconfig"; sourceTree = "<group>"; };
+		05E975152FE9229C0078F616 /* Release - Library.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Release - Library.xcconfig"; sourceTree = "<group>"; };
+		05E975172FE922A40078F616 /* SwiftAstro.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftAstro.swift; sourceTree = "<group>"; };
+		05E9751A2FE922A70078F616 /* SwiftAstroTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftAstroTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		05E974BD2FE921070078F616 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		05E974C62FE921070078F616 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				05E974CA2FE921070078F616 /* SwiftAstro.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		05E974B62FE921070078F616 = {
+			isa = PBXGroup;
+			children = (
+				05E974DE2FE922850078F616 /* README.md */,
+				05E974DD2FE922850078F616 /* LICENSE */,
+				05E974DC2FE922850078F616 /* CODE_OF_CONDUCT.md */,
+				05E975162FE9229C0078F616 /* xcconfig */,
+				05E975182FE922A40078F616 /* SwiftAstro */,
+				05E9751B2FE922A70078F616 /* SwiftAstroTests */,
+				05E974C12FE921070078F616 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		05E974C12FE921070078F616 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				05E974C02FE921070078F616 /* SwiftAstro.framework */,
+				05E974C92FE921070078F616 /* SwiftAstroTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		05E974E02FE9229C0078F616 /* .github */ = {
+			isa = PBXGroup;
+			children = (
+				05E974DF2FE9229C0078F616 /* FUNDING.yml */,
+			);
+			path = .github;
+			sourceTree = "<group>";
+		};
+		05E974E42FE9229C0078F616 /* Language */ = {
+			isa = PBXGroup;
+			children = (
+				05E974E12FE9229C0078F616 /* C++.xcconfig */,
+				05E974E22FE9229C0078F616 /* Modules.xcconfig */,
+				05E974E32FE9229C0078F616 /* Objective-C.xcconfig */,
+			);
+			path = Language;
+			sourceTree = "<group>";
+		};
+		05E974E92FE9229C0078F616 /* Warnings */ = {
+			isa = PBXGroup;
+			children = (
+				05E974E52FE9229C0078F616 /* All-Languages.xcconfig */,
+				05E974E62FE9229C0078F616 /* C++.xcconfig */,
+				05E974E72FE9229C0078F616 /* Objective-C.xcconfig */,
+				05E974E82FE9229C0078F616 /* Objective-C-ARC.xcconfig */,
+			);
+			path = Warnings;
+			sourceTree = "<group>";
+		};
+		05E974F12FE9229C0078F616 /* Apple-LLVM */ = {
+			isa = PBXGroup;
+			children = (
+				05E974E42FE9229C0078F616 /* Language */,
+				05E974E92FE9229C0078F616 /* Warnings */,
+				05E974EA2FE9229C0078F616 /* Address-Sanitizer.xcconfig */,
+				05E974EB2FE9229C0078F616 /* Code-Generation.xcconfig */,
+				05E974EC2FE9229C0078F616 /* Language.xcconfig */,
+				05E974ED2FE9229C0078F616 /* Preprocessing.xcconfig */,
+				05E974EE2FE9229C0078F616 /* Undefined-Behavior-Sanitizer.xcconfig */,
+				05E974EF2FE9229C0078F616 /* Warning-Policies.xcconfig */,
+				05E974F02FE9229C0078F616 /* Warnings.xcconfig */,
+			);
+			path = "Apple-LLVM";
+			sourceTree = "<group>";
+		};
+		05E974F72FE9229C0078F616 /* Issues */ = {
+			isa = PBXGroup;
+			children = (
+				05E974F22FE9229C0078F616 /* Analysis-Policy.xcconfig */,
+				05E974F32FE9229C0078F616 /* Apple-APIs.xcconfig */,
+				05E974F42FE9229C0078F616 /* Generic-Issues.xcconfig */,
+				05E974F52FE9229C0078F616 /* Objective-C.xcconfig */,
+				05E974F62FE9229C0078F616 /* Security.xcconfig */,
+			);
+			path = Issues;
+			sourceTree = "<group>";
+		};
+		05E974F92FE9229C0078F616 /* Static-Analyzer */ = {
+			isa = PBXGroup;
+			children = (
+				05E974F72FE9229C0078F616 /* Issues */,
+				05E974F82FE9229C0078F616 /* Issues.xcconfig */,
+			);
+			path = "Static-Analyzer";
+			sourceTree = "<group>";
+		};
+		05E974FE2FE9229C0078F616 /* Swift-Compiler */ = {
+			isa = PBXGroup;
+			children = (
+				05E974FA2FE9229C0078F616 /* Code-Generation.xcconfig */,
+				05E974FB2FE9229C0078F616 /* General.xcconfig */,
+				05E974FC2FE9229C0078F616 /* Language.xcconfig */,
+				05E974FD2FE9229C0078F616 /* Warnings-Policies.xcconfig */,
+			);
+			path = "Swift-Compiler";
+			sourceTree = "<group>";
+		};
+		05E975072FE9229C0078F616 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				05E974F12FE9229C0078F616 /* Apple-LLVM */,
+				05E974F92FE9229C0078F616 /* Static-Analyzer */,
+				05E974FE2FE9229C0078F616 /* Swift-Compiler */,
+				05E974FF2FE9229C0078F616 /* Apple-LLVM.xcconfig */,
+				05E975002FE9229C0078F616 /* Architectures.xcconfig */,
+				05E975012FE9229C0078F616 /* Build-Options.xcconfig */,
+				05E975022FE9229C0078F616 /* Deployment.xcconfig */,
+				05E975032FE9229C0078F616 /* Search-Paths.xcconfig */,
+				05E975042FE9229C0078F616 /* Signing.xcconfig */,
+				05E975052FE9229C0078F616 /* Static-Analyzer.xcconfig */,
+				05E975062FE9229C0078F616 /* Swift-Compiler.xcconfig */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+		05E9750A2FE9229C0078F616 /* Scripts */ = {
+			isa = PBXGroup;
+			children = (
+				05E975082FE9229C0078F616 /* ccache.sh */,
+				05E975092FE9229C0078F616 /* ccache-config.sh */,
+			);
+			path = Scripts;
+			sourceTree = "<group>";
+		};
+		05E975162FE9229C0078F616 /* xcconfig */ = {
+			isa = PBXGroup;
+			children = (
+				05E974E02FE9229C0078F616 /* .github */,
+				05E975072FE9229C0078F616 /* Common */,
+				05E9750A2FE9229C0078F616 /* Scripts */,
+				05E9750B2FE9229C0078F616 /* .gitignore */,
+				05E9750C2FE9229C0078F616 /* CODE_OF_CONDUCT.md */,
+				05E9750D2FE9229C0078F616 /* Common.xcconfig */,
+				05E9750E2FE9229C0078F616 /* Debug.xcconfig */,
+				05E9750F2FE9229C0078F616 /* Debug - ccache.xcconfig */,
+				05E975102FE9229C0078F616 /* Debug - Library.xcconfig */,
+				05E975112FE9229C0078F616 /* Debug - zld.xcconfig */,
+				05E975122FE9229C0078F616 /* README.md */,
+				05E975132FE9229C0078F616 /* Release.xcconfig */,
+				05E975142FE9229C0078F616 /* Release - ccache.xcconfig */,
+				05E975152FE9229C0078F616 /* Release - Library.xcconfig */,
+			);
+			name = xcconfig;
+			path = Submodules/xcconfig;
+			sourceTree = "<group>";
+		};
+		05E975182FE922A40078F616 /* SwiftAstro */ = {
+			isa = PBXGroup;
+			children = (
+				05E975172FE922A40078F616 /* SwiftAstro.swift */,
+			);
+			path = SwiftAstro;
+			sourceTree = "<group>";
+		};
+		05E9751B2FE922A70078F616 /* SwiftAstroTests */ = {
+			isa = PBXGroup;
+			children = (
+				05E9751A2FE922A70078F616 /* SwiftAstroTests.swift */,
+			);
+			path = SwiftAstroTests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		05E974BB2FE921070078F616 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		05E974BF2FE921070078F616 /* SwiftAstro */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 05E974D22FE921070078F616 /* Build configuration list for PBXNativeTarget "SwiftAstro" */;
+			buildPhases = (
+				05E974BB2FE921070078F616 /* Headers */,
+				05E974BC2FE921070078F616 /* Sources */,
+				05E974BD2FE921070078F616 /* Frameworks */,
+				05E974BE2FE921070078F616 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SwiftAstro;
+			packageProductDependencies = (
+			);
+			productName = SwiftAstro;
+			productReference = 05E974C02FE921070078F616 /* SwiftAstro.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		05E974C82FE921070078F616 /* SwiftAstroTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 05E974D52FE921070078F616 /* Build configuration list for PBXNativeTarget "SwiftAstroTests" */;
+			buildPhases = (
+				05E974C52FE921070078F616 /* Sources */,
+				05E974C62FE921070078F616 /* Frameworks */,
+				05E974C72FE921070078F616 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				05E974CC2FE921070078F616 /* PBXTargetDependency */,
+			);
+			name = SwiftAstroTests;
+			packageProductDependencies = (
+			);
+			productName = SwiftAstroTests;
+			productReference = 05E974C92FE921070078F616 /* SwiftAstroTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		05E974B72FE921070078F616 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2630;
+				LastUpgradeCheck = 2630;
+				TargetAttributes = {
+					05E974BF2FE921070078F616 = {
+						CreatedOnToolsVersion = 26.3;
+					};
+					05E974C82FE921070078F616 = {
+						CreatedOnToolsVersion = 26.3;
+					};
+				};
+			};
+			buildConfigurationList = 05E974BA2FE921070078F616 /* Build configuration list for PBXProject "SwiftAstro" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 05E974B62FE921070078F616;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 05E974C12FE921070078F616 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				05E974BF2FE921070078F616 /* SwiftAstro */,
+				05E974C82FE921070078F616 /* SwiftAstroTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		05E974BE2FE921070078F616 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		05E974C72FE921070078F616 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		05E974BC2FE921070078F616 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				05E975192FE922A40078F616 /* SwiftAstro.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		05E974C52FE921070078F616 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				05E9751C2FE922A70078F616 /* SwiftAstroTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		05E974CC2FE921070078F616 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 05E974BF2FE921070078F616 /* SwiftAstro */;
+			targetProxy = 05E974CB2FE921070078F616 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		05E974D02FE921070078F616 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 05E975102FE9229C0078F616 /* Debug - Library.xcconfig */;
+			buildSettings = {
+				CURRENT_PROJECT_VERSION = 1;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.6;
+				MARKETING_VERSION = 1.0.0;
+				SWIFT_VERSION = 6.0;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Debug;
+		};
+		05E974D12FE921070078F616 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 05E975152FE9229C0078F616 /* Release - Library.xcconfig */;
+			buildSettings = {
+				CURRENT_PROJECT_VERSION = 1;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.6;
+				MARKETING_VERSION = 1.0.0;
+				SWIFT_VERSION = 6.0;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Release;
+		};
+		05E974D32FE921070078F616 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 XS-Labs. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.xs-labs.SwiftAstro";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+			};
+			name = Debug;
+		};
+		05E974D42FE921070078F616 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 XS-Labs. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.xs-labs.SwiftAstro";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+			};
+			name = Release;
+		};
+		05E974D62FE921070078F616 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.xs-labs.SwiftAstroTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		05E974D72FE921070078F616 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.xs-labs.SwiftAstroTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		05E974BA2FE921070078F616 /* Build configuration list for PBXProject "SwiftAstro" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				05E974D02FE921070078F616 /* Debug */,
+				05E974D12FE921070078F616 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		05E974D22FE921070078F616 /* Build configuration list for PBXNativeTarget "SwiftAstro" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				05E974D32FE921070078F616 /* Debug */,
+				05E974D42FE921070078F616 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		05E974D52FE921070078F616 /* Build configuration list for PBXNativeTarget "SwiftAstroTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				05E974D62FE921070078F616 /* Debug */,
+				05E974D72FE921070078F616 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 05E974B72FE921070078F616 /* Project object */;
+}
