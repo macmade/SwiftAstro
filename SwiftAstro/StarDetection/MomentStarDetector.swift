@@ -1,0 +1,322 @@
+/*******************************************************************************
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2026, Jean-David Gadina - www.xs-labs.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the Software), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ ******************************************************************************/
+
+import Foundation
+
+/// Detects stars by thresholding above a robust background, grouping connected
+/// pixels into sources, and measuring each from its flux-weighted moments.
+///
+/// The metrics are measured over each source's thresholded pixels
+/// (background-subtracted): a flux-weighted centroid, the half-flux radius, and
+/// the FWHM and eccentricity from the second moments. This is the standard
+/// "HFR-style" approach used for focus and tracking quality, and is robust to
+/// noise and hot pixels without the cost of full PSF fitting.
+public struct MomentStarDetector: StarDetecting
+{
+    /// Tunable detection parameters.
+    public struct Configuration: Sendable
+    {
+        /// How many noise sigmas above the background a pixel must be to count as
+        /// part of a source.
+        public var thresholdSigma: Double
+
+        /// The minimum number of pixels a source must have, rejecting hot pixels
+        /// and cosmic rays.
+        public var minPixelCount: Int
+
+        /// The maximum number of pixels a source may have, rejecting oversized
+        /// blobs (e.g. saturation bloom or large nebulosity).
+        public var maxPixelCount: Int
+
+        /// Sources whose bounding box comes within this many pixels of the image
+        /// edge are rejected, since their profiles are clipped.
+        public var edgeMargin: Int
+
+        /// Creates a configuration with sensible defaults.
+        public init( thresholdSigma: Double = 5, minPixelCount: Int = 5, maxPixelCount: Int = 5000, edgeMargin: Int = 4 )
+        {
+            self.thresholdSigma = thresholdSigma
+            self.minPixelCount  = minPixelCount
+            self.maxPixelCount  = maxPixelCount
+            self.edgeMargin     = edgeMargin
+        }
+    }
+
+    /// For a 2D Gaussian, FWHM = 2√(2 ln 2)·σ, where σ = √((Mxx + Myy) / 2).
+    private static let fwhmPerSigma = 2 * ( 2 * Foundation.log( 2.0 ) ).squareRoot()
+
+    /// The eight neighbour offsets defining 8-connectivity.
+    private static let neighborOffsets = [ ( -1, -1 ), ( 0, -1 ), ( 1, -1 ), ( -1, 0 ), ( 1, 0 ), ( -1, 1 ), ( 0, 1 ), ( 1, 1 ) ]
+
+    /// The detection parameters.
+    public let configuration: Configuration
+
+    /// Creates a detector.
+    ///
+    /// - Parameter configuration: The detection parameters.
+    public init( configuration: Configuration = Configuration() )
+    {
+        self.configuration = configuration
+    }
+
+    /// Detects stars by thresholding above the robust background, grouping the
+    /// connected above-threshold pixels into sources, filtering them, and
+    /// measuring each from its flux-weighted moments.
+    ///
+    /// - Parameter image: The linear grayscale image to analyze.
+    /// - Returns: The detected stars and their aggregate metrics; an empty field
+    ///   for a degenerate (zero-size) image.
+    public func detectStars( in image: GrayscaleImage ) throws -> StarField
+    {
+        guard image.width > 0, image.height > 0
+        else
+        {
+            return StarField( stars: [] )
+        }
+
+        let background = Statistics.median( image.pixels ) ?? 0
+        let noise      = ( Statistics.medianAbsoluteDeviation( image.pixels, around: background ) ?? 0 ) * 1.4826
+        let threshold  = background + ( self.configuration.thresholdSigma * noise )
+        let components = Self.connectedComponents( in: image, threshold: threshold )
+
+        let stars = components.compactMap
+        {
+            component -> Star? in
+
+            guard component.pixels.count >= self.configuration.minPixelCount,
+                  component.pixels.count <= self.configuration.maxPixelCount,
+                  self.isWithinBounds( component, image: image )
+            else
+            {
+                return nil
+            }
+
+            return Self.measure( component, in: image, background: background )
+        }
+
+        return StarField( stars: stars )
+    }
+
+    /// Whether a source's bounding box clears the configured edge margin.
+    private func isWithinBounds( _ component: Component, image: GrayscaleImage ) -> Bool
+    {
+        let margin = self.configuration.edgeMargin
+
+        return component.minX >= margin
+            && component.minY >= margin
+            && component.maxX <  image.width  - margin
+            && component.maxY <  image.height - margin
+    }
+
+    // MARK: - Connected components
+
+    /// A connected group of above-threshold pixels.
+    private struct Component
+    {
+        /// The pixel coordinates belonging to the component.
+        var pixels: [ ( x: Int, y: Int ) ] = []
+
+        /// The smallest column among the component's pixels.
+        var minX = Int.max
+
+        /// The smallest row among the component's pixels.
+        var minY = Int.max
+
+        /// The largest column among the component's pixels.
+        var maxX = Int.min
+
+        /// The largest row among the component's pixels.
+        var maxY = Int.min
+
+        /// Adds a pixel to the component, expanding its bounding box.
+        ///
+        /// - Parameters:
+        ///   - x: The pixel column.
+        ///   - y: The pixel row.
+        mutating func add( x: Int, y: Int )
+        {
+            self.pixels.append( ( x, y ) )
+
+            self.minX = Swift.min( self.minX, x )
+            self.minY = Swift.min( self.minY, y )
+            self.maxX = Swift.max( self.maxX, x )
+            self.maxY = Swift.max( self.maxY, y )
+        }
+    }
+
+    /// Groups above-threshold pixels into 8-connected components via flood fill.
+    private static func connectedComponents( in image: GrayscaleImage, threshold: Double ) -> [ Component ]
+    {
+        let width   = image.width
+        let height  = image.height
+        var visited = [ Bool ]( repeating: false, count: width * height )
+        var result  = [ Component ]()
+
+        ( 0 ..< ( width * height ) ).forEach
+        {
+            startIndex in
+
+            guard visited[ startIndex ] == false, image.pixels[ startIndex ] > threshold
+            else
+            {
+                return
+            }
+
+            // Flood-fill the component from this seed. A worklist (`while let`) is
+            // the natural form for this graph traversal; the per-node neighbour
+            // scan is expressed over the fixed offsets.
+            var component = Component()
+            var stack     = [ ( startIndex % width, startIndex / width ) ]
+            visited[ startIndex ] = true
+
+            while let ( x, y ) = stack.popLast()
+            {
+                component.add( x: x, y: y )
+
+                Self.neighborOffsets.forEach
+                {
+                    let nx = x + $0.0
+                    let ny = y + $0.1
+
+                    guard nx >= 0, nx < width, ny >= 0, ny < height
+                    else
+                    {
+                        return
+                    }
+
+                    let index = ( ny * width ) + nx
+
+                    if visited[ index ] == false, image.pixels[ index ] > threshold
+                    {
+                        visited[ index ] = true
+
+                        stack.append( ( nx, ny ) )
+                    }
+                }
+            }
+
+            result.append( component )
+        }
+
+        return result
+    }
+
+    // MARK: - Measurement
+
+    /// Measures a source's centroid, flux, HFR, FWHM and eccentricity from its
+    /// background-subtracted, flux-weighted moments.
+    private static func measure( _ component: Component, in image: GrayscaleImage, background: Double ) -> Star?
+    {
+        let samples = component.pixels.compactMap
+        {
+            pixel -> ( x: Double, y: Double, w: Double )? in
+
+            guard let value = image[ pixel.x, pixel.y ]
+            else
+            {
+                return nil
+            }
+
+            return ( x: Double( pixel.x ), y: Double( pixel.y ), w: value - background )
+        }
+
+        let flux = samples.reduce( 0 ) { $0 + $1.w }
+
+        guard flux > 0
+        else
+        {
+            return nil
+        }
+
+        let cx = samples.reduce( 0 ) { $0 + ( $1.w * $1.x ) } / flux
+        let cy = samples.reduce( 0 ) { $0 + ( $1.w * $1.y ) } / flux
+
+        let moments = samples.reduce( ( xx: 0.0, yy: 0.0, xy: 0.0 ) )
+        {
+            let dx = $1.x - cx
+            let dy = $1.y - cy
+
+            return ( xx: $0.xx + ( $1.w * dx * dx ), yy: $0.yy + ( $1.w * dy * dy ), xy: $0.xy + ( $1.w * dx * dy ) )
+        }
+
+        let mxx = moments.xx / flux
+        let myy = moments.yy / flux
+        let mxy = moments.xy / flux
+
+        let fwhm         = Self.fwhmPerSigma * Swift.max( ( mxx + myy ) / 2, 0 ).squareRoot()
+        let eccentricity = Self.eccentricity( mxx: mxx, myy: myy, mxy: mxy )
+        let hfr          = Self.halfFluxRadius( samples: samples, cx: cx, cy: cy, flux: flux )
+
+        return Star( x: cx, y: cy, flux: flux, hfr: hfr, fwhm: fwhm, eccentricity: eccentricity )
+    }
+
+    /// The eccentricity of the moment ellipse: `√(1 − λ₂/λ₁)` for eigenvalues
+    /// `λ₁ ≥ λ₂` of `[[Mxx, Mxy], [Mxy, Myy]]`. `0` for a round source.
+    private static func eccentricity( mxx: Double, myy: Double, mxy: Double ) -> Double
+    {
+        let mean         = ( mxx + myy ) / 2
+        let difference   = ( mxx - myy ) / 2
+        let discriminant = ( ( difference * difference ) + ( mxy * mxy ) ).squareRoot()
+        let major        = mean + discriminant
+        let minor        = mean - discriminant
+
+        guard major > 0
+        else
+        {
+            return 0
+        }
+
+        return Swift.max( 0, 1 - ( minor / major ) ).squareRoot()
+    }
+
+    /// The radius around the centroid containing half the source's flux, found by
+    /// accumulating flux in order of increasing radius and interpolating to the
+    /// 50% point.
+    private static func halfFluxRadius( samples: [ ( x: Double, y: Double, w: Double ) ], cx: Double, cy: Double, flux: Double ) -> Double
+    {
+        let radial = samples.map
+        {
+            ( r: ( ( ( $0.x - cx ) * ( $0.x - cx ) ) + ( ( $0.y - cy ) * ( $0.y - cy ) ) ).squareRoot(), w: $0.w )
+        }
+        .sorted { $0.r < $1.r }
+
+        let half       = flux / 2
+        let cumulative = radial.reduce( into: [ Double ]() ) { $0.append( ( $0.last ?? 0 ) + $1.w ) }
+
+        guard let crossing = cumulative.firstIndex( where: { $0 >= half } )
+        else
+        {
+            return radial.last?.r ?? 0
+        }
+
+        // Interpolate within the crossing bin between the previous radius (where
+        // the cumulative flux was `previousCumulative`) and this one.
+        let previousRadius     = crossing > 0 ? radial[ crossing - 1 ].r : 0
+        let previousCumulative = crossing > 0 ? cumulative[ crossing - 1 ] : 0
+        let weight             = radial[ crossing ].w
+        let fraction           = weight > 0 ? ( half - previousCumulative ) / weight : 0
+
+        return previousRadius + ( fraction * ( radial[ crossing ].r - previousRadius ) )
+    }
+}

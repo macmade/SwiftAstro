@@ -22,11 +22,20 @@
  * THE SOFTWARE.
  ******************************************************************************/
 
-import Testing
-@testable import SwiftAstro
+import Foundation
 
-struct SwiftAstroTests
+/// A strategy for detecting stars and measuring their metrics in a grayscale
+/// image.
+///
+/// This is the seam that lets the detection method vary: ``MomentStarDetector``
+/// implements the moment-based approach today, and a future PSF-fitting detector
+/// can conform without changing callers or the result types.
+public protocol StarDetecting: Sendable
 {
-    @Test func example() async throws
-    {}
+    /// Detects stars in the given linear grayscale image.
+    ///
+    /// - Parameter image: The linear grayscale image to analyze.
+    /// - Returns: The detected stars and their aggregate metrics.
+    /// - Throws: If the image cannot be analyzed.
+    func detectStars( in image: GrayscaleImage ) throws -> StarField
 }

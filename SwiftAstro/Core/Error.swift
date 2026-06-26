@@ -24,3 +24,36 @@
 
 import Foundation
 
+/// A lightweight error thrown by SwiftAstro, carrying a single human-readable
+/// message.
+///
+/// Referenced as `SwiftAstro.Error`; within the module use `Swift.Error` to mean
+/// the standard error protocol. Conforms to `LocalizedError` and
+/// `CustomStringConvertible`, so the message is surfaced both through
+/// `errorDescription` (and thus `localizedDescription`) and through string
+/// interpolation.
+public struct Error: LocalizedError, CustomStringConvertible, Equatable, Sendable
+{
+    /// The human-readable message describing the error.
+    private let message: String
+
+    /// Creates an error with the given message.
+    ///
+    /// - Parameter message: A human-readable description of the error.
+    public init( message: String )
+    {
+        self.message = message
+    }
+
+    /// A textual representation of the error, equal to its message.
+    public var description: String
+    {
+        self.message
+    }
+
+    /// A localized description of the error, equal to its message.
+    public var errorDescription: String?
+    {
+        self.message
+    }
+}
