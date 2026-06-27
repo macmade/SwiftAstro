@@ -128,9 +128,10 @@
 
     <h3>Conventions</h3>
     <ul class="tasks">
-      <li>One type per file; group under <code>StarDetection/</code> and a new <code>Imaging/</code> folder.</li>
+      <li>One type per file; group astro-specific detection code under <code>StarDetection/</code>.</li>
+      <li><strong>Generic, domain-agnostic image primitives belong in the <code>SwiftPixel</code> submodule, not in SwiftAstro</strong> — e.g. Gaussian kernels and 2D convolution, which sit alongside SwiftPixel's existing <code>Debayer</code>/<code>Scale</code>/<code>Normalize</code> processors. SwiftAstro keeps only the astronomy-specific usage (mirroring the existing <code>Debayer</code> in SwiftPixel vs. <code>BayerGrayscaleConverter</code> in SwiftAstro split). <strong>Modifying the SwiftPixel repo is acceptable</strong> when a milestone needs a new generic primitive; such a milestone then yields two commits (SwiftPixel, then the SwiftAstro submodule-pointer bump).</li>
       <li>Prefer <code>public</code> on library API; reserve <code>internal</code>/<code>private</code> for genuine implementation details.</li>
-      <li>Every added/removed file kept in sync in <strong>both</strong> <code>SwiftAstro.xcodeproj</code> and the SwiftPM target; green under both <code>xcodebuild test</code> and <code>swift test</code>.</li>
+      <li>Every added/removed file kept in sync with its package's Xcode project — <code>SwiftAstro.xcodeproj</code> and/or <code>SwiftPixel.xcodeproj</code> — and the SwiftPM target; green under both <code>xcodebuild test</code> and <code>swift test</code> for each affected package.</li>
       <li>Document all types/members; avoid raw loops; one fix at a time.</li>
     </ul>
 
@@ -165,7 +166,7 @@
     <h2>Milestones</h2>
 
     <details class="ms" open>
-      <summary><span class="ms-id">M1</span><span class="ms-title">Imaging primitives: Gaussian kernel + Accelerate convolution</span><span class="cap cap-todo">Not started</span></summary>
+      <summary><span class="ms-id">M1</span><span class="ms-title">Imaging primitives: Gaussian kernel + Accelerate convolution</span><span class="cap cap-done">Completed</span></summary>
       <div class="ms-body">
         <h5>Goal</h5>
         <p>A self-contained, tested convolution facility producing the zero-sum matched-filter response, so the detector can rely on it. Establishes the new <code>Imaging/</code> folder and the Accelerate dependency.</p>
@@ -176,10 +177,21 @@
           <li>Add files to <code>SwiftAstro.xcodeproj</code> and confirm SwiftPM picks them up.</li>
           <li>Unit tests: kernel sums ≈ 0 and is symmetric; flat field → ≈ 0 response; delta → ≈ kernel; known Gaussian blob → expected peak.</li>
         </ul>
-        <div class="fieldline"><span class="k">Status:</span> <span class="cap cap-todo">Not started</span></div>
-        <div class="fieldline"><span class="k">Completed:</span> <span class="empty">—</span></div>
-        <h5>Implementation notes</h5><p class="empty">—</p>
-        <h5>Review comments</h5><p class="empty">—</p>
+        <div class="fieldline"><span class="k">Status:</span> <span class="cap cap-done">Completed</span></div>
+        <div class="fieldline"><span class="k">Completed:</span> 2026-06-27</div>
+        <h5>Implementation notes</h5>
+        <ul class="tasks">
+          <li>Added a new <code>SwiftAstro/Imaging/</code> folder with <code>GaussianKernel.swift</code> and <code>Convolution.swift</code>, both <code>public</code>, and the matching test folder <code>SwiftAstroTests/Imaging/</code>. All four files were added to <code>SwiftAstro.xcodeproj</code> (new <code>Imaging</code> groups in both targets) and are picked up automatically by SwiftPM.</li>
+          <li><code>GaussianKernel(sigma:radiusInSigmas:)</code> samples a normalized isotropic Gaussian over an odd square footprint (<code>size = 2·radius + 1</code>, <code>radius = ⌈radiusInSigmas·σ⌉</code>, clamped to ≥ 1; <code>radiusInSigmas</code> defaults to 2). It exposes <code>values</code> (sum ≈ 1) and <code>zeroSumValues</code> (the same weights with the mean subtracted, sum ≈ 0).</li>
+          <li><code>Convolution.zeroSumResponse(of:kernel:)</code> produces the matched-filter response. <strong>Design choice / deviation from the plan:</strong> rather than two literal separable passes (Gaussian blur then a box-mean blur), it runs a <em>single</em> 2D convolution with the zero-sum kernel. By linearity, convolving with <code>(Gaussian − mean)</code> <em>is</em> exactly "Gaussian blur minus box-mean blur" — same result, simpler code — and the kernels are tiny (≈ 7–11 px), so the O(k²) cost is negligible. Heavy math runs on Accelerate via <code>vDSP.convolve</code> (the <code>Double</code> 2D overload, confirmed present in the local SDK <code>Accelerate.swiftinterface</code>).</li>
+          <li>Edge handling is done here, not left to vDSP: the input is padded by replicating its border pixels, convolved, then cropped back to size. This makes the central result independent of vDSP's own border policy and gives a clean ≈ 0 response to a flat field right up to the edges (verified by the flat-field test passing on all pixels including borders).</li>
+          <li>8 tests, all green under both <code>swift test</code> and <code>xcodebuild test</code>: kernel sums to 1, zero-sum sums to 0, symmetric, centre is the max, odd square footprint; flat field → ≈ 0 everywhere, a delta reproduces the (amplitude-scaled) zero-sum kernel (confirming centering + edge-extend), and a matched Gaussian blob peaks exactly at its centre.</li>
+          <li><strong>Post-review relocation (see Review comments):</strong> both files and their tests were moved out of SwiftAstro into the <code>SwiftPixel</code> submodule as generic primitives — <code>SwiftPixel/SwiftPixel/GaussianKernel.swift</code> and <code>Convolution.swift</code>, with tests <code>SwiftPixelTests/GaussianKernel.swift</code> and <code>Convolution.swift</code> (renamed to SwiftPixel's <code>Test_&lt;Type&gt;</code> convention and rewritten to build fixtures inline rather than via SwiftAstro's <code>SyntheticStarField</code>). Docs were generalized (no more "star detector" wording). The new <code>SwiftAstro/Imaging/</code> folder was removed; <code>SwiftAstro.xcodeproj</code> reverted. Files added to <code>SwiftPixel.xcodeproj</code>. Both packages green under <code>swift test</code> and <code>xcodebuild test</code>. The M4 detector will <code>import SwiftPixel</code> and call <code>Convolution.zeroSumResponse</code>.</li>
+        </ul>
+        <h5>Review comments</h5>
+        <ul class="tasks">
+          <li>These imaging primitives are generic, so they should live in the <code>SwiftPixel</code> submodule rather than SwiftAstro. The plan's conventions were updated to state that generic, domain-agnostic image code goes into SwiftPixel and that modifying the SwiftPixel repo is acceptable for future milestones that need new generic primitives.</li>
+        </ul>
       </div>
     </details>
 
