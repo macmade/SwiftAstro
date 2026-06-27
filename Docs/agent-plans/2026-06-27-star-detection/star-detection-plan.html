@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SwiftAstro — Star Detection Rewrite</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #171a21;
+    --panel-2: #1d212b;
+    --border: #2a2f3a;
+    --text: #e6e9ef;
+    --muted: #9aa3b2;
+    --accent: #5aa9ff;
+    --accent-soft: #1b3656;
+    --green: #4cd07d;
+    --amber: #f0b429;
+    --red: #ff6b6b;
+    --purple: #b78bff;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+    font-size: 15px;
+  }
+  header.page {
+    padding: 36px 40px 28px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #11151d, #0f1115);
+  }
+  header.page h1 { margin: 0 0 6px; font-size: 27px; letter-spacing: -0.4px; }
+  header.page .sub { color: var(--muted); font-size: 14px; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 40px 80px; }
+  section.block { margin-top: 38px; }
+  h2 { font-size: 20px; margin: 0 0 12px; letter-spacing: -0.2px; }
+  h3 { font-size: 16px; margin: 22px 0 8px; }
+  a { color: var(--accent); }
+  code, .mono { font-family: var(--mono); font-size: 0.9em; }
+  code { background: var(--panel-2); padding: 1px 5px; border-radius: 5px; }
+  .grid-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin: 18px 0;
+  }
+  .meta-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+  .meta-card h4 { margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); }
+  .meta-card p { margin: 0; font-size: 14px; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 4px 20px; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .qa { margin: 14px 0; }
+  .qa .q { font-weight: 600; }
+  .qa .a { color: var(--muted); margin: 2px 0 0; }
+  .cap {
+    display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.4px;
+    padding: 3px 10px; border-radius: 999px; border: 1px solid transparent; text-transform: uppercase;
+  }
+  .cap-todo { background: rgba(154,163,178,.13); color: var(--muted); border-color: rgba(154,163,178,.30); }
+  .cap-prog { background: rgba(240,180,41,.13); color: var(--amber); border-color: rgba(240,180,41,.35); }
+  .cap-done { background: rgba(76,208,125,.14); color: var(--green); border-color: rgba(76,208,125,.35); }
+  details.ms { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; margin: 12px 0; overflow: hidden; }
+  details.ms[open] { border-color: #36506f; }
+  details.ms > summary { list-style: none; cursor: pointer; padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
+  details.ms > summary::-webkit-details-marker { display: none; }
+  .ms-id { font-family: var(--mono); font-size: 12px; color: var(--accent); background: var(--accent-soft); padding: 2px 8px; border-radius: 6px; flex: 0 0 auto; }
+  .ms-title { font-weight: 600; flex: 1 1 auto; }
+  .ms-body { padding: 0 16px 16px; border-top: 1px solid var(--border); }
+  .ms-body h5 { margin: 16px 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); }
+  ul.tasks { list-style: none; padding-left: 0; margin: 6px 0; }
+  ul.tasks li { padding: 3px 0 3px 26px; position: relative; }
+  ul.tasks li::before { content: "☐"; position: absolute; left: 0; color: var(--muted); }
+  .fieldline { margin: 6px 0; font-size: 14px; }
+  .fieldline .k { color: var(--muted); }
+  .empty { color: var(--muted); font-style: italic; }
+</style>
+</head>
+<body>
+<header class="page">
+  <h1>SwiftAstro — Star Detection Rewrite</h1>
+  <div class="sub">Matched-filter detection + per-star Gaussian fit, replacing the moment/PSF detectors</div>
+</header>
+<div class="wrap">
+
+  <section class="block">
+    <div class="grid-meta">
+      <div class="meta-card"><h4>Generated</h4><p>2026-06-27</p></div>
+      <div class="meta-card"><h4>Source</h4><p>Brainstorming design session (embedded in this plan)</p></div>
+      <div class="meta-card"><h4>Repo</h4><p>SwiftAstro</p></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>Overview</h2>
+    <div class="intro">
+      <p>The current <code>MomentStarDetector</code> thresholds the whole image at <code>median + σ·noise</code>, groups connected above-threshold pixels, and keeps blobs by pixel count. On real frames this latches onto noise speckles and nebulosity edges rather than stars: on a deep M42 stack the detections trace the nebula's threshold contour as a green ring, and on M35 thousands of sub-pixel noise clusters are reported as stars (median HFR ≈ 1.25 px). A global threshold fundamentally cannot separate point sources from extended nebulosity or from a near-flat noise floor in a deep stack.</p>
+      <p>This plan replaces it with a single DAOFIND-style detector: convolve with a <strong>zero-sum Gaussian matched filter</strong> (no response to smooth backgrounds — kills the nebula ring), find local-maxima peaks above a noise-relative threshold, apply <strong>sharpness and roundness</strong> cuts (kills noise speckles and elongated artifacts), then <strong>measure each survivor with a 2D elliptical Gaussian fit</strong> for accurate centroid/FWHM/eccentricity, with HFR measured empirically. The matched-filter scale (expected FWHM) is <strong>auto-estimated per image</strong>, not configured. Heavy pixel math runs on Accelerate (<code>vImage</code>/<code>vDSP</code>). The <code>MomentStarDetector</code> and the <code>PSFStarDetector</code> stub are removed; the moment math survives as an internal <code>StarMoments</code> helper used for the fit's initial guess and HFR.</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>Questions &amp; answers</h2>
+    <div class="panel">
+      <div class="qa"><p class="q">Q: What should the detector optimize for?</p><p class="a">A: Purity — detect only confident, well-formed point sources; reject noise, hot pixels, and nebulosity even at the cost of missing faint stars.</p></div>
+      <div class="qa"><p class="q">Q: May it use Accelerate, or must SwiftAstro stay pure-Swift/cross-platform?</p><p class="a">A: Use Accelerate (Apple-only is acceptable for this library's targets).</p></div>
+      <div class="qa"><p class="q">Q: How far on detection/measurement — matched-filter + moments, + per-star Gaussian fit, or full true PSF fitting + deblending?</p><p class="a">A: Don't want to maintain multiple algorithms. Matched-filter + per-star Gaussian fit, provided it improves accuracy and isn't slow. Remove the PSF stub and the existing detector (its math may be kept for tests).</p></div>
+      <div class="qa"><p class="q">Q: Require an expected FWHM parameter?</p><p class="a">A: No — auto-estimate it from the image (bootstrap pass), keeping an optional manual override.</p></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>Notes</h2>
+    <h3>Measured evidence (before fix)</h3>
+    <p>Run through the library's decode path (<code>FITSImageDecoder.detectionImage</code> → <code>MomentStarDetector</code>):</p>
+    <table>
+      <tr><th>Frame</th><th>bg median</th><th>noise (MAD·1.4826)</th><th>default s5/min5 → stars / median HFR</th><th>tuned s12/min25 → stars / median HFR</th></tr>
+      <tr><td>M35 (2376×2381 mono)</td><td>4920</td><td>534</td><td>9362 / 1.25 px</td><td>(noise-dominated)</td></tr>
+      <tr><td>M42 (2160×3840 debayered, 462-frame stack)</td><td>594</td><td>4.2</td><td>1031 / 1.57 px</td><td>279 / 1.95 px (still rings nebula)</td></tr>
+    </table>
+    <p>The M42 noise of 4.2 (a deep stack crushes noise) puts even a 5σ threshold ~21 counts above background, so nebulosity crosses it. Median HFR ≈ 1.25–1.6 px confirms sub-pixel noise clusters, not stars. Config tuning alone is insufficient — hence the algorithm change. The overlay's coordinate mapping was verified correct (the M42 ring aligns with the real nebula).</p>
+
+    <h3>Conventions</h3>
+    <ul class="tasks">
+      <li>One type per file; group under <code>StarDetection/</code> and a new <code>Imaging/</code> folder.</li>
+      <li>Prefer <code>public</code> on library API; reserve <code>internal</code>/<code>private</code> for genuine implementation details.</li>
+      <li>Every added/removed file kept in sync in <strong>both</strong> <code>SwiftAstro.xcodeproj</code> and the SwiftPM target; green under both <code>xcodebuild test</code> and <code>swift test</code>.</li>
+      <li>Document all types/members; avoid raw loops; one fix at a time.</li>
+    </ul>
+
+    <h3>Detector pipeline (target)</h3>
+    <ol>
+      <li>Validate single-channel, non-empty.</li>
+      <li><strong>Auto-estimate FWHM</strong>: robustly threshold for the brightest obvious stars, size via moments, take the median (skipped if a manual override is set).</li>
+      <li>Build a truncated <strong>zero-sum Gaussian kernel</strong> from σ = FWHM / 2.3548 over ~2σ radius.</li>
+      <li><strong>Convolve</strong> (separable Gaussian via vImage, minus a box-mean to realize the zero-sum response).</li>
+      <li>Robust convolved-noise σ<sub>c</sub> = MAD·1.4826; threshold at <code>thresholdSigma · σ<sub>c</sub></code>.</li>
+      <li><strong>Peak detection</strong>: strict 8-neighborhood local maxima above threshold; enforce min separation (brighter peak wins).</li>
+      <li><strong>Sharpness</strong> (reject broad blobs / single hot pixels) and <strong>roundness</strong> (reject elongated) cuts; reject within edge margin.</li>
+      <li><strong>Measure</strong>: moments initial guess → elliptical 2D Gaussian fit (Levenberg–Marquardt); drop non-converged/non-physical fits. FWHM &amp; eccentricity from σ<sub>major</sub>/σ<sub>minor</sub>/θ; HFR empirical around the fitted center.</li>
+      <li>Return <code>StarField</code>.</li>
+    </ol>
+
+    <h3>Default configuration</h3>
+    <table>
+      <tr><th>Parameter</th><th>Default</th><th>Purpose</th></tr>
+      <tr><td><code>expectedFWHM</code></td><td><code>nil</code> (auto)</td><td>Matched-filter scale; manual override when non-nil</td></tr>
+      <tr><td><code>thresholdSigma</code></td><td>5.0</td><td>Detection threshold on the convolved image, in noise σ</td></tr>
+      <tr><td><code>sharpnessLow</code> / <code>sharpnessHigh</code></td><td>0.2 / 1.0</td><td>Reject broad blobs / single hot pixels</td></tr>
+      <tr><td><code>roundnessLimit</code></td><td>0.5</td><td>Reject elongated artifacts, trails</td></tr>
+      <tr><td><code>minSeparation</code></td><td>= estimated FWHM</td><td>Deduplicate adjacent peaks</td></tr>
+      <tr><td><code>edgeMargin</code></td><td>4 px</td><td>Reject clipped profiles at the border</td></tr>
+      <tr><td><code>saturationLevel</code></td><td><code>nil</code></td><td>Optional: drop bloomed stars at/above this level</td></tr>
+    </table>
+    <p class="empty">Defaults are starting points; final values are locked in by tests during Milestone 5.</p>
+  </section>
+
+  <section class="block">
+    <h2>Milestones</h2>
+
+    <details class="ms" open>
+      <summary><span class="ms-id">M1</span><span class="ms-title">Imaging primitives: Gaussian kernel + Accelerate convolution</span><span class="cap cap-todo">Not started</span></summary>
+      <div class="ms-body">
+        <h5>Goal</h5>
+        <p>A self-contained, tested convolution facility producing the zero-sum matched-filter response, so the detector can rely on it. Establishes the new <code>Imaging/</code> folder and the Accelerate dependency.</p>
+        <h5>Tasks</h5>
+        <ul class="tasks">
+          <li>Add <code>Imaging/GaussianKernel.swift</code>: truncated 2D Gaussian from σ, normalized, with a zero-sum variant (subtract footprint mean).</li>
+          <li>Add <code>Imaging/Convolution.swift</code>: separable Gaussian convolution via <code>vImage</code>/<code>vDSP</code>; helper to produce the zero-sum response (Gaussian blur minus box-mean blur).</li>
+          <li>Add files to <code>SwiftAstro.xcodeproj</code> and confirm SwiftPM picks them up.</li>
+          <li>Unit tests: kernel sums ≈ 0 and is symmetric; flat field → ≈ 0 response; delta → ≈ kernel; known Gaussian blob → expected peak.</li>
+        </ul>
+        <div class="fieldline"><span class="k">Status:</span> <span class="cap cap-todo">Not started</span></div>
+        <div class="fieldline"><span class="k">Completed:</span> <span class="empty">—</span></div>
+        <h5>Implementation notes</h5><p class="empty">—</p>
+        <h5>Review comments</h5><p class="empty">—</p>
+      </div>
+    </details>
+
+    <details class="ms">
+      <summary><span class="ms-id">M2</span><span class="ms-title">Extract StarMoments from MomentStarDetector</span><span class="cap cap-todo">Not started</span></summary>
+      <div class="ms-body">
+        <h5>Goal</h5>
+        <p>Pull the flux-weighted centroid, second moments, FWHM/eccentricity, and empirical half-flux radius out of <code>MomentStarDetector</code> into a reusable <code>StarMoments</code> helper, so the new detector reuses identical measurement math for its fit initial-guess and HFR. <code>MomentStarDetector</code> temporarily delegates to it (removed in M6).</p>
+        <h5>Tasks</h5>
+        <ul class="tasks">
+          <li>Add <code>StarDetection/StarMoments.swift</code> with centroid / second-moment / HFR / FWHM / eccentricity functions over a pixel set + background.</li>
+          <li>Refactor <code>MomentStarDetector.measure</code> to delegate to <code>StarMoments</code> (behavior-preserving).</li>
+          <li>Add a <code>StarMomentsTests</code> porting the measurement assertions; keep existing tests green.</li>
+          <li>Sync project + package; run both test runners.</li>
+        </ul>
+        <div class="fieldline"><span class="k">Status:</span> <span class="cap cap-todo">Not started</span></div>
+        <div class="fieldline"><span class="k">Completed:</span> <span class="empty">—</span></div>
+        <h5>Implementation notes</h5><p class="empty">—</p>
+        <h5>Review comments</h5><p class="empty">—</p>
+      </div>
+    </details>
+
+    <details class="ms">
+      <summary><span class="ms-id">M3</span><span class="ms-title">GaussianFit: 2D elliptical Gaussian least-squares</span><span class="cap cap-todo">Not started</span></summary>
+      <div class="ms-body">
+        <h5>Goal</h5>
+        <p>A compact Levenberg–Marquardt fit of a 2D elliptical Gaussian (amplitude, center, σ<sub>x</sub>, σ<sub>y</sub>, θ, background) over a small window, returning fitted parameters and a convergence/quality flag — the measurement upgrade over raw moments.</p>
+        <h5>Tasks</h5>
+        <ul class="tasks">
+          <li>Add <code>StarDetection/GaussianFit.swift</code>: window extraction, residual/Jacobian, LM iteration with damping, convergence + non-physical guards.</li>
+          <li>Seed initial guess from <code>StarMoments</code>.</li>
+          <li>Unit tests: recover known synthetic Gaussian params (center, σ, θ, bg) within tolerance under noise; report non-convergence on garbage.</li>
+          <li>Sync project + package; run both test runners.</li>
+        </ul>
+        <div class="fieldline"><span class="k">Status:</span> <span class="cap cap-todo">Not started</span></div>
+        <div class="fieldline"><span class="k">Completed:</span> <span class="empty">—</span></div>
+        <h5>Implementation notes</h5><p class="empty">—</p>
+        <h5>Review comments</h5><p class="empty">—</p>
+      </div>
+    </details>
+
+    <details class="ms">
+      <summary><span class="ms-id">M4</span><span class="ms-title">MatchedFilterStarDetector + Configuration</span><span class="cap cap-todo">Not started</span></summary>
+      <div class="ms-body">
+        <h5>Goal</h5>
+        <p>Assemble the full pipeline into the sole <code>StarDetecting</code> conformer, with FWHM auto-estimation and the purity cuts, validated on synthetic fixtures.</p>
+        <h5>Tasks</h5>
+        <ul class="tasks">
+          <li>Add <code>StarDetection/MatchedFilterStarDetector.swift</code> + nested <code>Configuration</code> (defaults per Notes).</li>
+          <li>Implement FWHM auto-estimation (bright-star bootstrap), kernel build, convolution, thresholding, peak detection, min-separation, sharpness/roundness cuts, edge rejection.</li>
+          <li>Measure survivors via <code>GaussianFit</code> (+ empirical HFR via <code>StarMoments</code>); drop non-converged/non-physical fits.</li>
+          <li>Tests on <code>SyntheticStarField</code>: detects planted stars (position/count); <strong>zero</strong> detections on a smooth gradient (nebulosity proxy); rejects pure noise and hot pixels; auto-estimated FWHM ≈ planted.</li>
+          <li>Sync project + package; run both test runners.</li>
+        </ul>
+        <div class="fieldline"><span class="k">Status:</span> <span class="cap cap-todo">Not started</span></div>
+        <div class="fieldline"><span class="k">Completed:</span> <span class="empty">—</span></div>
+        <h5>Implementation notes</h5><p class="empty">—</p>
+        <h5>Review comments</h5><p class="empty">—</p>
+      </div>
+    </details>
+
+    <details class="ms">
+      <summary><span class="ms-id">M5</span><span class="ms-title">Real-frame tuning &amp; validation</span><span class="cap cap-todo">Not started</span></summary>
+      <div class="ms-body">
+        <h5>Goal</h5>
+        <p>Tune the default configuration against the committed real frames and lock the behavior in with assertions that would have caught the original bug.</p>
+        <h5>Tasks</h5>
+        <ul class="tasks">
+          <li>Use a throwaway diagnostic to sweep parameters on H3.69, M35, and M42 (via <code>detectionImage</code>); record chosen defaults in the plan; remove the diagnostic.</li>
+          <li>Retarget <code>RealFrameValidationTests</code> to the new detector; keep the H3.69 median-HFR-≈3.69 assertion.</li>
+          <li>Add M42 purity assertions: bounded count and the central nebula region essentially clear of detections.</li>
+          <li>Add M35 assertions: median HFR well above 1 px; plausible count.</li>
+          <li>Confirm runtime is well under a second per frame (note timings).</li>
+        </ul>
+        <div class="fieldline"><span class="k">Status:</span> <span class="cap cap-todo">Not started</span></div>
+        <div class="fieldline"><span class="k">Completed:</span> <span class="empty">—</span></div>
+        <h5>Implementation notes</h5><p class="empty">—</p>
+        <h5>Review comments</h5><p class="empty">—</p>
+      </div>
+    </details>
+
+    <details class="ms">
+      <summary><span class="ms-id">M6</span><span class="ms-title">Remove MomentStarDetector &amp; PSFStarDetector</span><span class="cap cap-todo">Not started</span></summary>
+      <div class="ms-body">
+        <h5>Goal</h5>
+        <p>Consolidate to a single production detector: delete the now-unused detectors and their tests, leaving <code>StarMoments</code> as the surviving moment logic.</p>
+        <h5>Tasks</h5>
+        <ul class="tasks">
+          <li>Delete <code>StarDetection/PSFStarDetector.swift</code> and <code>PSFStarDetectorTests.swift</code>.</li>
+          <li>Delete <code>StarDetection/MomentStarDetector.swift</code> and retire <code>MomentStarDetectorTests</code> (assertions already covered by <code>StarMomentsTests</code> / <code>MatchedFilterStarDetector</code> tests).</li>
+          <li>Confirm no remaining references; update <code>StarDetecting</code> docs that mention the removed types.</li>
+          <li>Remove deleted files from <code>SwiftAstro.xcodeproj</code>; confirm SwiftPM build; both test runners green.</li>
+        </ul>
+        <div class="fieldline"><span class="k">Status:</span> <span class="cap cap-todo">Not started</span></div>
+        <div class="fieldline"><span class="k">Completed:</span> <span class="empty">—</span></div>
+        <h5>Implementation notes</h5><p class="empty">—</p>
+        <h5>Review comments</h5><p class="empty">—</p>
+      </div>
+    </details>
+
+  </section>
+
+  <section class="block">
+    <h2>Appendix — references</h2>
+    <ul class="tasks">
+      <li>DAOFIND: Stetson (1987), PASP 99, 191 — matched-filter detection with sharpness/roundness.</li>
+      <li><code>photutils.DAOStarFinder</code> — reference implementation of the same algorithm.</li>
+      <li>FWHM ↔ σ: FWHM = 2√(2 ln 2)·σ ≈ 2.3548·σ.</li>
+      <li>Fixtures: <code>Test Files/.../_H3.69.fits</code> (RGGB), <code>Test Files/ESA/m35_40min_blue.fits</code> (mono), M42 stack in the SwiftFITS submodule's <code>Test Files</code>.</li>
+    </ul>
+  </section>
+
+</div>
+</body>
+</html>
