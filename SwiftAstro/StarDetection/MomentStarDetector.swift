@@ -64,9 +64,6 @@ public struct MomentStarDetector: StarDetecting
         }
     }
 
-    /// For a 2D Gaussian, FWHM = 2√(2 ln 2)·σ, where σ = √((Mxx + Myy) / 2).
-    private static let fwhmPerSigma = 2 * ( 2 * Foundation.log( 2.0 ) ).squareRoot()
-
     /// The eight neighbour offsets defining 8-connectivity.
     private static let neighborOffsets = [ ( -1, -1 ), ( 0, -1 ), ( 1, -1 ), ( -1, 0 ), ( 1, 0 ), ( -1, 1 ), ( 0, 1 ), ( 1, 1 ) ]
 
@@ -234,97 +231,25 @@ public struct MomentStarDetector: StarDetecting
 
     // MARK: - Measurement
 
-    /// Measures a source's centroid, flux, HFR, FWHM and eccentricity from its
-    /// background-subtracted, flux-weighted moments.
+    /// Measures a source's centroid, flux, HFR, FWHM and eccentricity by
+    /// delegating to the shared ``StarMoments`` math.
     private static func measure( _ component: Component, in image: PixelBuffer, background: Double ) -> Star?
     {
         // The component's pixels were produced from in-bounds coordinates of a
         // single-channel buffer, so the row-major index `y · width + x` is valid.
         let samples = component.pixels.map
         {
-            pixel -> ( x: Double, y: Double, w: Double ) in
+            pixel -> ( x: Double, y: Double, value: Double ) in
 
-            let value = image.pixels[ ( pixel.y * image.width ) + pixel.x ]
-
-            return ( x: Double( pixel.x ), y: Double( pixel.y ), w: value - background )
+            ( x: Double( pixel.x ), y: Double( pixel.y ), value: image.pixels[ ( pixel.y * image.width ) + pixel.x ] )
         }
 
-        let flux = samples.reduce( 0 ) { $0 + $1.w }
-
-        guard flux > 0
+        guard let moments = StarMoments( samples: samples, background: background )
         else
         {
             return nil
         }
 
-        let cx = samples.reduce( 0 ) { $0 + ( $1.w * $1.x ) } / flux
-        let cy = samples.reduce( 0 ) { $0 + ( $1.w * $1.y ) } / flux
-
-        let moments = samples.reduce( ( xx: 0.0, yy: 0.0, xy: 0.0 ) )
-        {
-            let dx = $1.x - cx
-            let dy = $1.y - cy
-
-            return ( xx: $0.xx + ( $1.w * dx * dx ), yy: $0.yy + ( $1.w * dy * dy ), xy: $0.xy + ( $1.w * dx * dy ) )
-        }
-
-        let mxx = moments.xx / flux
-        let myy = moments.yy / flux
-        let mxy = moments.xy / flux
-
-        let fwhm         = Self.fwhmPerSigma * Swift.max( ( mxx + myy ) / 2, 0 ).squareRoot()
-        let eccentricity = Self.eccentricity( mxx: mxx, myy: myy, mxy: mxy )
-        let hfr          = Self.halfFluxRadius( samples: samples, cx: cx, cy: cy, flux: flux )
-
-        return Star( x: cx, y: cy, flux: flux, hfr: hfr, fwhm: fwhm, eccentricity: eccentricity )
-    }
-
-    /// The eccentricity of the moment ellipse: `√(1 − λ₂/λ₁)` for eigenvalues
-    /// `λ₁ ≥ λ₂` of `[[Mxx, Mxy], [Mxy, Myy]]`. `0` for a round source.
-    private static func eccentricity( mxx: Double, myy: Double, mxy: Double ) -> Double
-    {
-        let mean         = ( mxx + myy ) / 2
-        let difference   = ( mxx - myy ) / 2
-        let discriminant = ( ( difference * difference ) + ( mxy * mxy ) ).squareRoot()
-        let major        = mean + discriminant
-        let minor        = mean - discriminant
-
-        guard major > 0
-        else
-        {
-            return 0
-        }
-
-        return Swift.max( 0, 1 - ( minor / major ) ).squareRoot()
-    }
-
-    /// The radius around the centroid containing half the source's flux, found by
-    /// accumulating flux in order of increasing radius and interpolating to the
-    /// 50% point.
-    private static func halfFluxRadius( samples: [ ( x: Double, y: Double, w: Double ) ], cx: Double, cy: Double, flux: Double ) -> Double
-    {
-        let radial = samples.map
-        {
-            ( r: ( ( ( $0.x - cx ) * ( $0.x - cx ) ) + ( ( $0.y - cy ) * ( $0.y - cy ) ) ).squareRoot(), w: $0.w )
-        }
-        .sorted { $0.r < $1.r }
-
-        let half       = flux / 2
-        let cumulative = radial.reduce( into: [ Double ]() ) { $0.append( ( $0.last ?? 0 ) + $1.w ) }
-
-        guard let crossing = cumulative.firstIndex( where: { $0 >= half } )
-        else
-        {
-            return radial.last?.r ?? 0
-        }
-
-        // Interpolate within the crossing bin between the previous radius (where
-        // the cumulative flux was `previousCumulative`) and this one.
-        let previousRadius     = crossing > 0 ? radial[ crossing - 1 ].r : 0
-        let previousCumulative = crossing > 0 ? cumulative[ crossing - 1 ] : 0
-        let weight             = radial[ crossing ].w
-        let fraction           = weight > 0 ? ( half - previousCumulative ) / weight : 0
-
-        return previousRadius + ( fraction * ( radial[ crossing ].r - previousRadius ) )
+        return Star( x: moments.x, y: moments.y, flux: moments.flux, hfr: moments.hfr, fwhm: moments.fwhm, eccentricity: moments.eccentricity )
     }
 }

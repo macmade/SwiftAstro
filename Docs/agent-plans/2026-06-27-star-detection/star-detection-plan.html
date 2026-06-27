@@ -196,7 +196,7 @@
     </details>
 
     <details class="ms">
-      <summary><span class="ms-id">M2</span><span class="ms-title">Extract StarMoments from MomentStarDetector</span><span class="cap cap-todo">Not started</span></summary>
+      <summary><span class="ms-id">M2</span><span class="ms-title">Extract StarMoments from MomentStarDetector</span><span class="cap cap-done">Completed</span></summary>
       <div class="ms-body">
         <h5>Goal</h5>
         <p>Pull the flux-weighted centroid, second moments, FWHM/eccentricity, and empirical half-flux radius out of <code>MomentStarDetector</code> into a reusable <code>StarMoments</code> helper, so the new detector reuses identical measurement math for its fit initial-guess and HFR. <code>MomentStarDetector</code> temporarily delegates to it (removed in M6).</p>
@@ -207,9 +207,16 @@
           <li>Add a <code>StarMomentsTests</code> porting the measurement assertions; keep existing tests green.</li>
           <li>Sync project + package; run both test runners.</li>
         </ul>
-        <div class="fieldline"><span class="k">Status:</span> <span class="cap cap-todo">Not started</span></div>
-        <div class="fieldline"><span class="k">Completed:</span> <span class="empty">—</span></div>
-        <h5>Implementation notes</h5><p class="empty">—</p>
+        <div class="fieldline"><span class="k">Status:</span> <span class="cap cap-done">Completed</span></div>
+        <div class="fieldline"><span class="k">Completed:</span> 2026-06-27</div>
+        <h5>Implementation notes</h5>
+        <ul class="tasks">
+          <li>Added <code>SwiftAstro/StarDetection/StarMoments.swift</code>: a <code>public</code> failable struct <code>StarMoments(samples:background:)</code> that takes a source's samples — each a pixel position and its raw value — plus the background, and computes the flux-weighted centroid (<code>x</code>, <code>y</code>), total <code>flux</code>, the second moments (<code>mxx</code>, <code>myy</code>, <code>mxy</code>), <code>fwhm</code>, <code>eccentricity</code> and empirical <code>hfr</code>. Returns <code>nil</code> when the background-subtracted flux is not positive (centroid undefined). The <code>fwhmPerSigma</code> constant and the <code>eccentricity</code>/<code>halfFluxRadius</code> helpers moved here verbatim.</li>
+          <li>API choice: it takes raw <code>value</code> + <code>background</code> (subtracting internally) rather than pre-subtracted weights, so callers needn't pre-process. The second moments are exposed publicly so M3/M4 can seed the Gaussian-fit initial guess (scale/orientation) from them, as the plan intends.</li>
+          <li>Refactored <code>MomentStarDetector.measure</code> to build <code>(x, y, value)</code> samples and delegate to <code>StarMoments</code>, mapping the result into a <code>Star</code>. Removed the now-duplicated math from the detector (kept <code>neighborOffsets</code>, still used by connected-components). Behavior-preserving — all existing <code>MomentStarDetectorTests</code> stay green. <code>MomentStarDetector</code> is removed in M6.</li>
+          <li>Added <code>StarMomentsTests</code> exercising the math directly on synthetic Gaussian sample grids: round-star centroid/FWHM/HFR/≈0 eccentricity, elongated-star eccentricity ≈ 0.866, centroid tracking an offset star, and <code>nil</code> when there is no flux.</li>
+          <li>Both files added to <code>SwiftAstro.xcodeproj</code>. Green under both <code>swift test</code> (35 tests) and <code>xcodebuild test</code>.</li>
+        </ul>
         <h5>Review comments</h5><p class="empty">—</p>
       </div>
     </details>
