@@ -54,10 +54,10 @@ struct DeterministicNoise
 struct SyntheticStarField
 {
     /// The image width, in pixels.
-    let width:      Int
+    let width: Int
 
     /// The image height, in pixels.
-    let height:     Int
+    let height: Int
 
     /// The flat background level the stars sit on.
     let background: Double
