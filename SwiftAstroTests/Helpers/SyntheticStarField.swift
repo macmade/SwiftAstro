@@ -122,6 +122,30 @@ struct SyntheticStarField
         self.addingStar( cx: cx, cy: cy, peak: peak, sigmaX: sigma, sigmaY: sigma )
     }
 
+    /// Returns a copy with a smooth linear brightness gradient added — a
+    /// stand-in for extended nebulosity that a point-source detector must ignore.
+    ///
+    /// - Parameters:
+    ///   - scaleX: The added brightness per pixel along the x axis.
+    ///   - scaleY: The added brightness per pixel along the y axis.
+    /// - Returns: A copy with the gradient added.
+    func addingGradient( scaleX: Double, scaleY: Double ) -> SyntheticStarField
+    {
+        var copy = self
+
+        copy.pixels = self.pixels.indices.map
+        {
+            index in
+
+            let x = index % self.width
+            let y = index / self.width
+
+            return self.pixels[ index ] + ( Double( x ) * scaleX ) + ( Double( y ) * scaleY )
+        }
+
+        return copy
+    }
+
     /// Returns a copy with reproducible uniform noise of the given amplitude
     /// added.
     ///

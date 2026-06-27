@@ -134,6 +134,31 @@ public struct StarMoments: Sendable
         return Swift.max( 0, 1 - ( minor / major ) ).squareRoot()
     }
 
+    /// The empirical half-flux radius of a source measured about an explicit
+    /// centre — typically a Gaussian-fit centre rather than the moment centroid.
+    ///
+    /// - Parameters:
+    ///   - samples:    The source's samples: each a pixel position and its raw
+    ///                 (not background-subtracted) value.
+    ///   - background: The background level subtracted to form the flux weights.
+    ///   - cx:         The centre column to measure radii from.
+    ///   - cy:         The centre row to measure radii from.
+    /// - Returns: The half-flux radius, in pixels, or `0` when there is no
+    ///   positive flux.
+    public static func halfFluxRadius( samples: [ ( x: Double, y: Double, value: Double ) ], background: Double, aroundX cx: Double, y cy: Double ) -> Double
+    {
+        let weighted = samples.map { ( x: $0.x, y: $0.y, w: $0.value - background ) }
+        let flux     = weighted.reduce( 0 ) { $0 + $1.w }
+
+        guard flux > 0
+        else
+        {
+            return 0
+        }
+
+        return self.halfFluxRadius( samples: weighted, cx: cx, cy: cy, flux: flux )
+    }
+
     /// The radius around the centroid containing half the source's flux, found by
     /// accumulating flux in order of increasing radius and interpolating to the
     /// 50% point.

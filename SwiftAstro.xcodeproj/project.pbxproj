@@ -41,6 +41,8 @@
 		FE00000000000000000000D4 /* StarMomentsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE00000000000000000000D3 /* StarMomentsTests.swift */; };
 		FE00000000000000000000E2 /* GaussianFit+StarMoments.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE00000000000000000000E1 /* GaussianFit+StarMoments.swift */; };
 		FE00000000000000000000E4 /* GaussianFitStarMomentsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE00000000000000000000E3 /* GaussianFitStarMomentsTests.swift */; };
+		FE00000000000000000000F2 /* MatchedFilterStarDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE00000000000000000000F1 /* MatchedFilterStarDetector.swift */; };
+		FE00000000000000000000F4 /* MatchedFilterStarDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE00000000000000000000F3 /* MatchedFilterStarDetectorTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -170,6 +172,8 @@
 		FE00000000000000000000D3 /* StarMomentsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StarMomentsTests.swift; sourceTree = "<group>"; };
 		FE00000000000000000000E1 /* GaussianFit+StarMoments.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "GaussianFit+StarMoments.swift"; sourceTree = "<group>"; };
 		FE00000000000000000000E3 /* GaussianFitStarMomentsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GaussianFitStarMomentsTests.swift; sourceTree = "<group>"; };
+		FE00000000000000000000F1 /* MatchedFilterStarDetector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MatchedFilterStarDetector.swift; sourceTree = "<group>"; };
+		FE00000000000000000000F3 /* MatchedFilterStarDetectorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MatchedFilterStarDetectorTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -436,6 +440,7 @@
 				65743BE21FA6DF080957A92C /* StarDetecting.swift */,
 				FE00000000000000000000D1 /* StarMoments.swift */,
 				FE00000000000000000000E1 /* GaussianFit+StarMoments.swift */,
+				FE00000000000000000000F1 /* MatchedFilterStarDetector.swift */,
 				C1E89567E9D164FFEBBDCF55 /* MomentStarDetector.swift */,
 				5C193831A7D605CC81691C7F /* PSFStarDetector.swift */,
 			);
@@ -480,6 +485,7 @@
 				C13643E128A2102A6EB107EE /* StarFieldTests.swift */,
 				FE00000000000000000000D3 /* StarMomentsTests.swift */,
 				FE00000000000000000000E3 /* GaussianFitStarMomentsTests.swift */,
+				FE00000000000000000000F3 /* MatchedFilterStarDetectorTests.swift */,
 				228C6E42E5167F2887BAF666 /* MomentStarDetectorTests.swift */,
 				1605399E95C4DCA7D1F98ACE /* PSFStarDetectorTests.swift */,
 				FA0000000000000000000025 /* RealFrameValidationTests.swift */,
@@ -644,6 +650,7 @@
 				954CE790A4B63D459117E5E3 /* StarDetecting.swift in Sources */,
 				FE00000000000000000000D2 /* StarMoments.swift in Sources */,
 				FE00000000000000000000E2 /* GaussianFit+StarMoments.swift in Sources */,
+				FE00000000000000000000F2 /* MatchedFilterStarDetector.swift in Sources */,
 				B7ECAB765F147AC7921DF75C /* MomentStarDetector.swift in Sources */,
 				FA0000000000000000000020 /* BayerGrayscaleConverter.swift in Sources */,
 				FA0000000000000000000031 /* FITSImageDecoder.swift in Sources */,
@@ -659,6 +666,7 @@
 				FA161376C312A18994FE2710 /* StarFieldTests.swift in Sources */,
 				FE00000000000000000000D4 /* StarMomentsTests.swift in Sources */,
 				FE00000000000000000000E4 /* GaussianFitStarMomentsTests.swift in Sources */,
+				FE00000000000000000000F4 /* MatchedFilterStarDetectorTests.swift in Sources */,
 				FA0000000000000000000018 /* FITSTestImageTests.swift in Sources */,
 				FA000000000000000000001A /* FITSTestImage.swift in Sources */,
 				FA0000000000000000000023 /* BayerGrayscaleConverterTests.swift in Sources */,
