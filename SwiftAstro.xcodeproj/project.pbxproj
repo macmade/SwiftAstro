@@ -17,6 +17,7 @@
 		FA000000000000000000001C /* m35_40min_blue.fits in Resources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000001B /* m35_40min_blue.fits */; };
 		FA0000000000000000000020 /* BayerGrayscaleConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000001F /* BayerGrayscaleConverter.swift */; };
 		FA0000000000000000000023 /* BayerGrayscaleConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000022 /* BayerGrayscaleConverterTests.swift */; };
+		FA0000000000000000000026 /* RealFrameValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000025 /* RealFrameValidationTests.swift */; };
 		FA0000000000000000000018 /* FITSTestImageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000017 /* FITSTestImageTests.swift */; };
 		FA000000000000000000001A /* FITSTestImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000019 /* FITSTestImage.swift */; };
 		05E974CA2FE921070078F616 /* SwiftAstro.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05E974C02FE921070078F616 /* SwiftAstro.framework */; };
@@ -89,6 +90,7 @@
 		FA000000000000000000001B /* m35_40min_blue.fits */ = {isa = PBXFileReference; lastKnownFileType = file; path = m35_40min_blue.fits; sourceTree = "<group>"; };
 		FA000000000000000000001F /* BayerGrayscaleConverter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BayerGrayscaleConverter.swift; sourceTree = "<group>"; };
 		FA0000000000000000000022 /* BayerGrayscaleConverterTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BayerGrayscaleConverterTests.swift; sourceTree = "<group>"; };
+		FA0000000000000000000025 /* RealFrameValidationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RealFrameValidationTests.swift; sourceTree = "<group>"; };
 		FA0000000000000000000017 /* FITSTestImageTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FITSTestImageTests.swift; sourceTree = "<group>"; };
 		FA0000000000000000000019 /* FITSTestImage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FITSTestImage.swift; sourceTree = "<group>"; };
 		05E974C02FE921070078F616 /* SwiftAstro.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SwiftAstro.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -461,6 +463,7 @@
 				C13643E128A2102A6EB107EE /* StarFieldTests.swift */,
 				228C6E42E5167F2887BAF666 /* MomentStarDetectorTests.swift */,
 				1605399E95C4DCA7D1F98ACE /* PSFStarDetectorTests.swift */,
+				FA0000000000000000000025 /* RealFrameValidationTests.swift */,
 			);
 			name = StarDetection;
 			path = StarDetection;
@@ -636,6 +639,7 @@
 				FA000000000000000000001A /* FITSTestImage.swift in Sources */,
 				FA0000000000000000000023 /* BayerGrayscaleConverterTests.swift in Sources */,
 				CF833BB9FEF55B932183FE19 /* MomentStarDetectorTests.swift in Sources */,
+				FA0000000000000000000026 /* RealFrameValidationTests.swift in Sources */,
 				DFDBCD03B303981BB42E2ABD /* PSFStarDetectorTests.swift in Sources */,
 				7C438F7DED2E13527A24B0BE /* SyntheticStarField.swift in Sources */,
 				87D9441BEB62F18501820C7F /* ErrorTests.swift in Sources */,
