@@ -38,30 +38,21 @@ import SwiftPixel
 /// leaves to the caller.
 enum FITSTestImage
 {
-    /// The base name (without extension) of the committed real light frame, whose
-    /// filename encodes the acquisition software's reported half-flux radius
-    /// (`H3.69`).
+    /// The base name (without extension) of the real one-shot-colour light frame,
+    /// whose filename encodes the acquisition software's reported half-flux radius
+    /// (`H3.69`). A RGGB Bayer mosaic from a ZWO ASI585MC Pro.
     static let realLightFrameName = "2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69"
 
-    /// Anchors `Bundle(for:)` to the test bundle in non-SwiftPM builds.
+    /// The base name (without extension) of the ESA M35 reference frame
+    /// (`m35_40min_blue.fits`): a clean, non-mosaiced single-channel star field.
+    static let esaM35BlueFrameName = "m35_40min_blue"
+
+    /// Anchors `Bundle(for:)` to the test bundle in Xcode builds.
     private final class BundleToken
     {}
 
-    /// The bundle holding the committed FITS resources.
-    ///
-    /// Under SwiftPM the resources are reachable through the generated
-    /// `Bundle.module`; under an Xcode build (where `Bundle.module` is not
-    /// synthesized) they live in the test bundle, located via ``BundleToken``.
-    static var resourceBundle: Bundle
-    {
-        #if SWIFT_PACKAGE
-            return Bundle.module
-        #else
-            return Bundle( for: BundleToken.self )
-        #endif
-    }
-
-    /// Loads the committed real light frame as a single-channel pixel buffer.
+    /// Loads the real one-shot-colour light frame as a single-channel pixel
+    /// buffer (the raw Bayer mosaic).
     ///
     /// - Returns: The frame's linear samples as a ``SwiftPixel/PixelBuffer``.
     /// - Throws: An error if the resource is missing or cannot be decoded.
@@ -70,8 +61,22 @@ enum FITSTestImage
         try self.load( resource: self.realLightFrameName )
     }
 
-    /// Locates a bundled resource, tolerating both the SwiftPM (`Resources`
-    /// subdirectory, via `.copy`) and Xcode (bundle root) resource layouts.
+    /// Loads the ESA M35 reference frame as a single-channel pixel buffer.
+    ///
+    /// - Returns: The frame's linear samples as a ``SwiftPixel/PixelBuffer``.
+    /// - Throws: An error if the resource is missing or cannot be decoded.
+    static func esaM35Blue() throws -> PixelBuffer
+    {
+        try self.load( resource: self.esaM35BlueFrameName )
+    }
+
+    /// Locates a committed FITS test file by name.
+    ///
+    /// Mirrors how the `SwiftFITS` submodule locates its own fixtures: the heavy
+    /// `Test Files` frames live at the repository root (outside any target), so
+    /// under SwiftPM they are found relative to this source file's compile-time
+    /// path; in an Xcode build they are bundled into the test target and found
+    /// through ``BundleToken``.
     ///
     /// - Parameters:
     ///   - resource: The resource base name.
@@ -80,19 +85,38 @@ enum FITSTestImage
     /// - Throws: ``SwiftAstro/Error`` if the resource cannot be found.
     static func url( resource: String, extension ext: String = "fits" ) throws -> URL
     {
-        let bundle = self.resourceBundle
+        #if SWIFT_PACKAGE
 
-        if let url = bundle.url( forResource: resource, withExtension: ext )
-        {
+            // #filePath -> Helpers -> SwiftAstroTests -> repository root -> Test Files.
+            let root = URL( fileURLWithPath: #filePath )
+                .deletingLastPathComponent()
+                .deletingLastPathComponent()
+                .deletingLastPathComponent()
+                .appendingPathComponent( "Test Files" )
+
+            let target = "\( resource ).\( ext )"
+
+            if let enumerator = FileManager.default.enumerator( at: root, includingPropertiesForKeys: nil )
+            {
+                for case let url as URL in enumerator where url.lastPathComponent == target
+                {
+                    return url
+                }
+            }
+
+            throw Error( message: "Missing FITS test file: \( target ) under \( root.path )" )
+
+        #else
+
+            guard let url = Bundle( for: BundleToken.self ).url( forResource: resource, withExtension: ext )
+            else
+            {
+                throw Error( message: "Missing bundled FITS test file: \( resource ).\( ext )" )
+            }
+
             return url
-        }
 
-        if let url = bundle.url( forResource: resource, withExtension: ext, subdirectory: "Resources" )
-        {
-            return url
-        }
-
-        throw Error( message: "Missing bundled FITS resource: \( resource ).\( ext )" )
+        #endif
     }
 
     /// Loads a bundled FITS resource as a single-channel pixel buffer.

@@ -53,10 +53,7 @@ let package = Package(
                 .product( name: "SwiftFITS",  package: "SwiftFITS"  ),
                 .product( name: "SwiftPixel", package: "SwiftPixel" ),
             ],
-            path: "SwiftAstroTests",
-            resources: [
-                .copy( "Resources/2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits" ),
-            ]
+            path: "SwiftAstroTests"
         ),
     ]
 )

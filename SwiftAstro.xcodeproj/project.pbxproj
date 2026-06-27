@@ -14,6 +14,7 @@
 		FA0000000000000000000011 /* SwiftFITS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000009 /* SwiftFITS.framework */; };
 		FA0000000000000000000012 /* SwiftPixel.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000007 /* SwiftPixel.framework */; };
 		FA0000000000000000000016 /* 2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits in Resources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000014 /* 2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits */; };
+		FA000000000000000000001C /* m35_40min_blue.fits in Resources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000001B /* m35_40min_blue.fits */; };
 		FA0000000000000000000018 /* FITSTestImageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000017 /* FITSTestImageTests.swift */; };
 		FA000000000000000000001A /* FITSTestImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000019 /* FITSTestImage.swift */; };
 		05E974CA2FE921070078F616 /* SwiftAstro.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05E974C02FE921070078F616 /* SwiftAstro.framework */; };
@@ -83,6 +84,7 @@
 		FA0000000000000000000002 /* SwiftUtilities.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftUtilities.xcodeproj; path = "Submodules/SwiftPixel/Submodules/SwiftUtilities/SwiftUtilities.xcodeproj"; sourceTree = "<group>"; };
 		FA0000000000000000000003 /* SwiftFITS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftFITS.xcodeproj; path = Submodules/SwiftFITS/SwiftFITS.xcodeproj; sourceTree = "<group>"; };
 		FA0000000000000000000014 /* 2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits */ = {isa = PBXFileReference; lastKnownFileType = file; path = "2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits"; sourceTree = "<group>"; };
+		FA000000000000000000001B /* m35_40min_blue.fits */ = {isa = PBXFileReference; lastKnownFileType = file; path = m35_40min_blue.fits; sourceTree = "<group>"; };
 		FA0000000000000000000017 /* FITSTestImageTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FITSTestImageTests.swift; sourceTree = "<group>"; };
 		FA0000000000000000000019 /* FITSTestImage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FITSTestImage.swift; sourceTree = "<group>"; };
 		05E974C02FE921070078F616 /* SwiftAstro.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SwiftAstro.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -184,6 +186,7 @@
 				FA0000000000000000000002 /* SwiftUtilities.xcodeproj */,
 				FA0000000000000000000003 /* SwiftFITS.xcodeproj */,
 				05E975162FE9229C0078F616 /* xcconfig */,
+				FA000000000000000000001D /* Test Files */,
 				05E975182FE922A40078F616 /* SwiftAstro */,
 				05E9751B2FE922A70078F616 /* SwiftAstroTests */,
 				05E974C12FE921070078F616 /* Products */,
@@ -223,12 +226,22 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		FA0000000000000000000015 /* Resources */ = {
+		FA000000000000000000001D /* Test Files */ = {
 			isa = PBXGroup;
 			children = (
 				FA0000000000000000000014 /* 2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits */,
+				FA000000000000000000001E /* ESA */,
 			);
-			path = Resources;
+			name = "Test Files";
+			path = "Test Files";
+			sourceTree = "<group>";
+		};
+		FA000000000000000000001E /* ESA */ = {
+			isa = PBXGroup;
+			children = (
+				FA000000000000000000001B /* m35_40min_blue.fits */,
+			);
+			path = ESA;
 			sourceTree = "<group>";
 		};
 		05E974E02FE9229C0078F616 /* .github */ = {
@@ -372,7 +385,6 @@
 				CC796503547039EF9E719220 /* Core */,
 				FB1F7ED7BB6A393DC8097F16 /* StarDetection */,
 				F724744C8D0BDAFB5FFFD498 /* Helpers */,
-				FA0000000000000000000015 /* Resources */,
 			);
 			path = SwiftAstroTests;
 			sourceTree = "<group>";
@@ -395,7 +407,6 @@
 			children = (
 				3BB7A519F56E3BAD1E4C4B43 /* ErrorTests.swift */,
 				FDBDAE2572FCEB8B3C372D0F /* StatisticsTests.swift */,
-				FA0000000000000000000017 /* FITSTestImageTests.swift */,
 			);
 			name = Core;
 			path = Core;
@@ -416,6 +427,7 @@
 			children = (
 				B6381522374836B9D1795FED /* SyntheticStarField.swift */,
 				FA0000000000000000000019 /* FITSTestImage.swift */,
+				FA0000000000000000000017 /* FITSTestImageTests.swift */,
 			);
 			name = Helpers;
 			path = Helpers;
@@ -571,6 +583,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FA0000000000000000000016 /* 2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits in Resources */,
+				FA000000000000000000001C /* m35_40min_blue.fits in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
