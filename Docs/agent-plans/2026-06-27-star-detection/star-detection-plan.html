@@ -222,7 +222,7 @@
     </details>
 
     <details class="ms">
-      <summary><span class="ms-id">M3</span><span class="ms-title">GaussianFit: 2D elliptical Gaussian least-squares</span><span class="cap cap-todo">Not started</span></summary>
+      <summary><span class="ms-id">M3</span><span class="ms-title">GaussianFit: 2D elliptical Gaussian least-squares</span><span class="cap cap-done">Completed</span></summary>
       <div class="ms-body">
         <h5>Goal</h5>
         <p>A compact Levenberg–Marquardt fit of a 2D elliptical Gaussian (amplitude, center, σ<sub>x</sub>, σ<sub>y</sub>, θ, background) over a small window, returning fitted parameters and a convergence/quality flag — the measurement upgrade over raw moments.</p>
@@ -233,10 +233,22 @@
           <li>Unit tests: recover known synthetic Gaussian params (center, σ, θ, bg) within tolerance under noise; report non-convergence on garbage.</li>
           <li>Sync project + package; run both test runners.</li>
         </ul>
-        <div class="fieldline"><span class="k">Status:</span> <span class="cap cap-todo">Not started</span></div>
-        <div class="fieldline"><span class="k">Completed:</span> <span class="empty">—</span></div>
-        <h5>Implementation notes</h5><p class="empty">—</p>
-        <h5>Review comments</h5><p class="empty">—</p>
+        <div class="fieldline"><span class="k">Status:</span> <span class="cap cap-done">Completed</span></div>
+        <div class="fieldline"><span class="k">Completed:</span> 2026-06-27</div>
+        <h5>Implementation notes</h5>
+        <ul class="tasks">
+          <li>Added <code>SwiftAstro/StarDetection/GaussianFit.swift</code>: a <code>public enum</code> namespace with a nested <code>Parameters</code> struct (amplitude, centre x/y, σx, σy, θ, background) and <code>fit(samples:initialGuess:) -&gt; Parameters?</code>. <code>Parameters</code> exposes the model evaluation <code>value(atX:y:)</code> and a <code>Parameters(moments:amplitude:background:)</code> initializer that seeds the guess from a <code>StarMoments</code> measurement (centre from the centroid; σ-major/σ-minor and θ from the second-moment ellipse's eigen-decomposition).</li>
+          <li><strong>Design choice — numerical Jacobian:</strong> the LM solver uses a central-difference Jacobian rather than hand-coded analytic derivatives. The 7-parameter rotated model makes analytic derivatives error-prone, while finite differences over the small window are cheap and robust. Flag this in case you'd prefer analytic derivatives for speed.</li>
+          <li>Levenberg–Marquardt with Marquardt diagonal damping (scales JᵀJ's diagonal by 1 + λ; λ shrinks on accepted steps, grows on rejected ones), a small Gaussian-elimination solver with partial pivoting for the 7×7 normal equations (index loops kept there as the clearest form for fixed-size elimination — flagging in case you want it replaced with an Accelerate/LAPACK solve), convergence on relative cost improvement &lt; 1e-8, and capped iterations.</li>
+          <li><strong>Reject / quality guards:</strong> <code>fit</code> returns <code>nil</code> when the result is non-physical (amplitude not finite/positive, σ not finite/positive, σ larger than the window span, non-finite centre/background) or no better than a flat background (fit residual ≥ the constant-mean residual). σ signs are normalized to positive on return.</li>
+          <li>Added <code>GaussianFitTests</code>: recovers a clean round Gaussian from a rough guess; recovers a rotated elliptical Gaussian under noise when seeded from <code>StarMoments</code> (checks sorted σ, centre, amplitude and RMS fit residual, which validates orientation); rejects a central dip (negative peak) and a flat field; and checks the model peaks at its centre. Deterministic noise reuses the test helper's <code>DeterministicNoise</code>.</li>
+          <li>Both files added to <code>SwiftAstro.xcodeproj</code>. Green under both <code>swift test</code> (40 tests) and <code>xcodebuild test</code>.</li>
+          <li><strong>Post-review relocation (see Review comments):</strong> the generic fitter moved to the <code>SwiftPixel</code> submodule — <code>SwiftPixel/SwiftPixel/GaussianFit.swift</code> (model + <code>fit</code> + LM solver) with generic tests <code>SwiftPixelTests/GaussianFit.swift</code> (round recovery, dip/flat rejection, model peak). The one astro coupling, the <code>Parameters(moments:amplitude:background:)</code> seeding initializer, stays in SwiftAstro as an extension in <code>SwiftAstro/StarDetection/GaussianFit+StarMoments.swift</code>, with its end-to-end "seed from moments and fit" test in <code>GaussianFitStarMomentsTests</code>. Docs were generalized (blob-like features, not stars/PSFs). Both packages green under <code>swift test</code> and <code>xcodebuild test</code>.</li>
+        </ul>
+        <h5>Review comments</h5>
+        <ul class="tasks">
+          <li>The Gaussian fitter's core (model + Levenberg–Marquardt + solver) is generic curve-fitting, so it belongs in <code>SwiftPixel</code> like the other generic primitives. Only the <code>StarMoments</code>-seeding initializer is astro-specific (and cannot move, since SwiftPixel must not depend on SwiftAstro); it stays in SwiftAstro as an extension on the SwiftPixel type.</li>
+        </ul>
       </div>
     </details>
 
