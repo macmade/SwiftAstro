@@ -147,4 +147,78 @@ enum FITSTestImage
 
         return try FITSImageDecoder.linearImage( from: file )
     }
+
+    /// Loads a FITS file as a detection-ready single-channel image — demosaicing
+    /// a Bayer frame to grayscale — via the library's ``FITSImageDecoder``, the
+    /// same path the star detector's callers use.
+    ///
+    /// - Parameter url: The FITS file location.
+    /// - Returns: The detection-ready single-channel image.
+    /// - Throws: Any error raised while parsing or decoding.
+    static func detection( contentsOf url: URL ) throws -> PixelBuffer
+    {
+        let file = try FITSFile( url: url, options: .lenient )
+
+        return try FITSImageDecoder.detectionImage( from: file )
+    }
+
+    /// The real one-shot-colour light frame, demosaiced to a detection-ready
+    /// grayscale image.
+    static func realLightFrameDetection() throws -> PixelBuffer
+    {
+        try self.detection( contentsOf: try self.url( resource: self.realLightFrameName ) )
+    }
+
+    /// The ESA M35 reference frame as a detection-ready single-channel image.
+    static func esaM35BlueDetection() throws -> PixelBuffer
+    {
+        try self.detection( contentsOf: try self.url( resource: self.esaM35BlueFrameName ) )
+    }
+
+    /// The M42 462-frame stack mosaic as a detection-ready single-channel image.
+    ///
+    /// This large frame lives only in the `SwiftFITS` submodule's `Test Files`,
+    /// so it is resolved by path relative to this source file (the same approach
+    /// FITScope uses) rather than copied into this repository or bundled. The
+    /// `#filePath` path works under both `swift test` and the Xcode test target.
+    static func m42Stack() throws -> PixelBuffer
+    {
+        let url = URL( fileURLWithPath: #filePath )
+            .deletingLastPathComponent() // Helpers/
+            .deletingLastPathComponent() // SwiftAstroTests/
+            .deletingLastPathComponent() // repository root
+            .appendingPathComponent( "Submodules/SwiftFITS/Test Files/Stacked_462_mosaic_M 42_10.0s_LP_20250124-012002.fit" )
+
+        return try self.detection( contentsOf: url )
+    }
+
+    /// Extracts a single-channel sub-rectangle of an image.
+    ///
+    /// The committed frames are large (tens of megapixels); running the full
+    /// detector over them in an unoptimized test build is slow because every star
+    /// is Gaussian-fitted. Cropping to a representative region keeps the
+    /// real-frame assertions fast while still exercising real data.
+    ///
+    /// - Parameters:
+    ///   - image:  The single-channel source image.
+    ///   - x:      The crop's left column.
+    ///   - y:      The crop's top row.
+    ///   - width:  The crop width, in pixels.
+    ///   - height: The crop height, in pixels.
+    /// - Returns: The cropped single-channel image.
+    /// - Throws: An error if the geometry is inconsistent.
+    static func crop( _ image: PixelBuffer, x: Int, y: Int, width: Int, height: Int ) throws -> PixelBuffer
+    {
+        let pixels = ( 0 ..< ( width * height ) ).map
+        {
+            index -> Double in
+
+            let sx = x + ( index % width )
+            let sy = y + ( index / width )
+
+            return image.pixels[ ( sy * image.width ) + sx ]
+        }
+
+        return try PixelBuffer( width: width, height: height, channels: 1, pixels: pixels, isNormalized: false )
+    }
 }

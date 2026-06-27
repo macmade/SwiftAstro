@@ -100,8 +100,8 @@ public struct MomentStarDetector: StarDetecting
             return StarField( stars: [] )
         }
 
-        let background = Statistics.median( image.pixels ) ?? 0
-        let noise      = ( Statistics.medianAbsoluteDeviation( image.pixels, around: background ) ?? 0 ) * 1.4826
+        let background = PixelUtilities.median( image.pixels ) ?? 0
+        let noise      = ( PixelUtilities.medianAbsoluteDeviation( image.pixels, around: background ) ?? 0 ) * 1.4826
         let threshold  = background + ( self.configuration.thresholdSigma * noise )
         let components = Self.connectedComponents( in: image, threshold: threshold )
 

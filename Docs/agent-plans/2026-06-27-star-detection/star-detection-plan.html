@@ -153,13 +153,14 @@
       <tr><th>Parameter</th><th>Default</th><th>Purpose</th></tr>
       <tr><td><code>expectedFWHM</code></td><td><code>nil</code> (auto)</td><td>Matched-filter scale; manual override when non-nil</td></tr>
       <tr><td><code>thresholdSigma</code></td><td>5.0</td><td>Detection threshold on the convolved image, in noise σ</td></tr>
-      <tr><td><code>sharpnessLow</code> / <code>sharpnessHigh</code></td><td>0.2 / 1.0</td><td>Reject broad blobs / single hot pixels</td></tr>
-      <tr><td><code>roundnessLimit</code></td><td>0.5</td><td>Reject elongated artifacts, trails</td></tr>
+      <tr><td><code>sharpnessLow</code></td><td>0.2</td><td>Reject single hot pixels (flux not spread into the neighbours)</td></tr>
+      <tr><td><code>minFWHMFactor</code> / <code>maxFWHMFactor</code></td><td>0.5 / 2.0</td><td>Reject fits whose FWHM is far from the matched-filter scale (sub-PSF spikes / broad blobs &amp; nebulosity)</td></tr>
+      <tr><td><code>roundnessLimit</code></td><td>0.6</td><td>Reject elongated artifacts, trails (on the fitted eccentricity)</td></tr>
       <tr><td><code>minSeparation</code></td><td>= estimated FWHM</td><td>Deduplicate adjacent peaks</td></tr>
       <tr><td><code>edgeMargin</code></td><td>4 px</td><td>Reject clipped profiles at the border</td></tr>
       <tr><td><code>saturationLevel</code></td><td><code>nil</code></td><td>Optional: drop bloomed stars at/above this level</td></tr>
     </table>
-    <p class="empty">Defaults are starting points; final values are locked in by tests during Milestone 5.</p>
+    <p>Final values, locked in during Milestone 5. The original plan's <code>sharpnessHigh</code> was dropped: a well-sampled real star's sharpness ≈ 1 (same as a flat blob), so a high-sharpness cut rejected real stars; the <code>minFWHMFactor</code>/<code>maxFWHMFactor</code> band on the fitted size rejects blobs and spikes instead.</p>
   </section>
 
   <section class="block">
@@ -281,7 +282,7 @@
     </details>
 
     <details class="ms">
-      <summary><span class="ms-id">M5</span><span class="ms-title">Real-frame tuning &amp; validation</span><span class="cap cap-todo">Not started</span></summary>
+      <summary><span class="ms-id">M5</span><span class="ms-title">Real-frame tuning &amp; validation</span><span class="cap cap-done">Completed</span></summary>
       <div class="ms-body">
         <h5>Goal</h5>
         <p>Tune the default configuration against the committed real frames and lock the behavior in with assertions that would have caught the original bug.</p>
@@ -293,10 +294,27 @@
           <li>Add M35 assertions: median HFR well above 1 px; plausible count.</li>
           <li>Confirm runtime is well under a second per frame (note timings).</li>
         </ul>
-        <div class="fieldline"><span class="k">Status:</span> <span class="cap cap-todo">Not started</span></div>
-        <div class="fieldline"><span class="k">Completed:</span> <span class="empty">—</span></div>
-        <h5>Implementation notes</h5><p class="empty">—</p>
-        <h5>Review comments</h5><p class="empty">—</p>
+        <div class="fieldline"><span class="k">Status:</span> <span class="cap cap-done">Completed</span></div>
+        <div class="fieldline"><span class="k">Completed:</span> 2026-06-28</div>
+        <h5>Implementation notes</h5>
+        <p>Validation on the real frames exposed problems that pure parameter tuning could not fix, so (with sign-off) M5 reworked parts of the detector — the agreed "Option 1": fix the real failures with simple, self-calibrating cuts rather than reproducing DAOFIND's exact formulas.</p>
+        <ul class="tasks">
+          <li><strong>Root cause of the bad real-frame numbers: a global background.</strong> The per-peak measurement and the FWHM bootstrap both subtracted the global median, but the real sky varies (gradient/vignetting). On H3.69 the global median sat below the local sky, so the bootstrap body filled the window (estimated FWHM ballooned to 14–84 px) and HFR inflated (median ≈ 16 px vs. a true ≈ 3.7). Fix: estimate a <strong>local background</strong> (median of the measurement window) for the moments, the fit seed, and — via the fitted background — the HFR; size each bootstrap star over its body against its own local background.</li>
+          <li><strong>FWHM bootstrap reworked</strong> to size each bright star by the empirical half-flux radius of its body (FWHM = 2·HFR), which is core-dominated and robust to the broad wings of bright/near-saturated stars that biased the second-moment version high.</li>
+          <li><strong>Purity cuts redesigned.</strong> The old <code>sharpness ≤ sharpnessHigh</code> cut was degenerate — a well-sampled real star's neighbour/centre ratio ≈ 1, same as a flat blob — and rejected genuine stars (H3.69 collapsed to 1 detection). Now: keep the low-sharpness cut (rejects hot pixels) pre-fit; after the fit, require the <strong>fitted FWHM within a factor of the estimated FWHM</strong> (rejects sub-PSF spikes and over-large blobs/nebulosity) plus the roundness cut on the fitted eccentricity. <code>Configuration</code> changed: removed <code>sharpnessHigh</code>; added <code>minFWHMFactor</code> (0.5) and <code>maxFWHMFactor</code> (2.0); <code>roundnessLimit</code> 0.5 → 0.6.</li>
+          <li><strong>Performance + a second relocation to SwiftPixel.</strong> <code>Statistics.median</code> was the hot spot (a generic comparison sort, seconds per call on multi-megapixel frames, several calls per detection). It was first given an Accelerate fast path, then — on review — recognized as a generic primitive duplicating SwiftPixel's existing <code>vDSP</code>-backed <code>PixelUtilities.percentileBounds</code>. So <strong>median + MAD were folded into <code>SwiftPixel.PixelUtilities</code></strong>, right next to <code>percentileBounds</code> (the <code>Double</code> median reuses it — a median is the 50th percentile — for a single sort/percentile implementation). They were folded into <code>PixelUtilities</code> rather than a new <code>Statistics</code> type to avoid a name clash with the existing <code>HistogramStatistics</code>. SwiftAstro's <code>Core/Statistics.swift</code> was deleted and its callers now use <code>PixelUtilities</code> via <code>import SwiftPixel</code>. The redundant global-background pass was also dropped from <code>detectStars</code>.</li>
+          <li><strong>Final real-frame results (release):</strong> H3.69 → 52 stars, <strong>median HFR 3.75</strong> (filename reports 3.69), median FWHM 7.69; M35 → 405 stars, median HFR 2.06, FWHM 4.28; M42 → 157 stars (vs. the old detector's ~1031 nebula-ring), median HFR 2.01. <strong>Chosen defaults (locked in):</strong> <code>thresholdSigma 5</code>, <code>sharpnessLow 0.2</code>, <code>roundnessLimit 0.6</code>, <code>minFWHMFactor 0.5</code>, <code>maxFWHMFactor 2.0</code>, <code>edgeMargin 4</code>, auto FWHM, <code>minSeparation</code> = estimated FWHM.</li>
+          <li><strong>Timing — honest note:</strong> ~2.6–3.4 s per full frame in release, <em>not</em> the hoped-for sub-second. The cost is the 8-megapixel matched-filter convolution plus a Levenberg–Marquardt fit per star; the median fix removed the worst offender (tens of seconds). Sub-second would need further work (downsampled bootstrap, analytic Jacobian, or a coarser convolution) and is left as a possible follow-up, not forced into M5.</li>
+          <li><strong>Tests:</strong> <code>RealFrameValidationTests</code> retargeted to <code>MatchedFilterStarDetector</code> via <code>FITSImageDecoder.detectionImage</code>. H3.69 runs on the full frame (headline median-HFR ≈ 3.69 ±20%). Since every star is Gaussian-fitted, the full multi-megapixel frames are far too slow in an unoptimized (Debug) test build — and xcodebuild cannot test in Release (testability is off) — so the <strong>M35 and M42 checks run over a 512×512 central crop</strong> (real data, bounded work): M35 asserts a plausible count and a stellar median HFR (&gt; 1.5 px); M42 asserts a bounded count (no nebula contour) and a stellar HFR. The M42 frame loads from the SwiftFITS submodule by <code>#filePath</code> path (no copy, no bundling), per the FITScope convention. New test helpers: detection-image loaders, the M42 loader, a crop, and <code>SyntheticStarField.addingGradient</code>.</li>
+          <li><strong>Deviation from the plan wording for M42:</strong> the plan asked for "the central nebula region essentially clear of detections," but M42's centre is the star-rich Trapezium, so a handful of real detections there is correct. The anti-nebulosity property is instead asserted as a bounded count over the bright core (vs. the old ring of hundreds).</li>
+          <li>The throwaway diagnostic was removed (file + project entries). Full suites green under both <code>xcodebuild test</code> and <code>swift test</code> for SwiftAstro and SwiftPixel; <code>MomentStarDetector</code> still present (removed in M6).</li>
+        </ul>
+        <h5>Review comments</h5>
+        <ul class="tasks">
+          <li>Confirmed the "Option 1" direction: fix the failures with self-calibrating cuts (local background, HFR bootstrap, fitted-size band) rather than implementing exact DAOFIND sharpness/roundness.</li>
+          <li>The median/MAD are generic and duplicated SwiftPixel's existing Accelerate percentile sort, so they were folded into <code>SwiftPixel.PixelUtilities</code> (next to <code>percentileBounds</code>) and deduplicated through it — folded into <code>PixelUtilities</code> rather than a separate <code>Statistics</code> type to avoid the naming clash with <code>HistogramStatistics</code>.</li>
+          <li>Use <code>xcodebuild</code> (with live monitoring) for test runs; note that real-frame tests are Debug-only there (Release disables testability) and slow because of per-star fitting, which is why M35/M42 validate on crops.</li>
+        </ul>
       </div>
     </details>
 

@@ -54,16 +54,24 @@ public struct MatchedFilterStarDetector: StarDetecting
         /// to count as a candidate.
         public var thresholdSigma: Double
 
-        /// The lower sharpness bound: candidates below it are too concentrated
-        /// (single hot pixels).
+        /// The lower sharpness bound: candidates below it are too concentrated to
+        /// be a star (single hot pixels, cosmic rays), with all their flux in the
+        /// central pixel and none in the neighbours.
         public var sharpnessLow: Double
 
-        /// The upper sharpness bound: candidates above it are too broad / flat.
-        public var sharpnessHigh: Double
-
-        /// The maximum eccentricity a candidate may have; more elongated ones
-        /// (trails, artifacts) are rejected.
+        /// The maximum eccentricity a candidate's fitted profile may have; more
+        /// elongated ones (trails, artifacts) are rejected.
         public var roundnessLimit: Double
+
+        /// The smallest fitted FWHM, as a fraction of the matched-filter FWHM, a
+        /// candidate may have. Rejects sub-PSF spikes that survived the sharpness
+        /// cut.
+        public var minFWHMFactor: Double
+
+        /// The largest fitted FWHM, as a multiple of the matched-filter FWHM, a
+        /// candidate may have. Rejects broad blobs and nebulosity that are far
+        /// larger than a star.
+        public var maxFWHMFactor: Double
 
         /// The minimum separation between detections, in pixels; among closer
         /// peaks the brighter wins. When `nil`, the estimated FWHM is used.
@@ -82,8 +90,9 @@ public struct MatchedFilterStarDetector: StarDetecting
             expectedFWHM:    Double? = nil,
             thresholdSigma:  Double  = 5,
             sharpnessLow:    Double  = 0.2,
-            sharpnessHigh:   Double  = 1.0,
-            roundnessLimit:  Double  = 0.5,
+            roundnessLimit:  Double  = 0.6,
+            minFWHMFactor:   Double  = 0.5,
+            maxFWHMFactor:   Double  = 2.0,
             minSeparation:   Double? = nil,
             edgeMargin:      Int     = 4,
             saturationLevel: Double? = nil
@@ -92,8 +101,9 @@ public struct MatchedFilterStarDetector: StarDetecting
             self.expectedFWHM    = expectedFWHM
             self.thresholdSigma  = thresholdSigma
             self.sharpnessLow    = sharpnessLow
-            self.sharpnessHigh   = sharpnessHigh
             self.roundnessLimit  = roundnessLimit
+            self.minFWHMFactor   = minFWHMFactor
+            self.maxFWHMFactor   = maxFWHMFactor
             self.minSeparation   = minSeparation
             self.edgeMargin      = edgeMargin
             self.saturationLevel = saturationLevel
@@ -149,14 +159,13 @@ public struct MatchedFilterStarDetector: StarDetecting
             return StarField( stars: [] )
         }
 
-        let background = Statistics.median( image.pixels ) ?? 0
-        let fwhm       = Swift.max( self.configuration.expectedFWHM ?? Self.estimateFWHM( in: image ) ?? Self.defaultFWHM, 1 )
-        let sigma      = fwhm / Self.fwhmPerSigma
-        let kernel     = GaussianKernel( sigma: sigma )
-        let response   = Convolution.zeroSumResponse( of: image, kernel: kernel )
+        let fwhm     = Swift.max( self.configuration.expectedFWHM ?? Self.estimateFWHM( in: image ) ?? Self.defaultFWHM, 1 )
+        let sigma    = fwhm / Self.fwhmPerSigma
+        let kernel   = GaussianKernel( sigma: sigma )
+        let response = Convolution.zeroSumResponse( of: image, kernel: kernel )
 
-        let center = Statistics.median( response ) ?? 0
-        let sigmaC = ( Statistics.medianAbsoluteDeviation( response, around: center ) ?? 0 ) * 1.4826
+        let center = PixelUtilities.median( response ) ?? 0
+        let sigmaC = ( PixelUtilities.medianAbsoluteDeviation( response, around: center ) ?? 0 ) * 1.4826
 
         guard sigmaC > 0
         else
@@ -171,7 +180,7 @@ public struct MatchedFilterStarDetector: StarDetecting
 
         let stars = separated.compactMap
         {
-            self.measure( peak: $0.index, in: image, background: background, fwhm: fwhm )
+            self.measure( peak: $0.index, in: image, fwhm: fwhm )
         }
 
         return StarField( stars: stars )
@@ -180,8 +189,13 @@ public struct MatchedFilterStarDetector: StarDetecting
     // MARK: - FWHM auto-estimation
 
     /// Estimates the stellar FWHM from an image's brightest stars: it finds the
-    /// brightest local maxima, sizes each one's body via its moments, and takes
-    /// the median — robust to the occasional non-stellar peak.
+    /// brightest local maxima, sizes each one by its empirical half-flux radius
+    /// against its own local background, and takes the median.
+    ///
+    /// The half-flux radius is used rather than the second moments because it is
+    /// dominated by the star's core and so is far less sensitive to the broad
+    /// wings of bright, near-saturated stars — which otherwise bias the estimate
+    /// high. For a Gaussian, FWHM = 2·HFR.
     ///
     /// - Parameter image: The single-channel image to size.
     /// - Returns: The median FWHM, in pixels, or `nil` when no bright star can be
@@ -194,8 +208,8 @@ public struct MatchedFilterStarDetector: StarDetecting
             return nil
         }
 
-        let background = Statistics.median( image.pixels ) ?? 0
-        let noise      = ( Statistics.medianAbsoluteDeviation( image.pixels, around: background ) ?? 0 ) * 1.4826
+        let background = PixelUtilities.median( image.pixels ) ?? 0
+        let noise      = ( PixelUtilities.medianAbsoluteDeviation( image.pixels, around: background ) ?? 0 ) * 1.4826
 
         guard noise > 0
         else
@@ -204,25 +218,30 @@ public struct MatchedFilterStarDetector: StarDetecting
         }
 
         let highThreshold = background + ( Self.bootstrapSigma * noise )
-        let bodyThreshold = background + ( 3 * noise )
         let maxima        = Self.localMaxima( in: image.pixels, width: image.width, height: image.height, threshold: highThreshold )
 
         let widths = maxima.compactMap
         {
             peak -> Double? in
 
-            let body = Self.window( around: peak.index, radius: Self.bootstrapWindowRadius, in: image ).filter { $0.value > bodyThreshold }
+            // Size each bright star against its own local background, over only
+            // its body (pixels clearly above that background). Measuring over the
+            // whole window would let the surrounding sky annulus inflate the
+            // half-flux radius.
+            let window          = Self.window( around: peak.index, radius: Self.bootstrapWindowRadius, in: image )
+            let localBackground = PixelUtilities.median( window.map { $0.value } ) ?? background
+            let body            = window.filter { $0.value > localBackground + ( 3 * noise ) }
 
-            guard body.count >= 5, let moments = StarMoments( samples: body, background: background ), moments.fwhm.isFinite, moments.fwhm > 0
+            guard body.count >= 5, let moments = StarMoments( samples: body, background: localBackground ), moments.hfr.isFinite, moments.hfr > 0.3
             else
             {
                 return nil
             }
 
-            return moments.fwhm
+            return moments.hfr * 2
         }
 
-        return Statistics.median( widths )
+        return PixelUtilities.median( widths )
     }
 
     // MARK: - Peak detection
@@ -316,10 +335,15 @@ public struct MatchedFilterStarDetector: StarDetecting
 
     /// Measures a candidate peak, applying the purity cuts and the Gaussian fit.
     ///
+    /// The background is estimated **locally**, as the median of the measurement
+    /// window: on real frames the sky varies across the image (gradients,
+    /// vignetting), and a global background would let the window's pedestal
+    /// inflate the moments, fit and half-flux radius.
+    ///
     /// - Returns: The measured star, or `nil` if the candidate is clipped by the
     ///   edge, saturated, fails the sharpness or roundness cut, or its fit does
     ///   not converge to a physical Gaussian.
-    private func measure( peak index: Int, in image: PixelBuffer, background: Double, fwhm: Double ) -> Star?
+    private func measure( peak index: Int, in image: PixelBuffer, fwhm: Double ) -> Star?
     {
         let width  = image.width
         let height = image.height
@@ -338,18 +362,20 @@ public struct MatchedFilterStarDetector: StarDetecting
             return nil
         }
 
-        let sharpness = Self.sharpness( at: index, in: image, background: background )
+        let radius     = Swift.max( 3, Int( ( 1.5 * fwhm ).rounded() ) )
+        let samples    = Self.window( around: index, radius: radius, in: image )
+        let background = PixelUtilities.median( samples.map { $0.value } ) ?? 0
+        let sharpness  = Self.sharpness( at: index, in: image, background: background )
 
-        guard sharpness >= self.configuration.sharpnessLow, sharpness <= self.configuration.sharpnessHigh
+        // Cheap pre-fit cut: reject single hot pixels / cosmic rays whose flux is
+        // not spread into the neighbours at all.
+        guard sharpness >= self.configuration.sharpnessLow
         else
         {
             return nil
         }
 
-        let radius  = Swift.max( 3, Int( ( 1.5 * fwhm ).rounded() ) )
-        let samples = Self.window( around: index, radius: radius, in: image )
-
-        guard let moments = StarMoments( samples: samples, background: background ), moments.eccentricity <= self.configuration.roundnessLimit
+        guard let moments = StarMoments( samples: samples, background: background )
         else
         {
             return nil
@@ -374,8 +400,20 @@ public struct MatchedFilterStarDetector: StarDetecting
 
         let fwhmStar     = Self.fwhmPerSigma * ( sigmaMajor * sigmaMinor ).squareRoot()
         let eccentricity = Swift.max( 0, 1 - ( ( sigmaMinor * sigmaMinor ) / ( sigmaMajor * sigmaMajor ) ) ).squareRoot()
-        let hfr          = StarMoments.halfFluxRadius( samples: samples, background: background, aroundX: fit.x, y: fit.y )
-        let flux         = 2 * Double.pi * fit.amplitude * abs( fit.sigmaX ) * abs( fit.sigmaY )
+
+        // Post-fit purity: the fitted profile must be close to the matched-filter
+        // scale (rejecting sub-PSF spikes and over-large blobs / nebulosity) and
+        // round enough (rejecting trails and elongated artifacts).
+        guard fwhmStar >= self.configuration.minFWHMFactor * fwhm,
+              fwhmStar <= self.configuration.maxFWHMFactor * fwhm,
+              eccentricity <= self.configuration.roundnessLimit
+        else
+        {
+            return nil
+        }
+
+        let hfr  = StarMoments.halfFluxRadius( samples: samples, background: fit.background, aroundX: fit.x, y: fit.y )
+        let flux = 2 * Double.pi * fit.amplitude * abs( fit.sigmaX ) * abs( fit.sigmaY )
 
         return Star( x: fit.x, y: fit.y, flux: flux, hfr: hfr, fwhm: fwhmStar, eccentricity: eccentricity )
     }

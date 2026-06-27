@@ -23,6 +23,7 @@
  ******************************************************************************/
 
 import Foundation
+import SwiftPixel
 
 /// The result of star detection: the detected stars and robust aggregate
 /// metrics over them.
@@ -52,20 +53,20 @@ public struct StarField: Sendable, Equatable
     /// The median FWHM over the detected stars, or `nil` when there are none.
     public var medianFWHM: Double?
     {
-        Statistics.median( self.stars.map { $0.fwhm } )
+        PixelUtilities.median( self.stars.map { $0.fwhm } )
     }
 
     /// The median half-flux radius over the detected stars, or `nil` when there
     /// are none.
     public var medianHFR: Double?
     {
-        Statistics.median( self.stars.map { $0.hfr } )
+        PixelUtilities.median( self.stars.map { $0.hfr } )
     }
 
     /// The median eccentricity over the detected stars, or `nil` when there are
     /// none.
     public var medianEccentricity: Double?
     {
-        Statistics.median( self.stars.map { $0.eccentricity } )
+        PixelUtilities.median( self.stars.map { $0.eccentricity } )
     }
 }
