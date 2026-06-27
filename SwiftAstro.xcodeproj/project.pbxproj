@@ -15,6 +15,8 @@
 		FA0000000000000000000012 /* SwiftPixel.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000007 /* SwiftPixel.framework */; };
 		FA0000000000000000000016 /* 2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits in Resources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000014 /* 2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits */; };
 		FA000000000000000000001C /* m35_40min_blue.fits in Resources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000001B /* m35_40min_blue.fits */; };
+		FA0000000000000000000020 /* BayerGrayscaleConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000001F /* BayerGrayscaleConverter.swift */; };
+		FA0000000000000000000023 /* BayerGrayscaleConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000022 /* BayerGrayscaleConverterTests.swift */; };
 		FA0000000000000000000018 /* FITSTestImageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000017 /* FITSTestImageTests.swift */; };
 		FA000000000000000000001A /* FITSTestImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000019 /* FITSTestImage.swift */; };
 		05E974CA2FE921070078F616 /* SwiftAstro.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05E974C02FE921070078F616 /* SwiftAstro.framework */; };
@@ -85,6 +87,8 @@
 		FA0000000000000000000003 /* SwiftFITS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftFITS.xcodeproj; path = Submodules/SwiftFITS/SwiftFITS.xcodeproj; sourceTree = "<group>"; };
 		FA0000000000000000000014 /* 2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits */ = {isa = PBXFileReference; lastKnownFileType = file; path = "2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits"; sourceTree = "<group>"; };
 		FA000000000000000000001B /* m35_40min_blue.fits */ = {isa = PBXFileReference; lastKnownFileType = file; path = m35_40min_blue.fits; sourceTree = "<group>"; };
+		FA000000000000000000001F /* BayerGrayscaleConverter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BayerGrayscaleConverter.swift; sourceTree = "<group>"; };
+		FA0000000000000000000022 /* BayerGrayscaleConverterTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BayerGrayscaleConverterTests.swift; sourceTree = "<group>"; };
 		FA0000000000000000000017 /* FITSTestImageTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FITSTestImageTests.swift; sourceTree = "<group>"; };
 		FA0000000000000000000019 /* FITSTestImage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FITSTestImage.swift; sourceTree = "<group>"; };
 		05E974C02FE921070078F616 /* SwiftAstro.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SwiftAstro.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -374,19 +378,37 @@
 			isa = PBXGroup;
 			children = (
 				E5EA97BD4450104EFFA59513 /* Core */,
+				FA0000000000000000000021 /* Preprocessing */,
 				783AF3F17116ED615E77BD9D /* StarDetection */,
 			);
 			path = SwiftAstro;
+			sourceTree = "<group>";
+		};
+		FA0000000000000000000021 /* Preprocessing */ = {
+			isa = PBXGroup;
+			children = (
+				FA000000000000000000001F /* BayerGrayscaleConverter.swift */,
+			);
+			path = Preprocessing;
 			sourceTree = "<group>";
 		};
 		05E9751B2FE922A70078F616 /* SwiftAstroTests */ = {
 			isa = PBXGroup;
 			children = (
 				CC796503547039EF9E719220 /* Core */,
+				FA0000000000000000000024 /* Preprocessing */,
 				FB1F7ED7BB6A393DC8097F16 /* StarDetection */,
 				F724744C8D0BDAFB5FFFD498 /* Helpers */,
 			);
 			path = SwiftAstroTests;
+			sourceTree = "<group>";
+		};
+		FA0000000000000000000024 /* Preprocessing */ = {
+			isa = PBXGroup;
+			children = (
+				FA0000000000000000000022 /* BayerGrayscaleConverterTests.swift */,
+			);
+			path = Preprocessing;
 			sourceTree = "<group>";
 		};
 		783AF3F17116ED615E77BD9D /* StarDetection */ = {
@@ -599,6 +621,7 @@
 				DEFF42CB10493A2ADDEE7A2A /* StarField.swift in Sources */,
 				954CE790A4B63D459117E5E3 /* StarDetecting.swift in Sources */,
 				B7ECAB765F147AC7921DF75C /* MomentStarDetector.swift in Sources */,
+				FA0000000000000000000020 /* BayerGrayscaleConverter.swift in Sources */,
 				8712B4AE5A19BFD595D5F04D /* PSFStarDetector.swift in Sources */,
 				1DF56742B23667B3BEAF13DD /* Statistics.swift in Sources */,
 			);
@@ -611,6 +634,7 @@
 				FA161376C312A18994FE2710 /* StarFieldTests.swift in Sources */,
 				FA0000000000000000000018 /* FITSTestImageTests.swift in Sources */,
 				FA000000000000000000001A /* FITSTestImage.swift in Sources */,
+				FA0000000000000000000023 /* BayerGrayscaleConverterTests.swift in Sources */,
 				CF833BB9FEF55B932183FE19 /* MomentStarDetectorTests.swift in Sources */,
 				DFDBCD03B303981BB42E2ABD /* PSFStarDetectorTests.swift in Sources */,
 				7C438F7DED2E13527A24B0BE /* SyntheticStarField.swift in Sources */,
