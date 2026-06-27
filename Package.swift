@@ -43,6 +43,7 @@ let package = Package(
             name: "SwiftAstro",
             dependencies: [
                 .product( name: "SwiftPixel", package: "SwiftPixel" ),
+                .product( name: "SwiftFITS",  package: "SwiftFITS"  ),
             ],
             path: "SwiftAstro"
         ),

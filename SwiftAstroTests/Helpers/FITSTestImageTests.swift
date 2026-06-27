@@ -24,6 +24,7 @@
 
 import Foundation
 @testable import SwiftAstro
+import SwiftFITS
 import SwiftPixel
 import Testing
 
@@ -68,5 +69,47 @@ struct FITSTestImageTests
         #expect( image.channels == 1 )
         #expect( image.pixels.count == image.width * image.height )
         #expect( image.pixels.allSatisfy { $0.isFinite } )
+    }
+}
+
+/// Tests for ``FITSImageDecoder`` loading real FITS frames, covering the
+/// one-shot-colour (demosaiced) and monochrome (passthrough) branches.
+struct FITSImageDecoderTests
+{
+    /// Opens a bundled fixture as a parsed FITS file.
+    private static func file( named name: String ) throws -> FITSFile
+    {
+        try FITSFile( url: try FITSTestImage.url( resource: name ), options: .lenient )
+    }
+
+    /// A one-shot-colour frame (a `BAYERPAT` header) is demosaiced to a single
+    /// luminance channel at native resolution, so the detection image differs
+    /// from the raw mosaic while keeping the same geometry.
+    @Test
+    func detectionImageDemosaicsOneShotColorFrame() throws
+    {
+        let file      = try Self.file( named: FITSTestImage.realLightFrameName )
+        let linear    = try FITSImageDecoder.linearImage( from: file )
+        let detection = try FITSImageDecoder.detectionImage( from: file )
+
+        #expect( try FITSImageDecoder.bayerPattern( in: #require( file.header ) ) == .rggb )
+        #expect( detection.channels == 1 )
+        #expect( detection.width    == linear.width )
+        #expect( detection.height   == linear.height )
+        #expect( detection.pixels   != linear.pixels )
+    }
+
+    /// A monochrome frame (no `BAYERPAT`) is returned as its linear single
+    /// channel, unchanged by the detection-image step.
+    @Test
+    func detectionImageLeavesMonochromeFrameUnchanged() throws
+    {
+        let file      = try Self.file( named: FITSTestImage.esaM35BlueFrameName )
+        let linear    = try FITSImageDecoder.linearImage( from: file )
+        let detection = try FITSImageDecoder.detectionImage( from: file )
+
+        #expect( try FITSImageDecoder.bayerPattern( in: #require( file.header ) ) == nil )
+        #expect( detection.channels == 1 )
+        #expect( detection.pixels   == linear.pixels )
     }
 }

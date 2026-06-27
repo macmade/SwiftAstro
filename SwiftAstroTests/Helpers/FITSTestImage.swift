@@ -133,10 +133,9 @@ enum FITSTestImage
 
     /// Loads a FITS file at the given URL into a single-channel pixel buffer.
     ///
-    /// Reads the primary header's geometry and sample format, decodes the raw
-    /// data segment big-endian via `SwiftPixel`, and applies the FITS
-    /// `BZERO`/`BSCALE` linear rescaling so the samples are physical linear
-    /// values.
+    /// Delegates to the library's ``FITSImageDecoder`` — the same code path
+    /// consumers use — so this helper only locates the bundled fixture and the
+    /// decoding stays in one place.
     ///
     /// - Parameter url: The FITS file location.
     /// - Returns: The frame's linear samples as a ``SwiftPixel/PixelBuffer``.
@@ -146,67 +145,6 @@ enum FITSTestImage
     {
         let file = try FITSFile( url: url, options: .lenient )
 
-        guard let header = file.header
-        else
-        {
-            throw Error( message: "FITS file has no primary header" )
-        }
-
-        guard let bitpix = header.bitpix, let format = BitsPerPixel.from( value: bitpix )
-        else
-        {
-            throw Error( message: "FITS file has a missing or unsupported BITPIX" )
-        }
-
-        guard header.naxis == 2,
-              let width  = header.naxis( 1 ).map( Int.init ), width  > 0,
-              let height = header.naxis( 2 ).map( Int.init ), height > 0
-        else
-        {
-            throw Error( message: "FITS file is not a 2D image with positive dimensions" )
-        }
-
-        guard let segment = file.sections.first( where: { $0.kind == .data } )
-        else
-        {
-            throw Error( message: "FITS file has no data segment" )
-        }
-
-        // The data segment is padded to whole 2880-byte blocks; readRawPixels
-        // wants exactly the sample bytes, so trim the trailing block padding.
-        let expectedBytes = format.size( numberOfPixels: width * height )
-        let raw           = Data( segment.data.prefix( expectedBytes ) )
-
-        guard raw.count == expectedBytes
-        else
-        {
-            throw Error( message: "FITS data segment is smaller than its geometry implies" )
-        }
-
-        let stored = try PixelUtilities.readRawPixels( data: raw, width: width, height: height, bitsPerPixel: format )
-        let bzero  = self.numericValue( of: header[ "BZERO"  ]?.value ) ?? 0
-        let bscale = self.numericValue( of: header[ "BSCALE" ]?.value ) ?? 1
-
-        // readRawPixels intentionally skips BZERO/BSCALE; apply the linear
-        // rescaling here so the samples are physical linear values. Skip the
-        // per-sample work in the common identity case.
-        let pixels = ( bzero == 0 && bscale == 1 ) ? stored : stored.map { bzero + ( bscale * $0 ) }
-
-        return try PixelBuffer( width: width, height: height, channels: 1, pixels: pixels, isNormalized: false )
-    }
-
-    /// Reads a numeric FITS header value as a `Double`, whether it was parsed as
-    /// an integer or a float (e.g. `BZERO = 32768` vs `BSCALE = 1.0`).
-    ///
-    /// - Parameter value: The header value to read.
-    /// - Returns: The value as a `Double`, or `nil` if it is not numeric.
-    private static func numericValue( of value: FITSValue? ) -> Double?
-    {
-        if let integer = value?.integer
-        {
-            return Double( integer )
-        }
-
-        return value?.float
+        return try FITSImageDecoder.linearImage( from: file )
     }
 }

@@ -20,6 +20,9 @@
 		FA0000000000000000000026 /* RealFrameValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000025 /* RealFrameValidationTests.swift */; };
 		FA0000000000000000000018 /* FITSTestImageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000017 /* FITSTestImageTests.swift */; };
 		FA000000000000000000001A /* FITSTestImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000019 /* FITSTestImage.swift */; };
+		FA0000000000000000000031 /* FITSImageDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000030 /* FITSImageDecoder.swift */; };
+		FA0000000000000000000035 /* SwiftFITS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000009 /* SwiftFITS.framework */; };
+		FA0000000000000000000036 /* SwiftFITS.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000009 /* SwiftFITS.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		05E974CA2FE921070078F616 /* SwiftAstro.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05E974C02FE921070078F616 /* SwiftAstro.framework */; };
 		100D436DAB1A62BB82103D10 /* StatisticsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDBDAE2572FCEB8B3C372D0F /* StatisticsTests.swift */; };
 		1DF56742B23667B3BEAF13DD /* Statistics.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F2F5C0469CC54EA64218FB /* Statistics.swift */; };
@@ -76,6 +79,7 @@
 			files = (
 				FA000000000000000000000F /* SwiftPixel.framework in Embed Frameworks */,
 				FA0000000000000000000010 /* SwiftUtilities.framework in Embed Frameworks */,
+				FA0000000000000000000036 /* SwiftFITS.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -89,6 +93,7 @@
 		FA0000000000000000000014 /* 2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits */ = {isa = PBXFileReference; lastKnownFileType = file; path = "2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits"; sourceTree = "<group>"; };
 		FA000000000000000000001B /* m35_40min_blue.fits */ = {isa = PBXFileReference; lastKnownFileType = file; path = m35_40min_blue.fits; sourceTree = "<group>"; };
 		FA000000000000000000001F /* BayerGrayscaleConverter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BayerGrayscaleConverter.swift; sourceTree = "<group>"; };
+		FA0000000000000000000030 /* FITSImageDecoder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FITSImageDecoder.swift; sourceTree = "<group>"; };
 		FA0000000000000000000022 /* BayerGrayscaleConverterTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BayerGrayscaleConverterTests.swift; sourceTree = "<group>"; };
 		FA0000000000000000000025 /* RealFrameValidationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RealFrameValidationTests.swift; sourceTree = "<group>"; };
 		FA0000000000000000000017 /* FITSTestImageTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FITSTestImageTests.swift; sourceTree = "<group>"; };
@@ -166,6 +171,7 @@
 			files = (
 				FA000000000000000000000D /* SwiftPixel.framework in Frameworks */,
 				FA000000000000000000000E /* SwiftUtilities.framework in Frameworks */,
+				FA0000000000000000000035 /* SwiftFITS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -390,6 +396,7 @@
 			isa = PBXGroup;
 			children = (
 				FA000000000000000000001F /* BayerGrayscaleConverter.swift */,
+				FA0000000000000000000030 /* FITSImageDecoder.swift */,
 			);
 			path = Preprocessing;
 			sourceTree = "<group>";
@@ -625,6 +632,7 @@
 				954CE790A4B63D459117E5E3 /* StarDetecting.swift in Sources */,
 				B7ECAB765F147AC7921DF75C /* MomentStarDetector.swift in Sources */,
 				FA0000000000000000000020 /* BayerGrayscaleConverter.swift in Sources */,
+				FA0000000000000000000031 /* FITSImageDecoder.swift in Sources */,
 				8712B4AE5A19BFD595D5F04D /* PSFStarDetector.swift in Sources */,
 				1DF56742B23667B3BEAF13DD /* Statistics.swift in Sources */,
 			);
