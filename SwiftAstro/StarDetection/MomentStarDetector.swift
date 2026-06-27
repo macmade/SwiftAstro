@@ -23,6 +23,7 @@
  ******************************************************************************/
 
 import Foundation
+import SwiftPixel
 
 /// Detects stars by thresholding above a robust background, grouping connected
 /// pixels into sources, and measuring each from its flux-weighted moments.
@@ -84,11 +85,18 @@ public struct MomentStarDetector: StarDetecting
     /// connected above-threshold pixels into sources, filtering them, and
     /// measuring each from its flux-weighted moments.
     ///
-    /// - Parameter image: The linear grayscale image to analyze.
+    /// - Parameter image: The single-channel, linear image to analyze.
     /// - Returns: The detected stars and their aggregate metrics; an empty field
     ///   for a degenerate (zero-size) image.
-    public func detectStars( in image: GrayscaleImage ) throws -> StarField
+    /// - Throws: ``SwiftAstro/Error`` if the image is not single-channel.
+    public func detectStars( in image: PixelBuffer ) throws -> StarField
     {
+        guard image.channels == 1
+        else
+        {
+            throw Error( message: "MomentStarDetector requires a single-channel image, got \( image.channels ) channels" )
+        }
+
         guard image.width > 0, image.height > 0
         else
         {
@@ -119,7 +127,7 @@ public struct MomentStarDetector: StarDetecting
     }
 
     /// Whether a source's bounding box clears the configured edge margin.
-    private func isWithinBounds( _ component: Component, image: GrayscaleImage ) -> Bool
+    private func isWithinBounds( _ component: Component, image: PixelBuffer ) -> Bool
     {
         let margin = self.configuration.edgeMargin
 
@@ -166,7 +174,9 @@ public struct MomentStarDetector: StarDetecting
     }
 
     /// Groups above-threshold pixels into 8-connected components via flood fill.
-    private static func connectedComponents( in image: GrayscaleImage, threshold: Double ) -> [ Component ]
+    ///
+    /// `image` is single-channel, so its row-major `pixels` index is `y · width + x`.
+    private static func connectedComponents( in image: PixelBuffer, threshold: Double ) -> [ Component ]
     {
         let width   = image.width
         let height  = image.height
@@ -226,17 +236,15 @@ public struct MomentStarDetector: StarDetecting
 
     /// Measures a source's centroid, flux, HFR, FWHM and eccentricity from its
     /// background-subtracted, flux-weighted moments.
-    private static func measure( _ component: Component, in image: GrayscaleImage, background: Double ) -> Star?
+    private static func measure( _ component: Component, in image: PixelBuffer, background: Double ) -> Star?
     {
-        let samples = component.pixels.compactMap
+        // The component's pixels were produced from in-bounds coordinates of a
+        // single-channel buffer, so the row-major index `y · width + x` is valid.
+        let samples = component.pixels.map
         {
-            pixel -> ( x: Double, y: Double, w: Double )? in
+            pixel -> ( x: Double, y: Double, w: Double ) in
 
-            guard let value = image[ pixel.x, pixel.y ]
-            else
-            {
-                return nil
-            }
+            let value = image.pixels[ ( pixel.y * image.width ) + pixel.x ]
 
             return ( x: Double( pixel.x ), y: Double( pixel.y ), w: value - background )
         }

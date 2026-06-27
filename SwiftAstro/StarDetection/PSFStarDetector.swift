@@ -23,6 +23,7 @@
  ******************************************************************************/
 
 import Foundation
+import SwiftPixel
 
 /// A point-spread-function-fitting star detector.
 ///
@@ -42,9 +43,9 @@ public struct PSFStarDetector: StarDetecting
     ///
     /// - Important: Not yet implemented — always returns an empty ``StarField``.
     ///
-    /// - Parameter image: The linear grayscale image to analyze.
+    /// - Parameter image: The single-channel, linear image to analyze.
     /// - Returns: An empty ``StarField`` until PSF fitting is implemented.
-    public func detectStars( in image: GrayscaleImage ) throws -> StarField
+    public func detectStars( in image: PixelBuffer ) throws -> StarField
     {
         // TODO: Implement PSF-fitting + deblending detection.
         StarField( stars: [] )

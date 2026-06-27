@@ -28,18 +28,35 @@ import PackageDescription
 
 let package = Package(
     name: "SwiftAstro",
+    platforms: [
+        .macOS( .v15 ),
+    ],
     products: [
         .library( name: "SwiftAstro", targets: [ "SwiftAstro" ] ),
+    ],
+    dependencies: [
+        .package( path: "Submodules/SwiftPixel" ),
+        .package( path: "Submodules/SwiftFITS" ),
     ],
     targets: [
         .target(
             name: "SwiftAstro",
+            dependencies: [
+                .product( name: "SwiftPixel", package: "SwiftPixel" ),
+            ],
             path: "SwiftAstro"
         ),
         .testTarget(
             name: "SwiftAstroTests",
-            dependencies: [ "SwiftAstro" ],
-            path: "SwiftAstroTests"
+            dependencies: [
+                "SwiftAstro",
+                .product( name: "SwiftFITS",  package: "SwiftFITS"  ),
+                .product( name: "SwiftPixel", package: "SwiftPixel" ),
+            ],
+            path: "SwiftAstroTests",
+            resources: [
+                .copy( "Resources/2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits" ),
+            ]
         ),
     ]
 )

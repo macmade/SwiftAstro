@@ -24,6 +24,7 @@
 
 import Foundation
 @testable import SwiftAstro
+import SwiftPixel
 
 /// A deterministic, seeded uniform noise source, so synthetic fixtures are
 /// reproducible across runs without depending on the system RNG.
@@ -138,12 +139,16 @@ struct SyntheticStarField
         return copy
     }
 
-    /// Builds the grayscale image from the accumulated samples.
+    /// Builds the single-channel pixel buffer from the accumulated samples.
     ///
-    /// - Returns: The synthetic grayscale image.
-    /// - Throws: ``SwiftAstro/Error`` if the geometry is inconsistent.
-    func image() throws -> GrayscaleImage
+    /// The samples are raw linear values (not in the `[0, 1]` range), so the
+    /// buffer is created with `isNormalized: false`, matching how a real linear
+    /// light frame is loaded.
+    ///
+    /// - Returns: The synthetic single-channel pixel buffer.
+    /// - Throws: An error if the geometry is inconsistent.
+    func image() throws -> PixelBuffer
     {
-        try GrayscaleImage( width: self.width, height: self.height, pixels: self.pixels )
+        try PixelBuffer( width: self.width, height: self.height, channels: 1, pixels: self.pixels, isNormalized: false )
     }
 }
