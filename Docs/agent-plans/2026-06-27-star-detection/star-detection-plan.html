@@ -318,8 +318,8 @@
       </div>
     </details>
 
-    <details class="ms">
-      <summary><span class="ms-id">M6</span><span class="ms-title">Remove MomentStarDetector &amp; PSFStarDetector</span><span class="cap cap-todo">Not started</span></summary>
+    <details class="ms" open>
+      <summary><span class="ms-id">M6</span><span class="ms-title">Remove MomentStarDetector &amp; PSFStarDetector</span><span class="cap cap-done">Completed</span></summary>
       <div class="ms-body">
         <h5>Goal</h5>
         <p>Consolidate to a single production detector: delete the now-unused detectors and their tests, leaving <code>StarMoments</code> as the surviving moment logic.</p>
@@ -330,9 +330,15 @@
           <li>Confirm no remaining references; update <code>StarDetecting</code> docs that mention the removed types.</li>
           <li>Remove deleted files from <code>SwiftAstro.xcodeproj</code>; confirm SwiftPM build; both test runners green.</li>
         </ul>
-        <div class="fieldline"><span class="k">Status:</span> <span class="cap cap-todo">Not started</span></div>
-        <div class="fieldline"><span class="k">Completed:</span> <span class="empty">—</span></div>
-        <h5>Implementation notes</h5><p class="empty">—</p>
+        <div class="fieldline"><span class="k">Status:</span> <span class="cap cap-done">Completed</span></div>
+        <div class="fieldline"><span class="k">Completed:</span> 2026-06-28</div>
+        <h5>Implementation notes</h5>
+        <ul class="tasks">
+          <li>Deleted the two retired detectors and their tests: <code>SwiftAstro/StarDetection/MomentStarDetector.swift</code>, <code>SwiftAstro/StarDetection/PSFStarDetector.swift</code>, <code>SwiftAstroTests/StarDetection/MomentStarDetectorTests.swift</code>, and <code>SwiftAstroTests/StarDetection/PSFStarDetectorTests.swift</code> (via <code>git rm</code>). <code>MatchedFilterStarDetector</code> is now the sole <code>StarDetecting</code> conformer; <code>StarMoments</code> remains as the surviving moment logic, exercised by <code>StarMomentsTests</code>.</li>
+          <li>Updated the <code>StarDetecting</code> protocol doc comment, which still named <code>MomentStarDetector</code> as the example conformer, to point at <code>MatchedFilterStarDetector</code> (the matched-filter, Gaussian-fit approach) instead. Confirmed via grep that no other Swift source references either removed type.</li>
+          <li>Removed all 16 entries for the four files from <code>SwiftAstro.xcodeproj/project.pbxproj</code> (PBXBuildFile, PBXFileReference, the source/test group children, and the Sources build-phase members). Validated the result with <code>plutil -lint</code> (OK). No entries needed removing from the SwiftPM manifest — it discovers sources by directory.</li>
+          <li>Verified green on both runners and the package build: <code>xcodebuild test</code> → <strong>TEST SUCCEEDED</strong> (including the slow <code>RealFrameValidationTests</code> on the real H3.69/M35/M42 frames); <code>swift test</code> → <strong>33 tests in 9 suites passed</strong>; <code>swift build</code> clean. The deleted detector test cases no longer appear in either run.</li>
+        </ul>
         <h5>Review comments</h5><p class="empty">—</p>
       </div>
     </details>

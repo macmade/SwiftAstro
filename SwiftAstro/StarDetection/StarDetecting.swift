@@ -28,9 +28,10 @@ import SwiftPixel
 /// A strategy for detecting stars and measuring their metrics in a
 /// single-channel image.
 ///
-/// This is the seam that lets the detection method vary: ``MomentStarDetector``
-/// implements the moment-based approach today, and a future PSF-fitting detector
-/// can conform without changing callers or the result types.
+/// This is the seam that lets the detection method vary:
+/// ``MatchedFilterStarDetector`` implements the matched-filter, Gaussian-fit
+/// approach today, and an alternative detector can conform without changing
+/// callers or the result types.
 ///
 /// The input is a `SwiftPixel.PixelBuffer` of *linear* samples (the un-stretched
 /// sensor data), since the star metrics are only physically meaningful on linear

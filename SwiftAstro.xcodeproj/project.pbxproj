@@ -25,15 +25,11 @@
 		FA0000000000000000000036 /* SwiftFITS.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000009 /* SwiftFITS.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		05E974CA2FE921070078F616 /* SwiftAstro.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05E974C02FE921070078F616 /* SwiftAstro.framework */; };
 		7C438F7DED2E13527A24B0BE /* SyntheticStarField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6381522374836B9D1795FED /* SyntheticStarField.swift */; };
-		8712B4AE5A19BFD595D5F04D /* PSFStarDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C193831A7D605CC81691C7F /* PSFStarDetector.swift */; };
 		87D9441BEB62F18501820C7F /* ErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BB7A519F56E3BAD1E4C4B43 /* ErrorTests.swift */; };
 		954CE790A4B63D459117E5E3 /* StarDetecting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65743BE21FA6DF080957A92C /* StarDetecting.swift */; };
 		97A53164B9AC46B2F79C2BFF /* Star.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B96C49E375EAF3E94A7C1FB /* Star.swift */; };
 		A20000BA03275C3C3A09B6A6 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8326FC0C9068E5DF4FA1F8B3 /* Error.swift */; };
-		B7ECAB765F147AC7921DF75C /* MomentStarDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E89567E9D164FFEBBDCF55 /* MomentStarDetector.swift */; };
-		CF833BB9FEF55B932183FE19 /* MomentStarDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 228C6E42E5167F2887BAF666 /* MomentStarDetectorTests.swift */; };
 		DEFF42CB10493A2ADDEE7A2A /* StarField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A67A0F33BB62B9BEA97A1F /* StarField.swift */; };
-		DFDBCD03B303981BB42E2ABD /* PSFStarDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1605399E95C4DCA7D1F98ACE /* PSFStarDetectorTests.swift */; };
 		FA161376C312A18994FE2710 /* StarFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13643E128A2102A6EB107EE /* StarFieldTests.swift */; };
 		FE00000000000000000000D2 /* StarMoments.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE00000000000000000000D1 /* StarMoments.swift */; };
 		FE00000000000000000000D4 /* StarMomentsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE00000000000000000000D3 /* StarMomentsTests.swift */; };
@@ -153,17 +149,13 @@
 		05E975132FE9229C0078F616 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		05E975142FE9229C0078F616 /* Release - ccache.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Release - ccache.xcconfig"; sourceTree = "<group>"; };
 		05E975152FE9229C0078F616 /* Release - Library.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Release - Library.xcconfig"; sourceTree = "<group>"; };
-		1605399E95C4DCA7D1F98ACE /* PSFStarDetectorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PSFStarDetectorTests.swift; sourceTree = "<group>"; };
-		228C6E42E5167F2887BAF666 /* MomentStarDetectorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MomentStarDetectorTests.swift; sourceTree = "<group>"; };
 		3BB7A519F56E3BAD1E4C4B43 /* ErrorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ErrorTests.swift; sourceTree = "<group>"; };
-		5C193831A7D605CC81691C7F /* PSFStarDetector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PSFStarDetector.swift; sourceTree = "<group>"; };
 		65743BE21FA6DF080957A92C /* StarDetecting.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StarDetecting.swift; sourceTree = "<group>"; };
 		7B96C49E375EAF3E94A7C1FB /* Star.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Star.swift; sourceTree = "<group>"; };
 		8326FC0C9068E5DF4FA1F8B3 /* Error.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
 		B2A67A0F33BB62B9BEA97A1F /* StarField.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StarField.swift; sourceTree = "<group>"; };
 		B6381522374836B9D1795FED /* SyntheticStarField.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SyntheticStarField.swift; sourceTree = "<group>"; };
 		C13643E128A2102A6EB107EE /* StarFieldTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StarFieldTests.swift; sourceTree = "<group>"; };
-		C1E89567E9D164FFEBBDCF55 /* MomentStarDetector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MomentStarDetector.swift; sourceTree = "<group>"; };
 		FE00000000000000000000D1 /* StarMoments.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StarMoments.swift; sourceTree = "<group>"; };
 		FE00000000000000000000D3 /* StarMomentsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StarMomentsTests.swift; sourceTree = "<group>"; };
 		FE00000000000000000000E1 /* GaussianFit+StarMoments.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "GaussianFit+StarMoments.swift"; sourceTree = "<group>"; };
@@ -437,8 +429,6 @@
 				FE00000000000000000000D1 /* StarMoments.swift */,
 				FE00000000000000000000E1 /* GaussianFit+StarMoments.swift */,
 				FE00000000000000000000F1 /* MatchedFilterStarDetector.swift */,
-				C1E89567E9D164FFEBBDCF55 /* MomentStarDetector.swift */,
-				5C193831A7D605CC81691C7F /* PSFStarDetector.swift */,
 			);
 			name = StarDetection;
 			path = StarDetection;
@@ -480,8 +470,6 @@
 				FE00000000000000000000D3 /* StarMomentsTests.swift */,
 				FE00000000000000000000E3 /* GaussianFitStarMomentsTests.swift */,
 				FE00000000000000000000F3 /* MatchedFilterStarDetectorTests.swift */,
-				228C6E42E5167F2887BAF666 /* MomentStarDetectorTests.swift */,
-				1605399E95C4DCA7D1F98ACE /* PSFStarDetectorTests.swift */,
 				FA0000000000000000000025 /* RealFrameValidationTests.swift */,
 			);
 			name = StarDetection;
@@ -645,10 +633,8 @@
 				FE00000000000000000000D2 /* StarMoments.swift in Sources */,
 				FE00000000000000000000E2 /* GaussianFit+StarMoments.swift in Sources */,
 				FE00000000000000000000F2 /* MatchedFilterStarDetector.swift in Sources */,
-				B7ECAB765F147AC7921DF75C /* MomentStarDetector.swift in Sources */,
 				FA0000000000000000000020 /* BayerGrayscaleConverter.swift in Sources */,
 				FA0000000000000000000031 /* FITSImageDecoder.swift in Sources */,
-				8712B4AE5A19BFD595D5F04D /* PSFStarDetector.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -663,9 +649,7 @@
 				FA0000000000000000000018 /* FITSTestImageTests.swift in Sources */,
 				FA000000000000000000001A /* FITSTestImage.swift in Sources */,
 				FA0000000000000000000023 /* BayerGrayscaleConverterTests.swift in Sources */,
-				CF833BB9FEF55B932183FE19 /* MomentStarDetectorTests.swift in Sources */,
 				FA0000000000000000000026 /* RealFrameValidationTests.swift in Sources */,
-				DFDBCD03B303981BB42E2ABD /* PSFStarDetectorTests.swift in Sources */,
 				7C438F7DED2E13527A24B0BE /* SyntheticStarField.swift in Sources */,
 				87D9441BEB62F18501820C7F /* ErrorTests.swift in Sources */,
 			);
