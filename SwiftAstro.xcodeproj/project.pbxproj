@@ -180,10 +180,10 @@
 		FA0000000000000000000001 /* SwiftPixel.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftPixel.xcodeproj; path = Submodules/SwiftPixel/SwiftPixel.xcodeproj; sourceTree = "<group>"; };
 		FA0000000000000000000002 /* SwiftUtilities.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftUtilities.xcodeproj; path = Submodules/SwiftPixel/Submodules/SwiftUtilities/SwiftUtilities.xcodeproj; sourceTree = "<group>"; };
 		FA0000000000000000000003 /* SwiftFITS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftFITS.xcodeproj; path = Submodules/SwiftFITS/SwiftFITS.xcodeproj; sourceTree = "<group>"; };
-		FA0000000000000000000014 /* 2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits */ = {isa = PBXFileReference; lastKnownFileType = file; path = "2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits"; sourceTree = "<group>"; };
+		FA0000000000000000000014 /* 2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits"; sourceTree = "<group>"; };
 		FA0000000000000000000017 /* FITSTestImageTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FITSTestImageTests.swift; sourceTree = "<group>"; };
 		FA0000000000000000000019 /* FITSTestImage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FITSTestImage.swift; sourceTree = "<group>"; };
-		FA000000000000000000001B /* m35_40min_blue.fits */ = {isa = PBXFileReference; lastKnownFileType = file; path = m35_40min_blue.fits; sourceTree = "<group>"; };
+		FA000000000000000000001B /* m35_40min_blue.fits */ = {isa = PBXFileReference; lastKnownFileType = text; path = m35_40min_blue.fits; sourceTree = "<group>"; };
 		FA000000000000000000001F /* BayerGrayscaleConverter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BayerGrayscaleConverter.swift; sourceTree = "<group>"; };
 		FA0000000000000000000022 /* BayerGrayscaleConverterTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BayerGrayscaleConverterTests.swift; sourceTree = "<group>"; };
 		FA0000000000000000000025 /* RealFrameValidationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RealFrameValidationTests.swift; sourceTree = "<group>"; };
@@ -405,7 +405,6 @@
 				7E959722FCC2AE7A3F65A52D /* TwilightEventsTests.swift */,
 				76DDE518E7571A155E3CEE2E /* MoonPhaseTests.swift */,
 			);
-			name = Ephemeris;
 			path = Ephemeris;
 			sourceTree = "<group>";
 		};
@@ -414,7 +413,6 @@
 			children = (
 				5A516E0150000000000000A2 /* SignalToNoise.swift */,
 			);
-			name = SignalToNoise;
 			path = SignalToNoise;
 			sourceTree = "<group>";
 		};
@@ -423,7 +421,6 @@
 			children = (
 				5A516E0150000000000000A5 /* SignalToNoiseTests.swift */,
 			);
-			name = SignalToNoise;
 			path = SignalToNoise;
 			sourceTree = "<group>";
 		};
@@ -437,7 +434,6 @@
 				FE00000000000000000000E1 /* GaussianFit+StarMoments.swift */,
 				FE00000000000000000000F1 /* MatchedFilterStarDetector.swift */,
 			);
-			name = StarDetection;
 			path = StarDetection;
 			sourceTree = "<group>";
 		};
@@ -446,7 +442,6 @@
 			children = (
 				3BB7A519F56E3BAD1E4C4B43 /* ErrorTests.swift */,
 			);
-			name = Core;
 			path = Core;
 			sourceTree = "<group>";
 		};
@@ -464,7 +459,6 @@
 				BD6ADE04C5B0E08E4D04DB9E /* TwilightEvents.swift */,
 				02A382E9473FC5E63866C26F /* MoonPhase.swift */,
 			);
-			name = Ephemeris;
 			path = Ephemeris;
 			sourceTree = "<group>";
 		};
@@ -473,7 +467,6 @@
 			children = (
 				8326FC0C9068E5DF4FA1F8B3 /* Error.swift */,
 			);
-			name = Core;
 			path = Core;
 			sourceTree = "<group>";
 		};
@@ -484,7 +477,6 @@
 				FA0000000000000000000019 /* FITSTestImage.swift */,
 				FA0000000000000000000017 /* FITSTestImageTests.swift */,
 			);
-			name = Helpers;
 			path = Helpers;
 			sourceTree = "<group>";
 		};
@@ -518,7 +510,6 @@
 				FA0000000000000000000014 /* 2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits */,
 				FA000000000000000000001E /* ESA */,
 			);
-			name = "Test Files";
 			path = "Test Files";
 			sourceTree = "<group>";
 		};
@@ -556,7 +547,6 @@
 				FE00000000000000000000F3 /* MatchedFilterStarDetectorTests.swift */,
 				FA0000000000000000000025 /* RealFrameValidationTests.swift */,
 			);
-			name = StarDetection;
 			path = StarDetection;
 			sourceTree = "<group>";
 		};
@@ -618,7 +608,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2630;
-				LastUpgradeCheck = 2630;
+				LastUpgradeCheck = 2650;
 				TargetAttributes = {
 					05E974BF2FE921070078F616 = {
 						CreatedOnToolsVersion = 26.3;
@@ -642,16 +632,16 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
+					ProductGroup = FA000000000000000000000C /* Products */;
+					ProjectRef = FA0000000000000000000003 /* SwiftFITS.xcodeproj */;
+				},
+				{
 					ProductGroup = FA000000000000000000000A /* Products */;
 					ProjectRef = FA0000000000000000000001 /* SwiftPixel.xcodeproj */;
 				},
 				{
 					ProductGroup = FA000000000000000000000B /* Products */;
 					ProjectRef = FA0000000000000000000002 /* SwiftUtilities.xcodeproj */;
-				},
-				{
-					ProductGroup = FA000000000000000000000C /* Products */;
-					ProjectRef = FA0000000000000000000003 /* SwiftFITS.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -771,6 +761,7 @@
 			baseConfigurationReference = 05E975102FE9229C0078F616 /* Debug - Library.xcconfig */;
 			buildSettings = {
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 326Y53CJMD;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0.0;
@@ -784,6 +775,7 @@
 			baseConfigurationReference = 05E975152FE9229C0078F616 /* Release - Library.xcconfig */;
 			buildSettings = {
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 326Y53CJMD;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0.0;
