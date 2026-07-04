@@ -116,6 +116,39 @@ struct PlanetPositionTests
         }
     }
 
+    /// Every planet observable from Earth (all but Earth itself) is covered.
+    @Test
+    func coversEveryObservablePlanet()
+    {
+        #expect( Planet.allCases.count == 7 )
+        #expect( Planet.allCases.contains( .uranus ) )
+        #expect( Planet.allCases.contains( .neptune ) )
+    }
+
+    /// Every planet has a non-empty name and astronomical symbol.
+    @Test
+    func everyPlanetHasANameAndSymbol()
+    {
+        Planet.allCases.forEach
+        {
+            #expect( $0.name.isEmpty == false )
+            #expect( $0.symbol.isEmpty == false )
+        }
+    }
+
+    /// The outer planets sit at their expected, near-constant heliocentric
+    /// distances (Uranus ~19 AU, Neptune ~30 AU) — a reference-free check that
+    /// their elements (semi-major axis and eccentricity) are wired correctly.
+    @Test
+    func outerPlanetsAreAtTheirExpectedDistances()
+    {
+        let uranus  = self.heliocentric( .uranus,  dayNumber: -3543 ).distance
+        let neptune = self.heliocentric( .neptune, dayNumber: -3543 ).distance
+
+        #expect( uranus  > 18 && uranus  < 21, "Uranus distance \( uranus ) AU is out of range" )
+        #expect( neptune > 29 && neptune < 31, "Neptune distance \( neptune ) AU is out of range" )
+    }
+
     /// The horizontal reduction is consistent: a planet is reported above the
     /// horizon exactly when its altitude is positive.
     @Test
