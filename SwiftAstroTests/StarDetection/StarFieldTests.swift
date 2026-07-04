@@ -45,6 +45,26 @@ struct StarFieldTests
         #expect( field.medianFWHM         == nil )
         #expect( field.medianHFR          == nil )
         #expect( field.medianEccentricity == nil )
+        #expect( field.fwhmRange          == nil )
+        #expect( field.hfrRange           == nil )
+        #expect( field.eccentricityRange  == nil )
+    }
+
+    /// The aggregate ranges span the smallest and largest of each metric.
+    @Test
+    func rangesSpanTheSmallestAndLargestValues() throws
+    {
+        let field = StarField( stars:
+            [
+                self.star( fwhm: 6, hfr: 3, eccentricity: 0.6 ),
+                self.star( fwhm: 2, hfr: 1, eccentricity: 0.2 ),
+                self.star( fwhm: 4, hfr: 2, eccentricity: 0.4 ),
+            ]
+        )
+
+        #expect( field.fwhmRange         == 2 ... 6 )
+        #expect( field.hfrRange          == 1 ... 3 )
+        #expect( field.eccentricityRange == 0.2 ... 0.6 )
     }
 
     /// The aggregate medians use the middle value for an odd star count.

@@ -69,4 +69,41 @@ public struct StarField: Sendable, Equatable
     {
         PixelUtilities.median( self.stars.map { $0.eccentricity } )
     }
+
+    /// The FWHM range (smallest to largest) over the detected stars, or `nil`
+    /// when there are none.
+    public var fwhmRange: ClosedRange< Double >?
+    {
+        Self.range( self.stars.map { $0.fwhm } )
+    }
+
+    /// The half-flux-radius range (smallest to largest) over the detected stars,
+    /// or `nil` when there are none.
+    public var hfrRange: ClosedRange< Double >?
+    {
+        Self.range( self.stars.map { $0.hfr } )
+    }
+
+    /// The eccentricity range (smallest to largest) over the detected stars, or
+    /// `nil` when there are none.
+    public var eccentricityRange: ClosedRange< Double >?
+    {
+        Self.range( self.stars.map { $0.eccentricity } )
+    }
+
+    /// The closed range spanning the smallest and largest of `values`, or `nil`
+    /// when `values` is empty.
+    ///
+    /// - Parameter values: The values to span.
+    /// - Returns: The `min ... max` range, or `nil`.
+    private static func range( _ values: [ Double ] ) -> ClosedRange< Double >?
+    {
+        guard let minimum = values.min(), let maximum = values.max()
+        else
+        {
+            return nil
+        }
+
+        return minimum ... maximum
+    }
 }
