@@ -7,3 +7,6 @@
 [submodule "Submodules/SwiftPixel"]
 	path = Submodules/SwiftPixel
 	url = https://github.com/macmade/SwiftPixel.git
+[submodule "Submodules/SwiftXISF"]
+	path = Submodules/SwiftXISF
+	url = https://github.com/macmade/SwiftXISF.git
