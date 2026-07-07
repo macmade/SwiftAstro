@@ -43,4 +43,24 @@ public struct EquatorialCoordinate: Sendable, Equatable
         self.rightAscension = rightAscension
         self.declination    = declination
     }
+
+    /// The angular separation between this coordinate and another, in degrees.
+    ///
+    /// - Parameter other: The coordinate to measure to.
+    /// - Returns: The great-circle angle between the two positions, in degrees
+    ///   (`0 ... 180`).
+    public func angularSeparation( to other: EquatorialCoordinate ) -> Double
+    {
+        let dec1        = Ephemeris.radians( self.declination )
+        let dec2        = Ephemeris.radians( other.declination )
+        let deltaRA     = Ephemeris.radians( self.rightAscension - other.rightAscension )
+        let deltaDec    = dec2 - dec1
+
+        // The haversine form stays accurate for the small separations the great-
+        // circle `acos` form loses to rounding.
+        let haversine   = sin( deltaDec / 2 ) * sin( deltaDec / 2 ) + cos( dec1 ) * cos( dec2 ) * sin( deltaRA / 2 ) * sin( deltaRA / 2 )
+        let angle       = 2 * asin( min( haversine.squareRoot(), 1 ) )
+
+        return Ephemeris.degrees( angle )
+    }
 }

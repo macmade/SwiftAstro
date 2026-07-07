@@ -29,9 +29,12 @@
 		B8AC095C7789FC9F9B425980 /* TwilightEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD6ADE04C5B0E08E4D04DB9E /* TwilightEvents.swift */; };
 		BBFC80FDF1338AF22D6ACC10 /* MoonPhase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A382E9473FC5E63866C26F /* MoonPhase.swift */; };
 		C033721D878BBE5CC6939846 /* PlanetPositionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0FF73C6C04C36BDDA20D8 /* PlanetPositionTests.swift */; };
+		A1B2C3D4E5F60718293A4B03 /* LunarPositionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B04 /* LunarPositionTests.swift */; };
+		A1B2C3D4E5F60718293A4B05 /* EquatorialCoordinateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B06 /* EquatorialCoordinateTests.swift */; };
 		DCA04EAD547D910D55CC526A /* GeographicLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F960657F02129498BDF21355 /* GeographicLocation.swift */; };
 		DEFF42CB10493A2ADDEE7A2A /* StarField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A67A0F33BB62B9BEA97A1F /* StarField.swift */; };
 		ED9EA157ABD9ECA03B09D60F /* PlanetPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05074AD5ABCAF428341BC88B /* PlanetPosition.swift */; };
+		A1B2C3D4E5F60718293A4B01 /* LunarPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B02 /* LunarPosition.swift */; };
 		FA000000000000000000000D /* SwiftPixel.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000007 /* SwiftPixel.framework */; };
 		FA000000000000000000000E /* SwiftUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000008 /* SwiftUtilities.framework */; };
 		FA000000000000000000000F /* SwiftPixel.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000007 /* SwiftPixel.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -107,6 +110,7 @@
 /* Begin PBXFileReference section */
 		02A382E9473FC5E63866C26F /* MoonPhase.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MoonPhase.swift; sourceTree = "<group>"; };
 		05074AD5ABCAF428341BC88B /* PlanetPosition.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PlanetPosition.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B02 /* LunarPosition.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LunarPosition.swift; sourceTree = "<group>"; };
 		05E974C02FE921070078F616 /* SwiftAstro.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SwiftAstro.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		05E974C92FE921070078F616 /* SwiftAstroTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftAstroTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		05E974DC2FE922850078F616 /* CODE_OF_CONDUCT.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CODE_OF_CONDUCT.md; sourceTree = "<group>"; };
@@ -160,6 +164,8 @@
 		05E975152FE9229C0078F616 /* Release - Library.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Release - Library.xcconfig"; sourceTree = "<group>"; };
 		3BB7A519F56E3BAD1E4C4B43 /* ErrorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ErrorTests.swift; sourceTree = "<group>"; };
 		4FA0FF73C6C04C36BDDA20D8 /* PlanetPositionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PlanetPositionTests.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B04 /* LunarPositionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LunarPositionTests.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B06 /* EquatorialCoordinateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EquatorialCoordinateTests.swift; sourceTree = "<group>"; };
 		53CD8B38EF112769C6C6B8EE /* Planet.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Planet.swift; sourceTree = "<group>"; };
 		5A516E0150000000000000A2 /* SignalToNoise.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SignalToNoise.swift; sourceTree = "<group>"; };
 		5A516E0150000000000000A5 /* SignalToNoiseTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SignalToNoiseTests.swift; sourceTree = "<group>"; };
@@ -406,6 +412,8 @@
 			children = (
 				753AFF1F15A64F1BA33F6D54 /* SolarPositionTests.swift */,
 				4FA0FF73C6C04C36BDDA20D8 /* PlanetPositionTests.swift */,
+				A1B2C3D4E5F60718293A4B04 /* LunarPositionTests.swift */,
+				A1B2C3D4E5F60718293A4B06 /* EquatorialCoordinateTests.swift */,
 				7E959722FCC2AE7A3F65A52D /* TwilightEventsTests.swift */,
 				76DDE518E7571A155E3CEE2E /* MoonPhaseTests.swift */,
 			);
@@ -462,6 +470,7 @@
 				F602446866EA87E2E0229DDB /* SolarPosition.swift */,
 				53CD8B38EF112769C6C6B8EE /* Planet.swift */,
 				05074AD5ABCAF428341BC88B /* PlanetPosition.swift */,
+				A1B2C3D4E5F60718293A4B02 /* LunarPosition.swift */,
 				BD6ADE04C5B0E08E4D04DB9E /* TwilightEvents.swift */,
 				02A382E9473FC5E63866C26F /* MoonPhase.swift */,
 			);
@@ -724,6 +733,7 @@
 				8D6365D502F68BC0B1ECE19D /* SolarPosition.swift in Sources */,
 				51A6DBBA0BDB7C77BAFD16E9 /* Planet.swift in Sources */,
 				ED9EA157ABD9ECA03B09D60F /* PlanetPosition.swift in Sources */,
+				A1B2C3D4E5F60718293A4B01 /* LunarPosition.swift in Sources */,
 				B8AC095C7789FC9F9B425980 /* TwilightEvents.swift in Sources */,
 				BBFC80FDF1338AF22D6ACC10 /* MoonPhase.swift in Sources */,
 				88AB3ECEB388F83A8BE989B6 /* SkyBackground.swift in Sources */,
@@ -747,6 +757,8 @@
 				87D9441BEB62F18501820C7F /* ErrorTests.swift in Sources */,
 				70B46A1951876F1598C2881E /* SolarPositionTests.swift in Sources */,
 				C033721D878BBE5CC6939846 /* PlanetPositionTests.swift in Sources */,
+				A1B2C3D4E5F60718293A4B03 /* LunarPositionTests.swift in Sources */,
+				A1B2C3D4E5F60718293A4B05 /* EquatorialCoordinateTests.swift in Sources */,
 				11FF4BDAFA527B62DA9EE0F3 /* TwilightEventsTests.swift in Sources */,
 				09B3DB4C335D49A6F9D5A3E9 /* MoonPhaseTests.swift in Sources */,
 				1E0F08AC1507C6A05DF3F85E /* SkyBackgroundTests.swift in Sources */,
