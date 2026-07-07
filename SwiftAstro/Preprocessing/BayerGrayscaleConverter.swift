@@ -74,7 +74,7 @@ public struct BayerGrayscaleConverter: Sendable
             throw Error( message: "BayerGrayscaleConverter requires a single-channel mosaic, got \( mosaic.channels ) channels" )
         }
 
-        let pipeline = PixelPipeline( config: .init( debayer: ( pattern: self.pattern, mode: self.mode ) ) )
+        let pipeline = PixelPipeline( config: .init( inputFormat: .cfa( pattern: self.pattern, mode: self.mode ) ) )
 
         // run(pixels:) treats the samples as an already-decoded mosaic; the
         // bitsPerPixel argument is informational only and does not re-decode.
