@@ -10,3 +10,6 @@
 [submodule "Submodules/SwiftXISF"]
 	path = Submodules/SwiftXISF
 	url = https://github.com/macmade/SwiftXISF.git
+[submodule "Submodules/SwiftRAW"]
+	path = Submodules/SwiftRAW
+	url = https://github.com/macmade/SwiftRAW.git
