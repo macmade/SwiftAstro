@@ -24,19 +24,18 @@
 		8D6365D502F68BC0B1ECE19D /* SolarPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = F602446866EA87E2E0229DDB /* SolarPosition.swift */; };
 		954CE790A4B63D459117E5E3 /* StarDetecting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65743BE21FA6DF080957A92C /* StarDetecting.swift */; };
 		97A53164B9AC46B2F79C2BFF /* Star.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B96C49E375EAF3E94A7C1FB /* Star.swift */; };
+		A1B2C3D4E5F60718293A4B01 /* LunarPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B02 /* LunarPosition.swift */; };
+		A1B2C3D4E5F60718293A4B03 /* LunarPositionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B04 /* LunarPositionTests.swift */; };
+		A1B2C3D4E5F60718293A4B05 /* EquatorialCoordinateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B06 /* EquatorialCoordinateTests.swift */; };
 		A20000BA03275C3C3A09B6A6 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8326FC0C9068E5DF4FA1F8B3 /* Error.swift */; };
 		A9F72CBBEDDBF22C4ED20ED4 /* OrbitalElements.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2C10A2DDE1B1CE47B7295A /* OrbitalElements.swift */; };
 		B8AC095C7789FC9F9B425980 /* TwilightEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD6ADE04C5B0E08E4D04DB9E /* TwilightEvents.swift */; };
 		BBFC80FDF1338AF22D6ACC10 /* MoonPhase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A382E9473FC5E63866C26F /* MoonPhase.swift */; };
 		C033721D878BBE5CC6939846 /* PlanetPositionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0FF73C6C04C36BDDA20D8 /* PlanetPositionTests.swift */; };
-		A1B2C3D4E5F60718293A4B03 /* LunarPositionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B04 /* LunarPositionTests.swift */; };
-		A1B2C3D4E5F60718293A4B05 /* EquatorialCoordinateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B06 /* EquatorialCoordinateTests.swift */; };
 		DCA04EAD547D910D55CC526A /* GeographicLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F960657F02129498BDF21355 /* GeographicLocation.swift */; };
 		DEFF42CB10493A2ADDEE7A2A /* StarField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A67A0F33BB62B9BEA97A1F /* StarField.swift */; };
 		ED9EA157ABD9ECA03B09D60F /* PlanetPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05074AD5ABCAF428341BC88B /* PlanetPosition.swift */; };
-		A1B2C3D4E5F60718293A4B01 /* LunarPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B02 /* LunarPosition.swift */; };
 		FA000000000000000000000D /* SwiftPixel.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000007 /* SwiftPixel.framework */; };
-		FA000000000000000000000E /* SwiftUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000008 /* SwiftUtilities.framework */; };
 		FA000000000000000000000F /* SwiftPixel.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000007 /* SwiftPixel.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		FA0000000000000000000010 /* SwiftUtilities.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000008 /* SwiftUtilities.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		FA0000000000000000000011 /* SwiftFITS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000009 /* SwiftFITS.framework */; };
@@ -45,10 +44,10 @@
 		FA0000000000000000000018 /* FITSTestImageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000017 /* FITSTestImageTests.swift */; };
 		FA000000000000000000001A /* FITSTestImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000019 /* FITSTestImage.swift */; };
 		FA000000000000000000001C /* m35_40min_blue.fits in Resources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000001B /* m35_40min_blue.fits */; };
-		FA0000000000000000000027 /* Light_M 42_10.0s_LP_20260101-234803.fit in Resources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000015 /* Light_M 42_10.0s_LP_20260101-234803.fit */; };
 		FA0000000000000000000020 /* BayerGrayscaleConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000001F /* BayerGrayscaleConverter.swift */; };
 		FA0000000000000000000023 /* BayerGrayscaleConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000022 /* BayerGrayscaleConverterTests.swift */; };
 		FA0000000000000000000026 /* RealFrameValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000025 /* RealFrameValidationTests.swift */; };
+		FA0000000000000000000027 /* Light_M 42_10.0s_LP_20260101-234803.fit in Resources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000015 /* Light_M 42_10.0s_LP_20260101-234803.fit */; };
 		FA0000000000000000000031 /* FITSImageDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000030 /* FITSImageDecoder.swift */; };
 		FA0000000000000000000035 /* SwiftFITS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000009 /* SwiftFITS.framework */; };
 		FA0000000000000000000036 /* SwiftFITS.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000009 /* SwiftFITS.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -111,7 +110,6 @@
 /* Begin PBXFileReference section */
 		02A382E9473FC5E63866C26F /* MoonPhase.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MoonPhase.swift; sourceTree = "<group>"; };
 		05074AD5ABCAF428341BC88B /* PlanetPosition.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PlanetPosition.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F60718293A4B02 /* LunarPosition.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LunarPosition.swift; sourceTree = "<group>"; };
 		05E974C02FE921070078F616 /* SwiftAstro.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SwiftAstro.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		05E974C92FE921070078F616 /* SwiftAstroTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftAstroTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		05E974DC2FE922850078F616 /* CODE_OF_CONDUCT.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CODE_OF_CONDUCT.md; sourceTree = "<group>"; };
@@ -165,8 +163,6 @@
 		05E975152FE9229C0078F616 /* Release - Library.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Release - Library.xcconfig"; sourceTree = "<group>"; };
 		3BB7A519F56E3BAD1E4C4B43 /* ErrorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ErrorTests.swift; sourceTree = "<group>"; };
 		4FA0FF73C6C04C36BDDA20D8 /* PlanetPositionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PlanetPositionTests.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F60718293A4B04 /* LunarPositionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LunarPositionTests.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F60718293A4B06 /* EquatorialCoordinateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EquatorialCoordinateTests.swift; sourceTree = "<group>"; };
 		53CD8B38EF112769C6C6B8EE /* Planet.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Planet.swift; sourceTree = "<group>"; };
 		5A516E0150000000000000A2 /* SignalToNoise.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SignalToNoise.swift; sourceTree = "<group>"; };
 		5A516E0150000000000000A5 /* SignalToNoiseTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SignalToNoiseTests.swift; sourceTree = "<group>"; };
@@ -179,6 +175,9 @@
 		7E959722FCC2AE7A3F65A52D /* TwilightEventsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TwilightEventsTests.swift; sourceTree = "<group>"; };
 		8326FC0C9068E5DF4FA1F8B3 /* Error.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
 		9C7731DCA4E1120E39F0A960 /* SkyBackground.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SkyBackground.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B02 /* LunarPosition.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LunarPosition.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B04 /* LunarPositionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LunarPositionTests.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B06 /* EquatorialCoordinateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EquatorialCoordinateTests.swift; sourceTree = "<group>"; };
 		B2A67A0F33BB62B9BEA97A1F /* StarField.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StarField.swift; sourceTree = "<group>"; };
 		B6381522374836B9D1795FED /* SyntheticStarField.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SyntheticStarField.swift; sourceTree = "<group>"; };
 		B85D5904EE6A384AC3F1F534 /* HorizontalCoordinate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HorizontalCoordinate.swift; sourceTree = "<group>"; };
@@ -192,10 +191,10 @@
 		FA0000000000000000000002 /* SwiftUtilities.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftUtilities.xcodeproj; path = Submodules/SwiftPixel/Submodules/SwiftUtilities/SwiftUtilities.xcodeproj; sourceTree = "<group>"; };
 		FA0000000000000000000003 /* SwiftFITS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftFITS.xcodeproj; path = Submodules/SwiftFITS/SwiftFITS.xcodeproj; sourceTree = "<group>"; };
 		FA0000000000000000000014 /* 2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits"; sourceTree = "<group>"; };
+		FA0000000000000000000015 /* Light_M 42_10.0s_LP_20260101-234803.fit */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Light_M 42_10.0s_LP_20260101-234803.fit"; sourceTree = "<group>"; };
 		FA0000000000000000000017 /* FITSTestImageTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FITSTestImageTests.swift; sourceTree = "<group>"; };
 		FA0000000000000000000019 /* FITSTestImage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FITSTestImage.swift; sourceTree = "<group>"; };
 		FA000000000000000000001B /* m35_40min_blue.fits */ = {isa = PBXFileReference; lastKnownFileType = text; path = m35_40min_blue.fits; sourceTree = "<group>"; };
-		FA0000000000000000000015 /* Light_M 42_10.0s_LP_20260101-234803.fit */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Light_M 42_10.0s_LP_20260101-234803.fit"; sourceTree = "<group>"; };
 		FA000000000000000000001F /* BayerGrayscaleConverter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BayerGrayscaleConverter.swift; sourceTree = "<group>"; };
 		FA0000000000000000000022 /* BayerGrayscaleConverterTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BayerGrayscaleConverterTests.swift; sourceTree = "<group>"; };
 		FA0000000000000000000025 /* RealFrameValidationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RealFrameValidationTests.swift; sourceTree = "<group>"; };
@@ -214,7 +213,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				FA000000000000000000000D /* SwiftPixel.framework in Frameworks */,
-				FA000000000000000000000E /* SwiftUtilities.framework in Frameworks */,
 				FA0000000000000000000035 /* SwiftFITS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
