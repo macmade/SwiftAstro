@@ -47,6 +47,18 @@ enum FITSTestImage
     /// (`m35_40min_blue.fits`): a clean, non-mosaiced single-channel star field.
     static let esaM35BlueFrameName = "m35_40min_blue"
 
+    /// The base name (without extension) of a single, short ZWO Seestar S30 light
+    /// frame of M42 under light pollution (`Light_M 42_10.0s_LP_20260101-234803.fit`):
+    /// a 10 s, 16-bit, `GRBG` one-shot-colour sub whose faint, low-SNR stars over
+    /// bright nebulosity the detector must still find. It is the diagnostic
+    /// regression fixture for the "zero stars on a real sub" fix, kept under its
+    /// original acquisition filename.
+    static let seestarM42FrameName = "Light_M 42_10.0s_LP_20260101-234803"
+
+    /// The file extension of the Seestar frame — `fit`, not the `fits` the other
+    /// fixtures use (its original acquisition name is preserved).
+    static let seestarM42FrameExtension = "fit"
+
     /// Anchors `Bundle(for:)` to the test bundle in Xcode builds.
     private final class BundleToken
     {}
@@ -173,6 +185,14 @@ enum FITSTestImage
     static func esaM35BlueDetection() throws -> PixelBuffer
     {
         try self.detection( contentsOf: try self.url( resource: self.esaM35BlueFrameName ) )
+    }
+
+    /// The single short Seestar S30 M42 sub, demosaiced to a detection-ready
+    /// grayscale image — the low-SNR one-shot-colour frame the detector must find
+    /// stars on.
+    static func seestarM42Detection() throws -> PixelBuffer
+    {
+        try self.detection( contentsOf: try self.url( resource: self.seestarM42FrameName, extension: self.seestarM42FrameExtension ) )
     }
 
     /// The M42 462-frame stack mosaic as a detection-ready single-channel image.

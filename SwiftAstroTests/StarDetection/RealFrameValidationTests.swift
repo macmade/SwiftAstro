@@ -98,6 +98,45 @@ struct RealFrameValidationTests
         #expect( medianHFR < 5 )
     }
 
+    /// On a single, short, light-polluted Seestar S30 M42 sub — a real
+    /// one-shot-colour frame whose faint stars sit over bright nebulosity — the
+    /// detector finds a healthy population of well-formed stars, not zero.
+    ///
+    /// This is the regression fixture for the "zero stars on a real sub" bug: the
+    /// original bootstrap over-estimated the FWHM from the frame's bloomed bright
+    /// stars, and the per-star Gaussian fit failed on the faint majority, so the
+    /// detector returned no stars at all. It runs over the full frame (not a crop),
+    /// because both failures are whole-frame properties (the bloomed bright stars
+    /// that biased the bootstrap are spread across it).
+    @Test
+    func detectsStarsOnAShortLightPollutedSeestarSub() throws
+    {
+        let image = try FITSTestImage.seestarM42Detection()
+        let field = try MatchedFilterStarDetector().detectStars( in: image )
+
+        // The headline regression guard: a real sub must not detect zero stars.
+        #expect( field.count > 0 )
+
+        // A healthy field of the frame's faint stars — well above a handful, and
+        // bounded so a noise/nebulosity blow-up would still fail.
+        #expect( field.count >= 40 )
+        #expect( field.count <= 5000 )
+
+        let medianHFR  = try #require( field.medianHFR )
+        let medianFWHM = try #require( field.medianFWHM )
+        let medianEcc  = try #require( field.medianEccentricity )
+
+        // Stellar, physically-meaningful metrics measured on the linear data.
+        #expect( medianHFR.isFinite )
+        #expect( medianHFR > 0.5 )
+        #expect( medianHFR < 8 )
+        #expect( medianFWHM.isFinite )
+        #expect( medianFWHM > 1 )
+        #expect( medianFWHM < 12 )
+        #expect( medianEcc >= 0 )
+        #expect( medianEcc <= 1 )
+    }
+
     /// Over M42's bright core the matched filter does not latch onto the
     /// nebulosity: it returns a bounded number of compact, star-like detections,
     /// not the contour of hundreds the old global-threshold detector produced.

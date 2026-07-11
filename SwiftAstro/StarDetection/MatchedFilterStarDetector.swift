@@ -35,12 +35,19 @@ import SwiftPixel
 /// not latch onto nebulosity or a near-flat noise floor the way a global
 /// threshold does. Candidate peaks then pass **sharpness** (rejecting single hot
 /// pixels and broad blobs) and **roundness** (rejecting elongated artifacts)
-/// cuts, and survivors are measured with a 2D Gaussian fit
-/// (``SwiftPixel/GaussianFit``) seeded from their moments (``StarMoments``).
+/// cuts, and survivors are measured from their **connected footprint** (the patch
+/// of pixels above the local noise floor that touches the peak), refined with a 2D
+/// Gaussian fit (``SwiftPixel/GaussianFit``) seeded from that footprint's moments
+/// (``StarMoments``). The fit is used for its sub-pixel accuracy when it converges,
+/// but it is not required: on faint, low-signal-to-noise stars — common on real
+/// sub-exposures — it often fails to converge, so the robust footprint-moment
+/// measurement stands in for it rather than the star being dropped.
 ///
 /// The matched-filter scale is auto-estimated from the image's brightest stars
 /// unless a ``Configuration/expectedFWHM`` override is set. The detector optimizes
-/// for purity: it would rather miss a faint star than report a false one.
+/// for purity — it would rather miss a faint star than report a false one — with
+/// the 5σ matched-filter threshold, not the fit, as the gate against false
+/// positives.
 public struct MatchedFilterStarDetector: StarDetecting
 {
     /// Tunable detection parameters.
@@ -123,6 +130,14 @@ public struct MatchedFilterStarDetector: StarDetecting
     /// The half-size, in pixels, of the window the FWHM bootstrap measures each
     /// bright star over.
     private static let bootstrapWindowRadius = 10
+
+    /// The number of noise multiples above the local background a pixel must exceed
+    /// to belong to a star's connected footprint.
+    private static let footprintSigma = 3.0
+
+    /// The smallest connected footprint, in pixels, a candidate may have to be
+    /// sized or measured — rejecting single hot pixels and sub-resolution spikes.
+    private static let minFootprintSamples = 5
 
     /// The eight neighbour offsets defining 8-connectivity.
     private static let neighborOffsets = [ ( -1, -1 ), ( 0, -1 ), ( 1, -1 ), ( -1, 0 ), ( 1, 0 ), ( -1, 1 ), ( 0, 1 ), ( 1, 1 ) ]
@@ -224,15 +239,19 @@ public struct MatchedFilterStarDetector: StarDetecting
         {
             peak -> Double? in
 
-            // Size each bright star against its own local background, over only
-            // its body (pixels clearly above that background). Measuring over the
-            // whole window would let the surrounding sky annulus inflate the
-            // half-flux radius.
+            // Size each bright star against its own local background, over only its
+            // connected footprint — the 8-connected patch of pixels above that
+            // background containing the peak. On crowded or nebulous frames, taking
+            // every above-threshold pixel in a fixed window instead merges the star
+            // with its neighbours or with bright nebulosity and inflates the
+            // half-flux radius (which is what made the estimate blow up on real
+            // one-shot-colour subs).
             let window          = Self.window( around: peak.index, radius: Self.bootstrapWindowRadius, in: image )
             let localBackground = PixelUtilities.median( window.map { $0.value } ) ?? background
-            let body            = window.filter { $0.value > localBackground + ( 3 * noise ) }
+            let level           = localBackground + ( Self.footprintSigma * noise )
+            let body            = Self.connectedFootprint( around: peak.index, radius: Self.bootstrapWindowRadius, level: level, in: image )
 
-            guard body.count >= 5, let moments = StarMoments( samples: body, background: localBackground ), moments.hfr.isFinite, moments.hfr > 0.3
+            guard body.count >= Self.minFootprintSamples, let moments = StarMoments( samples: body, background: localBackground ), moments.hfr.isFinite, moments.hfr > 0.3
             else
             {
                 return nil
@@ -333,16 +352,25 @@ public struct MatchedFilterStarDetector: StarDetecting
 
     // MARK: - Measurement
 
-    /// Measures a candidate peak, applying the purity cuts and the Gaussian fit.
+    /// Measures a candidate peak, applying the purity cuts.
     ///
     /// The background is estimated **locally**, as the median of the measurement
     /// window: on real frames the sky varies across the image (gradients,
     /// vignetting), and a global background would let the window's pedestal
     /// inflate the moments, fit and half-flux radius.
     ///
+    /// The shape is measured from the star's **connected footprint** (the pixels
+    /// above the local noise floor that touch the peak), and refined with a
+    /// Gaussian fit seeded from it. The fit is used when it converges to a physical
+    /// Gaussian — for its sub-pixel accuracy — but it is *not* required: on faint,
+    /// low-signal-to-noise stars, common on real sub-exposures, the fit frequently
+    /// fails to converge, and dropping every such star (as gating on the fit did)
+    /// collapses the detected count to almost nothing. When the fit fails, the
+    /// robust footprint-moment measurement stands on its own.
+    ///
     /// - Returns: The measured star, or `nil` if the candidate is clipped by the
-    ///   edge, saturated, fails the sharpness or roundness cut, or its fit does
-    ///   not converge to a physical Gaussian.
+    ///   edge, saturated, has no usable footprint, or fails the sharpness,
+    ///   roundness or size cut.
     private func measure( peak index: Int, in image: PixelBuffer, fwhm: Double ) -> Star?
     {
         let width  = image.width
@@ -375,33 +403,63 @@ public struct MatchedFilterStarDetector: StarDetecting
             return nil
         }
 
-        guard let moments = StarMoments( samples: samples, background: background )
+        // Measure the star's shape from its connected footprint. Unlike the second
+        // moments of the whole window — which the surrounding background noise
+        // inflates until they no longer describe the star — the footprint moments
+        // are compact and physical, so they both seed the fit well and provide a
+        // reliable measurement when the fit does not converge.
+        let noise     = ( PixelUtilities.medianAbsoluteDeviation( samples.map { $0.value }, around: background ) ?? 0 ) * 1.4826
+        let level     = background + ( Self.footprintSigma * noise )
+        let footprint = Self.connectedFootprint( around: index, radius: radius, level: level, in: image )
+
+        guard footprint.count >= Self.minFootprintSamples, let moments = StarMoments( samples: footprint, background: background )
         else
         {
             return nil
         }
 
-        let seed = GaussianFit.Parameters( moments: moments, amplitude: image.pixels[ index ] - background, background: background )
+        let seed          = GaussianFit.Parameters( moments: moments, amplitude: image.pixels[ index ] - background, background: background )
+        let fit           = GaussianFit.fit( samples: samples, initialGuess: seed )
+        let centerX:       Double
+        let centerY:       Double
+        let fwhmStar:      Double
+        let eccentricity:  Double
+        let flux:          Double
+        let hfrBackground: Double
 
-        guard let fit = GaussianFit.fit( samples: samples, initialGuess: seed )
+        if let fit
+        {
+            // The fit converged to a physical Gaussian: use its sub-pixel centre
+            // and shape (`GaussianFit.fit` already guarantees positive axis widths).
+            let sigmaMajor = Swift.max( abs( fit.sigmaX ), abs( fit.sigmaY ) )
+            let sigmaMinor = Swift.min( abs( fit.sigmaX ), abs( fit.sigmaY ) )
+
+            centerX       = fit.x
+            centerY       = fit.y
+            fwhmStar      = Self.fwhmPerSigma * ( sigmaMajor * sigmaMinor ).squareRoot()
+            eccentricity  = Swift.max( 0, 1 - ( ( sigmaMinor * sigmaMinor ) / ( sigmaMajor * sigmaMajor ) ) ).squareRoot()
+            flux          = 2 * Double.pi * fit.amplitude * abs( fit.sigmaX ) * abs( fit.sigmaY )
+            hfrBackground = fit.background
+        }
         else
         {
-            return nil
+            // The fit did not converge: fall back to the footprint moments. Note
+            // the flux here is the footprint's background-subtracted sum (its core,
+            // above the noise floor), whereas the fit branch reports the analytic
+            // integral of the whole fitted Gaussian — so a fallback star's `flux`
+            // is a lower bound, not directly comparable to a fitted star's. The
+            // geometric metrics (centre, FWHM, HFR, eccentricity) are comparable;
+            // only absolute flux differs. No consumer ranks by flux today; revisit
+            // if one does.
+            centerX       = moments.x
+            centerY       = moments.y
+            fwhmStar      = moments.fwhm
+            eccentricity  = moments.eccentricity
+            flux          = moments.flux
+            hfrBackground = background
         }
 
-        let sigmaMajor = Swift.max( abs( fit.sigmaX ), abs( fit.sigmaY ) )
-        let sigmaMinor = Swift.min( abs( fit.sigmaX ), abs( fit.sigmaY ) )
-
-        guard sigmaMajor > 0
-        else
-        {
-            return nil
-        }
-
-        let fwhmStar     = Self.fwhmPerSigma * ( sigmaMajor * sigmaMinor ).squareRoot()
-        let eccentricity = Swift.max( 0, 1 - ( ( sigmaMinor * sigmaMinor ) / ( sigmaMajor * sigmaMajor ) ) ).squareRoot()
-
-        // Post-fit purity: the fitted profile must be close to the matched-filter
+        // Post-measurement purity: the profile must be close to the matched-filter
         // scale (rejecting sub-PSF spikes and over-large blobs / nebulosity) and
         // round enough (rejecting trails and elongated artifacts).
         guard fwhmStar >= self.configuration.minFWHMFactor * fwhm,
@@ -412,10 +470,9 @@ public struct MatchedFilterStarDetector: StarDetecting
             return nil
         }
 
-        let hfr  = StarMoments.halfFluxRadius( samples: samples, background: fit.background, aroundX: fit.x, y: fit.y )
-        let flux = 2 * Double.pi * fit.amplitude * abs( fit.sigmaX ) * abs( fit.sigmaY )
+        let hfr = StarMoments.halfFluxRadius( samples: samples, background: hfrBackground, aroundX: centerX, y: centerY )
 
-        return Star( x: fit.x, y: fit.y, flux: flux, hfr: hfr, fwhm: fwhmStar, eccentricity: eccentricity )
+        return Star( x: centerX, y: centerY, flux: flux, hfr: hfr, fwhm: fwhmStar, eccentricity: eccentricity )
     }
 
     /// The sharpness of a peak: the mean background-subtracted value of its eight
@@ -458,6 +515,68 @@ public struct MatchedFilterStarDetector: StarDetecting
         }
 
         return ( neighbors.reduce( 0, + ) / Double( neighbors.count ) ) / center
+    }
+
+    /// The star's connected footprint: the 8-connected patch of pixels above
+    /// `level` that contains the peak, found by a flood fill bounded to a square
+    /// window around it.
+    ///
+    /// Growing only from the peak isolates the star from any nearby structure —
+    /// neighbouring stars, or bright nebulosity — that a plain "every pixel above
+    /// the level in the window" footprint would wrongly absorb, so the moments
+    /// measured over it describe this star alone.
+    ///
+    /// - Parameters:
+    ///   - index:  The peak's pixel index.
+    ///   - radius: The half-size, in pixels, of the bounding window.
+    ///   - level:  The value a pixel must exceed to belong to the footprint.
+    ///   - image:  The single-channel image.
+    /// - Returns: The footprint's samples, or an empty array when the peak itself
+    ///   does not exceed `level`.
+    private static func connectedFootprint( around index: Int, radius: Int, level: Double, in image: PixelBuffer ) -> [ ( x: Double, y: Double, value: Double ) ]
+    {
+        let width  = image.width
+        let height = image.height
+        let px     = index % width
+        let py     = index / width
+        let minX   = Swift.max( 0, px - radius )
+        let maxX   = Swift.min( width - 1, px + radius )
+        let minY   = Swift.max( 0, py - radius )
+        let maxY   = Swift.min( height - 1, py + radius )
+
+        var visited = Set< Int >()
+        var stack   = [ index ]
+        var body    = [ ( x: Double, y: Double, value: Double ) ]()
+
+        while let current = stack.popLast()
+        {
+            guard visited.insert( current ).inserted, image.pixels[ current ] > level
+            else
+            {
+                continue
+            }
+
+            let x = current % width
+            let y = current / width
+
+            body.append( ( x: Double( x ), y: Double( y ), value: image.pixels[ current ] ) )
+
+            Self.neighborOffsets.forEach
+            {
+                let nx = x + $0.0
+                let ny = y + $0.1
+
+                guard nx >= minX, nx <= maxX, ny >= minY, ny <= maxY
+                else
+                {
+                    return
+                }
+
+                stack.append( ( ny * width ) + nx )
+            }
+        }
+
+        return body
     }
 
     /// Collects the in-bounds samples of a square window centred on a pixel.
