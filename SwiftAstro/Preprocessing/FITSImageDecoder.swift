@@ -155,7 +155,7 @@ public enum FITSImageDecoder
             throw Error( message: "FITS file contains no image HDU" )
         }
 
-        return ( header: sections[ dataIndex - 1 ], data: sections[ dataIndex ].data )
+        return ( header: sections[ dataIndex - 1 ], data: try sections[ dataIndex ].data )
     }
 
     /// Reads a numeric FITS header value as a `Double`, whether it was parsed as
