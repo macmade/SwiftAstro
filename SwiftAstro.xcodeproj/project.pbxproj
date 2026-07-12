@@ -37,7 +37,6 @@
 		ED9EA157ABD9ECA03B09D60F /* PlanetPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05074AD5ABCAF428341BC88B /* PlanetPosition.swift */; };
 		FA000000000000000000000D /* SwiftPixel.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000007 /* SwiftPixel.framework */; };
 		FA000000000000000000000F /* SwiftPixel.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000007 /* SwiftPixel.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		FA0000000000000000000010 /* SwiftUtilities.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000008 /* SwiftUtilities.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		FA0000000000000000000011 /* SwiftFITS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000009 /* SwiftFITS.framework */; };
 		FA0000000000000000000012 /* SwiftPixel.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000007 /* SwiftPixel.framework */; };
 		FA0000000000000000000016 /* 2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits in Resources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000014 /* 2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits */; };
@@ -75,13 +74,6 @@
 			remoteGlobalIDString = 05C527822DD8E36300843626;
 			remoteInfo = SwiftPixel;
 		};
-		FA0000000000000000000005 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = FA0000000000000000000002 /* SwiftUtilities.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 05C527822DD8E36300843626;
-			remoteInfo = SwiftUtilities;
-		};
 		FA0000000000000000000006 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = FA0000000000000000000003 /* SwiftFITS.xcodeproj */;
@@ -99,7 +91,6 @@
 			dstSubfolderSpec = 10;
 			files = (
 				FA000000000000000000000F /* SwiftPixel.framework in Embed Frameworks */,
-				FA0000000000000000000010 /* SwiftUtilities.framework in Embed Frameworks */,
 				FA0000000000000000000036 /* SwiftFITS.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -188,7 +179,6 @@
 		F602446866EA87E2E0229DDB /* SolarPosition.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SolarPosition.swift; sourceTree = "<group>"; };
 		F960657F02129498BDF21355 /* GeographicLocation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GeographicLocation.swift; sourceTree = "<group>"; };
 		FA0000000000000000000001 /* SwiftPixel.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftPixel.xcodeproj; path = Submodules/SwiftPixel/SwiftPixel.xcodeproj; sourceTree = "<group>"; };
-		FA0000000000000000000002 /* SwiftUtilities.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftUtilities.xcodeproj; path = Submodules/SwiftPixel/Submodules/SwiftUtilities/SwiftUtilities.xcodeproj; sourceTree = "<group>"; };
 		FA0000000000000000000003 /* SwiftFITS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftFITS.xcodeproj; path = Submodules/SwiftFITS/SwiftFITS.xcodeproj; sourceTree = "<group>"; };
 		FA0000000000000000000014 /* 2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits"; sourceTree = "<group>"; };
 		FA0000000000000000000015 /* Light_M 42_10.0s_LP_20260101-234803.fit */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Light_M 42_10.0s_LP_20260101-234803.fit"; sourceTree = "<group>"; };
@@ -237,7 +227,6 @@
 				05E974DD2FE922850078F616 /* LICENSE */,
 				05E974DC2FE922850078F616 /* CODE_OF_CONDUCT.md */,
 				FA0000000000000000000001 /* SwiftPixel.xcodeproj */,
-				FA0000000000000000000002 /* SwiftUtilities.xcodeproj */,
 				FA0000000000000000000003 /* SwiftFITS.xcodeproj */,
 				05E975162FE9229C0078F616 /* xcconfig */,
 				FA000000000000000000001D /* Test Files */,
@@ -503,14 +492,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		FA000000000000000000000B /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				FA0000000000000000000008 /* SwiftUtilities.framework */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		FA000000000000000000000C /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -655,10 +636,6 @@
 					ProductGroup = FA000000000000000000000A /* Products */;
 					ProjectRef = FA0000000000000000000001 /* SwiftPixel.xcodeproj */;
 				},
-				{
-					ProductGroup = FA000000000000000000000B /* Products */;
-					ProjectRef = FA0000000000000000000002 /* SwiftUtilities.xcodeproj */;
-				},
 			);
 			projectRoot = "";
 			targets = (
@@ -674,13 +651,6 @@
 			fileType = wrapper.framework;
 			path = SwiftPixel.framework;
 			remoteRef = FA0000000000000000000004 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		FA0000000000000000000008 /* SwiftUtilities.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = SwiftUtilities.framework;
-			remoteRef = FA0000000000000000000005 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		FA0000000000000000000009 /* SwiftFITS.framework */ = {
