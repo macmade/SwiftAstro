@@ -101,6 +101,27 @@ struct MatchedFilterStarDetectorTests
         #expect( field.count == 0 )
     }
 
+    /// A star's measured centroid is accurate to well under a pixel, including its
+    /// sub-pixel position — so an overlay can register a marker on the star.
+    @Test
+    func measuresSubPixelCentroids() throws
+    {
+        let image = try SyntheticStarField( width: 160, height: 160, background: 200 )
+            .addingStar( cx: 60.3,  cy: 90.7,  peak: 4000, sigma: 2 )
+            .addingStar( cx: 110.8, cy: 40.2,  peak: 3500, sigma: 2 )
+            .addingNoise( seed: 15, amplitude: 6 )
+            .image()
+
+        let field = try MatchedFilterStarDetector( configuration: .init( detectsBrightStars: false ) ).detectStars( in: image )
+        let first  = try #require( field.stars.first { abs( $0.x - 60.3 ) < 1 && abs( $0.y - 90.7 ) < 1 } )
+        let second = try #require( field.stars.first { abs( $0.x - 110.8 ) < 1 && abs( $0.y - 40.2 ) < 1 } )
+
+        #expect( abs( first.x - 60.3 ) < 0.15 )
+        #expect( abs( first.y - 90.7 ) < 0.15 )
+        #expect( abs( second.x - 110.8 ) < 0.15 )
+        #expect( abs( second.y - 40.2 ) < 0.15 )
+    }
+
     /// The reported metrics of a detected star match the planted profile.
     @Test
     func measuresDetectedStarMetrics() throws
@@ -136,6 +157,42 @@ struct MatchedFilterStarDetectorTests
         let estimated = try #require( MatchedFilterStarDetector.estimateFWHM( in: image ) )
 
         #expect( abs( estimated - Self.fwhmPerSigma * sigma ) < 0.25 * Self.fwhmPerSigma * sigma )
+    }
+
+    /// On a dense field of small stars, the estimate tracks the true small scale
+    /// rather than blowing up: sizing a bright star's footprint that has merged its
+    /// crowded neighbours would read several times too large, which is what made a
+    /// dense, drizzled master under-detect (the size-band cut then rejected the
+    /// whole real population). The merge-aware estimate sizes the isolated stars.
+    @Test
+    func autoEstimatesFWHMOnADenseSmallStarField() throws
+    {
+        let sigma  = 1.2
+        let places: [ ( x: Double, y: Double, peak: Double ) ] = ( 0 ..< 30 ).flatMap
+        {
+            row -> [ ( x: Double, y: Double, peak: Double ) ] in
+
+            ( 0 ..< 30 ).map
+            {
+                column -> ( x: Double, y: Double, peak: Double ) in
+
+                let x = 12.0 + ( Double( column ) * 6.0 )
+                let y = 12.0 + ( Double( row ) * 6.0 )
+
+                return ( x: x, y: y, peak: ( ( row + column ) % 5 == 0 ) ? 9000 : 2600 )
+            }
+        }
+
+        let base  = SyntheticStarField( width: 200, height: 200, background: 200 )
+        let image = try places.reduce( base ) { $0.addingStar( cx: $1.x, cy: $1.y, peak: $1.peak, sigma: sigma ) }
+            .addingNoise( seed: 9, amplitude: 8 )
+            .image()
+
+        let estimated = try #require( MatchedFilterStarDetector.estimateFWHM( in: image ) )
+
+        // Near the true small FWHM, not the several-fold blow-up a merged footprint
+        // would produce on this crowding.
+        #expect( estimated < 2.0 * Self.fwhmPerSigma * sigma )
     }
 
     /// A manual FWHM override bypasses auto-estimation and still detects stars.

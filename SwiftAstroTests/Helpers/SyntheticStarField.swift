@@ -146,6 +146,21 @@ struct SyntheticStarField
         return copy
     }
 
+    /// Returns a copy with every sample clipped at the given level, modelling
+    /// sensor / ADC saturation — so a bright star's core becomes a flat top, the
+    /// case a zero-sum matched filter alone is blind to.
+    ///
+    /// - Parameter level: The level at and above which samples clip.
+    /// - Returns: A copy with the samples clipped.
+    func saturating( at level: Double ) -> SyntheticStarField
+    {
+        var copy = self
+
+        copy.pixels = self.pixels.map { Swift.min( $0, level ) }
+
+        return copy
+    }
+
     /// Returns a copy with reproducible uniform noise of the given amplitude
     /// added.
     ///
