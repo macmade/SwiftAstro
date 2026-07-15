@@ -9,36 +9,58 @@
 /* Begin PBXBuildFile section */
 		02E6D5871156E927F2A2FEDB /* SyntheticStarGridTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C37E0F1ABBBCBF13FD1F4A8 /* SyntheticStarGridTests.swift */; };
 		05E974CA2FE921070078F616 /* SwiftAstro.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05E974C02FE921070078F616 /* SwiftAstro.framework */; };
+		0854ED9175F47BFF15F9A585 /* AllocationMeter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6CABA8A126E50647B6CDD80 /* AllocationMeter.swift */; };
 		09B3DB4C335D49A6F9D5A3E9 /* MoonPhaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76DDE518E7571A155E3CEE2E /* MoonPhaseTests.swift */; };
+		0FA167776A133FB17C518E81 /* SwiftAstroBenchmarkSuite.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33AE9069B66A5B47D78E13DA /* SwiftAstroBenchmarkSuite.swift */; };
 		11FF4BDAFA527B62DA9EE0F3 /* TwilightEventsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E959722FCC2AE7A3F65A52D /* TwilightEventsTests.swift */; };
 		14AD3DD95320795D4D70DCFD /* SyntheticStarGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 640F4CC836996C8EAB142051 /* SyntheticStarGrid.swift */; };
 		1E0F08AC1507C6A05DF3F85E /* SkyBackgroundTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D51DA97B8E04F7BD94A77CB /* SkyBackgroundTests.swift */; };
+		29E83D144B5E2D652073587C /* AllocationMeterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5B9B6F9A7066126333834AE /* AllocationMeterTests.swift */; };
+		337E3933CD4EC6E2A2C84C3F /* BenchmarkReportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7FF77AA386CF8830E7ED9A /* BenchmarkReportTests.swift */; };
 		4FAC2D9A3824A904B4E86FD6 /* HorizontalCoordinate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85D5904EE6A384AC3F1F534 /* HorizontalCoordinate.swift */; };
 		50417E11A024BEABF7EE09F8 /* Ephemeris.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76BFA2150AB7F933679FC3CA /* Ephemeris.swift */; };
 		51A6DBBA0BDB7C77BAFD16E9 /* Planet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53CD8B38EF112769C6C6B8EE /* Planet.swift */; };
+		52E1B6372EB90205F16D4321 /* BenchmarkFrame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 605E029FE081694DDF9B8991 /* BenchmarkFrame.swift */; };
+		56832FF1EB5B835CD07BC122 /* BenchmarkTimingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD1C99C919AB4EEF38F855AD /* BenchmarkTimingsTests.swift */; };
 		5A516E0150000000000000A1 /* SignalToNoise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A516E0150000000000000A2 /* SignalToNoise.swift */; };
 		5A516E0150000000000000A4 /* SignalToNoiseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A516E0150000000000000A5 /* SignalToNoiseTests.swift */; };
+		5DB4B8935811029193495B03 /* BenchmarkOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8765385C123B33B02AF48AA /* BenchmarkOutput.swift */; };
+		648EE2FA3B2A395AAD3DAD59 /* SwiftAstroBenchmarks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DF248B9ACD91483F6C3A72E /* SwiftAstroBenchmarks.swift */; };
 		6C1AF7E943563B2E1C4E400E /* EquatorialCoordinate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D29E5B22F8F5BF5DB6AB5908 /* EquatorialCoordinate.swift */; };
 		6CB4746B404441AD11D8FCA0 /* MatchedFilterStarDetector+BrightStars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00854DED18FECBAAF65C4BF8 /* MatchedFilterStarDetector+BrightStars.swift */; };
 		70B46A1951876F1598C2881E /* SolarPositionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753AFF1F15A64F1BA33F6D54 /* SolarPositionTests.swift */; };
 		7C438F7DED2E13527A24B0BE /* SyntheticStarField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6381522374836B9D1795FED /* SyntheticStarField.swift */; };
+		7CAD6EBC417C22B2A7C836C8 /* MarkdownReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4BFC1EE77A5631AD4074895 /* MarkdownReport.swift */; };
+		82B347C3CD3C1D0E46865D65 /* SwiftAstroBenchmarkSuiteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDE6922865DB20E454D13DD3 /* SwiftAstroBenchmarkSuiteTests.swift */; };
+		86640F2608C699B82EC997DC /* BenchmarkEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DD6F8F470DEB1AE1C48C07C /* BenchmarkEnvironment.swift */; };
+		86F394115303055729BEC022 /* BenchmarkReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6159EA803406B8C437B937 /* BenchmarkReport.swift */; };
 		87D9441BEB62F18501820C7F /* ErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BB7A519F56E3BAD1E4C4B43 /* ErrorTests.swift */; };
 		88AB3ECEB388F83A8BE989B6 /* SkyBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C7731DCA4E1120E39F0A960 /* SkyBackground.swift */; };
+		8D604805568BC397DA345F6B /* BenchmarkFrameDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67A43EC8B336424EE152B188 /* BenchmarkFrameDescriptor.swift */; };
 		8D6365D502F68BC0B1ECE19D /* SolarPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = F602446866EA87E2E0229DDB /* SolarPosition.swift */; };
+		9391A7D42992E196308957EA /* AstroBenchmarkInputs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641A41645FD5F6BA368E16FF /* AstroBenchmarkInputs.swift */; };
 		954CE790A4B63D459117E5E3 /* StarDetecting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65743BE21FA6DF080957A92C /* StarDetecting.swift */; };
 		97A53164B9AC46B2F79C2BFF /* Star.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B96C49E375EAF3E94A7C1FB /* Star.swift */; };
 		9A8A9FE03048972147C97835 /* BrightStarDetectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 912AD1D86B7EC6A82148CFE3 /* BrightStarDetectionTests.swift */; };
+		9C50A66E4580D31F73A6B785 /* BenchmarkClockTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC4651BE6AF8196DF83656B7 /* BenchmarkClockTests.swift */; };
+		A113AF2C21AE5C48F0759059 /* BenchmarkMeasurement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE90CCBF02E3303DB4D4989 /* BenchmarkMeasurement.swift */; };
 		A1B2C3D4E5F60718293A4B01 /* LunarPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B02 /* LunarPosition.swift */; };
 		A1B2C3D4E5F60718293A4B03 /* LunarPositionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B04 /* LunarPositionTests.swift */; };
 		A1B2C3D4E5F60718293A4B05 /* EquatorialCoordinateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B06 /* EquatorialCoordinateTests.swift */; };
 		A20000BA03275C3C3A09B6A6 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8326FC0C9068E5DF4FA1F8B3 /* Error.swift */; };
+		A9928FBDE4EE2FF01EE08185 /* MarkdownReportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 900F3CA8984069E255874701 /* MarkdownReportTests.swift */; };
 		A9F72CBBEDDBF22C4ED20ED4 /* OrbitalElements.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2C10A2DDE1B1CE47B7295A /* OrbitalElements.swift */; };
 		B8AC095C7789FC9F9B425980 /* TwilightEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD6ADE04C5B0E08E4D04DB9E /* TwilightEvents.swift */; };
 		BBFC80FDF1338AF22D6ACC10 /* MoonPhase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A382E9473FC5E63866C26F /* MoonPhase.swift */; };
+		BC425A4CB51E8747D22B3610 /* BenchmarkClock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20F30E58A128A6910E700F2D /* BenchmarkClock.swift */; };
 		C033721D878BBE5CC6939846 /* PlanetPositionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0FF73C6C04C36BDDA20D8 /* PlanetPositionTests.swift */; };
+		C2C1C0FDE36C8C075A2997BB /* BenchmarkOutputTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DBB65CE2ABA3F0689B5F2F1 /* BenchmarkOutputTests.swift */; };
+		CF415E35CBCB3052F9C8BC61 /* BenchmarkRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7012E290AE1E9219851C22E6 /* BenchmarkRunner.swift */; };
 		DCA04EAD547D910D55CC526A /* GeographicLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F960657F02129498BDF21355 /* GeographicLocation.swift */; };
 		DEFF42CB10493A2ADDEE7A2A /* StarField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A67A0F33BB62B9BEA97A1F /* StarField.swift */; };
+		E5B576BBE05B8485FE2A9338 /* BenchmarkTimings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D6A51E4B26E1C11A362EE1 /* BenchmarkTimings.swift */; };
 		ED9EA157ABD9ECA03B09D60F /* PlanetPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05074AD5ABCAF428341BC88B /* PlanetPosition.swift */; };
+		F7ABE1220962410D12EB161C /* AstroBenchmarkFrames.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA63DC24A7B0C738B70C5B7F /* AstroBenchmarkFrames.swift */; };
 		FA000000000000000000000D /* SwiftPixel.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000007 /* SwiftPixel.framework */; };
 		FA000000000000000000000F /* SwiftPixel.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000007 /* SwiftPixel.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		FA0000000000000000000011 /* SwiftFITS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000009 /* SwiftFITS.framework */; };
@@ -157,14 +179,26 @@
 		05E975132FE9229C0078F616 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		05E975142FE9229C0078F616 /* Release - ccache.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Release - ccache.xcconfig"; sourceTree = "<group>"; };
 		05E975152FE9229C0078F616 /* Release - Library.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Release - Library.xcconfig"; sourceTree = "<group>"; };
+		1DD6F8F470DEB1AE1C48C07C /* BenchmarkEnvironment.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BenchmarkEnvironment.swift; sourceTree = "<group>"; };
+		1EE90CCBF02E3303DB4D4989 /* BenchmarkMeasurement.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BenchmarkMeasurement.swift; sourceTree = "<group>"; };
+		20F30E58A128A6910E700F2D /* BenchmarkClock.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BenchmarkClock.swift; sourceTree = "<group>"; };
+		33AE9069B66A5B47D78E13DA /* SwiftAstroBenchmarkSuite.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwiftAstroBenchmarkSuite.swift; sourceTree = "<group>"; };
 		3BB7A519F56E3BAD1E4C4B43 /* ErrorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ErrorTests.swift; sourceTree = "<group>"; };
+		3DF248B9ACD91483F6C3A72E /* SwiftAstroBenchmarks.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwiftAstroBenchmarks.swift; sourceTree = "<group>"; };
+		43D6A51E4B26E1C11A362EE1 /* BenchmarkTimings.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BenchmarkTimings.swift; sourceTree = "<group>"; };
 		4FA0FF73C6C04C36BDDA20D8 /* PlanetPositionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PlanetPositionTests.swift; sourceTree = "<group>"; };
 		53CD8B38EF112769C6C6B8EE /* Planet.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Planet.swift; sourceTree = "<group>"; };
 		5A516E0150000000000000A2 /* SignalToNoise.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SignalToNoise.swift; sourceTree = "<group>"; };
 		5A516E0150000000000000A5 /* SignalToNoiseTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SignalToNoiseTests.swift; sourceTree = "<group>"; };
+		5DBB65CE2ABA3F0689B5F2F1 /* BenchmarkOutputTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BenchmarkOutputTests.swift; sourceTree = "<group>"; };
+		605E029FE081694DDF9B8991 /* BenchmarkFrame.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BenchmarkFrame.swift; sourceTree = "<group>"; };
 		640F4CC836996C8EAB142051 /* SyntheticStarGrid.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SyntheticStarGrid.swift; sourceTree = "<group>"; };
+		641A41645FD5F6BA368E16FF /* AstroBenchmarkInputs.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AstroBenchmarkInputs.swift; sourceTree = "<group>"; };
 		65743BE21FA6DF080957A92C /* StarDetecting.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StarDetecting.swift; sourceTree = "<group>"; };
+		67A43EC8B336424EE152B188 /* BenchmarkFrameDescriptor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BenchmarkFrameDescriptor.swift; sourceTree = "<group>"; };
 		6C37E0F1ABBBCBF13FD1F4A8 /* SyntheticStarGridTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SyntheticStarGridTests.swift; sourceTree = "<group>"; };
+		6D6159EA803406B8C437B937 /* BenchmarkReport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BenchmarkReport.swift; sourceTree = "<group>"; };
+		7012E290AE1E9219851C22E6 /* BenchmarkRunner.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BenchmarkRunner.swift; sourceTree = "<group>"; };
 		753AFF1F15A64F1BA33F6D54 /* SolarPositionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SolarPositionTests.swift; sourceTree = "<group>"; };
 		76BFA2150AB7F933679FC3CA /* Ephemeris.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Ephemeris.swift; sourceTree = "<group>"; };
 		76DDE518E7571A155E3CEE2E /* MoonPhaseTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MoonPhaseTests.swift; sourceTree = "<group>"; };
@@ -172,19 +206,27 @@
 		7D51DA97B8E04F7BD94A77CB /* SkyBackgroundTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SkyBackgroundTests.swift; sourceTree = "<group>"; };
 		7E959722FCC2AE7A3F65A52D /* TwilightEventsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TwilightEventsTests.swift; sourceTree = "<group>"; };
 		8326FC0C9068E5DF4FA1F8B3 /* Error.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
+		900F3CA8984069E255874701 /* MarkdownReportTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MarkdownReportTests.swift; sourceTree = "<group>"; };
 		912AD1D86B7EC6A82148CFE3 /* BrightStarDetectionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BrightStarDetectionTests.swift; sourceTree = "<group>"; };
 		9C7731DCA4E1120E39F0A960 /* SkyBackground.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SkyBackground.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F60718293A4B02 /* LunarPosition.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LunarPosition.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F60718293A4B04 /* LunarPositionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LunarPositionTests.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F60718293A4B06 /* EquatorialCoordinateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EquatorialCoordinateTests.swift; sourceTree = "<group>"; };
+		AA63DC24A7B0C738B70C5B7F /* AstroBenchmarkFrames.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AstroBenchmarkFrames.swift; sourceTree = "<group>"; };
 		B2A67A0F33BB62B9BEA97A1F /* StarField.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StarField.swift; sourceTree = "<group>"; };
 		B6381522374836B9D1795FED /* SyntheticStarField.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SyntheticStarField.swift; sourceTree = "<group>"; };
+		B6CABA8A126E50647B6CDD80 /* AllocationMeter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AllocationMeter.swift; sourceTree = "<group>"; };
 		B85D5904EE6A384AC3F1F534 /* HorizontalCoordinate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HorizontalCoordinate.swift; sourceTree = "<group>"; };
 		BD6ADE04C5B0E08E4D04DB9E /* TwilightEvents.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TwilightEvents.swift; sourceTree = "<group>"; };
 		C13643E128A2102A6EB107EE /* StarFieldTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StarFieldTests.swift; sourceTree = "<group>"; };
 		D29E5B22F8F5BF5DB6AB5908 /* EquatorialCoordinate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EquatorialCoordinate.swift; sourceTree = "<group>"; };
+		D4BFC1EE77A5631AD4074895 /* MarkdownReport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MarkdownReport.swift; sourceTree = "<group>"; };
+		DD1C99C919AB4EEF38F855AD /* BenchmarkTimingsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BenchmarkTimingsTests.swift; sourceTree = "<group>"; };
+		E5B9B6F9A7066126333834AE /* AllocationMeterTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AllocationMeterTests.swift; sourceTree = "<group>"; };
 		EB2C10A2DDE1B1CE47B7295A /* OrbitalElements.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OrbitalElements.swift; sourceTree = "<group>"; };
+		EC7FF77AA386CF8830E7ED9A /* BenchmarkReportTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BenchmarkReportTests.swift; sourceTree = "<group>"; };
 		F602446866EA87E2E0229DDB /* SolarPosition.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SolarPosition.swift; sourceTree = "<group>"; };
+		F8765385C123B33B02AF48AA /* BenchmarkOutput.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BenchmarkOutput.swift; sourceTree = "<group>"; };
 		F960657F02129498BDF21355 /* GeographicLocation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GeographicLocation.swift; sourceTree = "<group>"; };
 		FA0000000000000000000001 /* SwiftPixel.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftPixel.xcodeproj; path = Submodules/SwiftPixel/SwiftPixel.xcodeproj; sourceTree = "<group>"; };
 		FA0000000000000000000003 /* SwiftFITS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SwiftFITS.xcodeproj; path = Submodules/SwiftFITS/SwiftFITS.xcodeproj; sourceTree = "<group>"; };
@@ -197,6 +239,8 @@
 		FA0000000000000000000022 /* BayerGrayscaleConverterTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BayerGrayscaleConverterTests.swift; sourceTree = "<group>"; };
 		FA0000000000000000000025 /* RealFrameValidationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RealFrameValidationTests.swift; sourceTree = "<group>"; };
 		FA0000000000000000000030 /* FITSImageDecoder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FITSImageDecoder.swift; sourceTree = "<group>"; };
+		FC4651BE6AF8196DF83656B7 /* BenchmarkClockTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BenchmarkClockTests.swift; sourceTree = "<group>"; };
+		FDE6922865DB20E454D13DD3 /* SwiftAstroBenchmarkSuiteTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwiftAstroBenchmarkSuiteTests.swift; sourceTree = "<group>"; };
 		FE00000000000000000000D1 /* StarMoments.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StarMoments.swift; sourceTree = "<group>"; };
 		FE00000000000000000000D3 /* StarMomentsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StarMomentsTests.swift; sourceTree = "<group>"; };
 		FE00000000000000000000E1 /* GaussianFit+StarMoments.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "GaussianFit+StarMoments.swift"; sourceTree = "<group>"; };
@@ -400,8 +444,22 @@
 				F724744C8D0BDAFB5FFFD498 /* Helpers */,
 				5A516E0150000000000000A6 /* SignalToNoise */,
 				14FC0C7FA45C46DA9F2A5E06 /* Ephemeris */,
+				0F972D12F22699F20A8CBA76 /* Benchmarks */,
 			);
 			path = SwiftAstroTests;
+			sourceTree = "<group>";
+		};
+		0F972D12F22699F20A8CBA76 /* Benchmarks */ = {
+			isa = PBXGroup;
+			children = (
+				281C4D1FA7380BE7F638A1CC /* Core */,
+				80FFFAF62938D339CE5772A0 /* CoreTests */,
+				4790EBEB438BA880BEC5F47E /* Fixtures */,
+				33AE9069B66A5B47D78E13DA /* SwiftAstroBenchmarkSuite.swift */,
+				3DF248B9ACD91483F6C3A72E /* SwiftAstroBenchmarks.swift */,
+			);
+			name = Benchmarks;
+			path = Benchmarks;
 			sourceTree = "<group>";
 		};
 		14FC0C7FA45C46DA9F2A5E06 /* Ephemeris */ = {
@@ -415,6 +473,35 @@
 				76DDE518E7571A155E3CEE2E /* MoonPhaseTests.swift */,
 			);
 			path = Ephemeris;
+			sourceTree = "<group>";
+		};
+		281C4D1FA7380BE7F638A1CC /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				B6CABA8A126E50647B6CDD80 /* AllocationMeter.swift */,
+				20F30E58A128A6910E700F2D /* BenchmarkClock.swift */,
+				1DD6F8F470DEB1AE1C48C07C /* BenchmarkEnvironment.swift */,
+				67A43EC8B336424EE152B188 /* BenchmarkFrameDescriptor.swift */,
+				1EE90CCBF02E3303DB4D4989 /* BenchmarkMeasurement.swift */,
+				F8765385C123B33B02AF48AA /* BenchmarkOutput.swift */,
+				6D6159EA803406B8C437B937 /* BenchmarkReport.swift */,
+				7012E290AE1E9219851C22E6 /* BenchmarkRunner.swift */,
+				43D6A51E4B26E1C11A362EE1 /* BenchmarkTimings.swift */,
+				D4BFC1EE77A5631AD4074895 /* MarkdownReport.swift */,
+			);
+			name = Core;
+			path = Core;
+			sourceTree = "<group>";
+		};
+		4790EBEB438BA880BEC5F47E /* Fixtures */ = {
+			isa = PBXGroup;
+			children = (
+				AA63DC24A7B0C738B70C5B7F /* AstroBenchmarkFrames.swift */,
+				641A41645FD5F6BA368E16FF /* AstroBenchmarkInputs.swift */,
+				605E029FE081694DDF9B8991 /* BenchmarkFrame.swift */,
+			);
+			name = Fixtures;
+			path = Fixtures;
 			sourceTree = "<group>";
 		};
 		5A516E0150000000000000A3 /* SignalToNoise */ = {
@@ -447,6 +534,21 @@
 				00854DED18FECBAAF65C4BF8 /* MatchedFilterStarDetector+BrightStars.swift */,
 			);
 			path = StarDetection;
+			sourceTree = "<group>";
+		};
+		80FFFAF62938D339CE5772A0 /* CoreTests */ = {
+			isa = PBXGroup;
+			children = (
+				E5B9B6F9A7066126333834AE /* AllocationMeterTests.swift */,
+				FC4651BE6AF8196DF83656B7 /* BenchmarkClockTests.swift */,
+				5DBB65CE2ABA3F0689B5F2F1 /* BenchmarkOutputTests.swift */,
+				EC7FF77AA386CF8830E7ED9A /* BenchmarkReportTests.swift */,
+				DD1C99C919AB4EEF38F855AD /* BenchmarkTimingsTests.swift */,
+				900F3CA8984069E255874701 /* MarkdownReportTests.swift */,
+				FDE6922865DB20E454D13DD3 /* SwiftAstroBenchmarkSuiteTests.swift */,
+			);
+			name = CoreTests;
+			path = CoreTests;
 			sourceTree = "<group>";
 		};
 		CC796503547039EF9E719220 /* Core */ = {
@@ -750,6 +852,28 @@
 				14AD3DD95320795D4D70DCFD /* SyntheticStarGrid.swift in Sources */,
 				02E6D5871156E927F2A2FEDB /* SyntheticStarGridTests.swift in Sources */,
 				9A8A9FE03048972147C97835 /* BrightStarDetectionTests.swift in Sources */,
+				0854ED9175F47BFF15F9A585 /* AllocationMeter.swift in Sources */,
+				BC425A4CB51E8747D22B3610 /* BenchmarkClock.swift in Sources */,
+				86640F2608C699B82EC997DC /* BenchmarkEnvironment.swift in Sources */,
+				8D604805568BC397DA345F6B /* BenchmarkFrameDescriptor.swift in Sources */,
+				A113AF2C21AE5C48F0759059 /* BenchmarkMeasurement.swift in Sources */,
+				5DB4B8935811029193495B03 /* BenchmarkOutput.swift in Sources */,
+				86F394115303055729BEC022 /* BenchmarkReport.swift in Sources */,
+				CF415E35CBCB3052F9C8BC61 /* BenchmarkRunner.swift in Sources */,
+				E5B576BBE05B8485FE2A9338 /* BenchmarkTimings.swift in Sources */,
+				7CAD6EBC417C22B2A7C836C8 /* MarkdownReport.swift in Sources */,
+				29E83D144B5E2D652073587C /* AllocationMeterTests.swift in Sources */,
+				9C50A66E4580D31F73A6B785 /* BenchmarkClockTests.swift in Sources */,
+				C2C1C0FDE36C8C075A2997BB /* BenchmarkOutputTests.swift in Sources */,
+				337E3933CD4EC6E2A2C84C3F /* BenchmarkReportTests.swift in Sources */,
+				56832FF1EB5B835CD07BC122 /* BenchmarkTimingsTests.swift in Sources */,
+				A9928FBDE4EE2FF01EE08185 /* MarkdownReportTests.swift in Sources */,
+				82B347C3CD3C1D0E46865D65 /* SwiftAstroBenchmarkSuiteTests.swift in Sources */,
+				F7ABE1220962410D12EB161C /* AstroBenchmarkFrames.swift in Sources */,
+				9391A7D42992E196308957EA /* AstroBenchmarkInputs.swift in Sources */,
+				52E1B6372EB90205F16D4321 /* BenchmarkFrame.swift in Sources */,
+				0FA167776A133FB17C518E81 /* SwiftAstroBenchmarkSuite.swift in Sources */,
+				648EE2FA3B2A395AAD3DAD59 /* SwiftAstroBenchmarks.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

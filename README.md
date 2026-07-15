@@ -168,6 +168,36 @@ print( "Astronomical dusk: \( twilight.astronomicalDusk as Any )" )
 print( "Moon: \( moon.phase.name ), \( moon.illumination * 100 )% illuminated" )
 ```
 
+### Benchmarks
+
+The test target includes an opt-in **benchmark & profiling harness** (under
+`SwiftAstroTests/Benchmarks/`) that measures the runtime — and approximate peak
+memory — of the SwiftAstro algorithms, and writes a committed baseline for
+before/after comparison. It covers star detection
+(`MatchedFilterStarDetector`), signal-to-noise and sky-background estimation,
+the Bayer→grayscale conversion, FITS decoding, and the ephemeris models. Image
+cases run over the committed FITS fixtures (an ESA M35 centre crop for detection
+and SNR, the raw RGGB light frame for the Bayer and decode paths); the ephemeris
+cases take no image input.
+
+It is **excluded from ordinary test runs** — only the harness's own fast unit
+tests run there — and executes only when the `RUN_BENCHMARKS` environment
+variable is set. Because `xcodebuild test` does not forward the environment to
+the test-host process, capture a baseline through SwiftPM, in an optimized build:
+
+```bash
+RUN_BENCHMARKS=1 swift test -c release --filter Test_SwiftAstroBenchmarks
+```
+
+Two files are written to `Docs/Benchmarks/` (override the directory with the
+`FITSCOPE_BENCH_OUT` environment variable): `swiftastro-baseline.json` — the
+machine-diffable source of truth — and `swiftastro-baseline.md` — a
+human-readable table generated from it. Each measurement records min / median /
+max wall-clock timing (the **min** is the least noisy estimate of intrinsic cost)
+and a best-effort, approximate peak allocation. A baseline is a snapshot, not a
+target: real timings vary between runs, so compare like for like — same host,
+same Release build.
+
 License
 -------
 

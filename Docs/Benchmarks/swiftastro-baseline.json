@@ -1,0 +1,232 @@
+{
+  "measurements" : [
+    {
+      "algorithm" : "MatchedFilterStarDetector.detectStars",
+      "category" : "Detection",
+      "frame" : {
+        "channels" : 1,
+        "height" : 1024,
+        "isNormalized" : false,
+        "layout" : "mono",
+        "name" : "esa-m35-1024",
+        "notes" : "ESA M35 blue reference frame (clean, non-mosaiced star field), centre 1024×1024 crop. Drives detection and SNR.",
+        "width" : 1024
+      },
+      "peakAllocationBytes" : 39240240,
+      "timings" : {
+        "iterations" : 20,
+        "maxNanoseconds" : 2088134125,
+        "medianNanoseconds" : 1732306312,
+        "minNanoseconds" : 1713323709
+      }
+    },
+    {
+      "algorithm" : "SignalToNoise.estimate",
+      "category" : "SignalToNoise",
+      "frame" : {
+        "channels" : 1,
+        "height" : 1024,
+        "isNormalized" : false,
+        "layout" : "mono",
+        "name" : "esa-m35-1024",
+        "notes" : "ESA M35 blue reference frame (clean, non-mosaiced star field), centre 1024×1024 crop. Drives detection and SNR.",
+        "width" : 1024
+      },
+      "peakAllocationBytes" : 22643088,
+      "timings" : {
+        "iterations" : 20,
+        "maxNanoseconds" : 92804000,
+        "medianNanoseconds" : 85276354,
+        "minNanoseconds" : 84573250
+      }
+    },
+    {
+      "algorithm" : "SkyBackground.estimate",
+      "category" : "SignalToNoise",
+      "frame" : {
+        "channels" : 1,
+        "height" : 1024,
+        "isNormalized" : false,
+        "layout" : "mono",
+        "name" : "esa-m35-1024",
+        "notes" : "ESA M35 blue reference frame (clean, non-mosaiced star field), centre 1024×1024 crop. Drives detection and SNR.",
+        "width" : 1024
+      },
+      "peakAllocationBytes" : 22643024,
+      "timings" : {
+        "iterations" : 20,
+        "maxNanoseconds" : 87363167,
+        "medianNanoseconds" : 86901875,
+        "minNanoseconds" : 86634333
+      }
+    },
+    {
+      "algorithm" : "BayerGrayscaleConverter.grayscale",
+      "category" : "Preprocessing",
+      "frame" : {
+        "channels" : 1,
+        "height" : 2160,
+        "isNormalized" : false,
+        "layout" : "cfa (RGGB mosaic)",
+        "name" : "real-mosaic-3840x2160",
+        "notes" : "ZWO ASI585MC one-shot-colour light frame, raw RGGB mosaic. Drives the Bayer→grayscale conversion.",
+        "width" : 3840
+      },
+      "peakAllocationBytes" : 265454432,
+      "timings" : {
+        "iterations" : 20,
+        "maxNanoseconds" : 134387917,
+        "medianNanoseconds" : 38918770,
+        "minNanoseconds" : 33958708
+      }
+    },
+    {
+      "algorithm" : "FITSImageDecoder.linearImage",
+      "category" : "Decode",
+      "frame" : {
+        "channels" : 1,
+        "height" : 2160,
+        "isNormalized" : false,
+        "layout" : "FITS 16-bit RGGB",
+        "name" : "real-fits-3840x2160",
+        "notes" : "On-disk 16-bit RGGB FITS file (ZWO ASI585MC). Drives the decode path.",
+        "width" : 3840
+      },
+      "peakAllocationBytes" : 165938176,
+      "timings" : {
+        "iterations" : 20,
+        "maxNanoseconds" : 377330208,
+        "medianNanoseconds" : 364379042,
+        "minNanoseconds" : 275353667
+      }
+    },
+    {
+      "algorithm" : "FITSImageDecoder.detectionImage",
+      "category" : "Decode",
+      "frame" : {
+        "channels" : 1,
+        "height" : 2160,
+        "isNormalized" : false,
+        "layout" : "FITS 16-bit RGGB",
+        "name" : "real-fits-3840x2160",
+        "notes" : "On-disk 16-bit RGGB FITS file (ZWO ASI585MC). Drives the decode path.",
+        "width" : 3840
+      },
+      "peakAllocationBytes" : 348423664,
+      "timings" : {
+        "iterations" : 20,
+        "maxNanoseconds" : 418208208,
+        "medianNanoseconds" : 398434812,
+        "minNanoseconds" : 352190958
+      }
+    },
+    {
+      "algorithm" : "PlanetPosition.position (Mars)",
+      "category" : "Ephemeris",
+      "frame" : {
+        "channels" : 1,
+        "height" : 1,
+        "isNormalized" : false,
+        "layout" : "scalar (no image)",
+        "name" : "n\/a",
+        "notes" : "Positional astronomy — no image input.",
+        "width" : 1
+      },
+      "peakAllocationBytes" : 272,
+      "timings" : {
+        "iterations" : 20,
+        "maxNanoseconds" : 375,
+        "medianNanoseconds" : 229,
+        "minNanoseconds" : 208
+      }
+    },
+    {
+      "algorithm" : "SolarPosition.position",
+      "category" : "Ephemeris",
+      "frame" : {
+        "channels" : 1,
+        "height" : 1,
+        "isNormalized" : false,
+        "layout" : "scalar (no image)",
+        "name" : "n\/a",
+        "notes" : "Positional astronomy — no image input.",
+        "width" : 1
+      },
+      "peakAllocationBytes" : 336,
+      "timings" : {
+        "iterations" : 20,
+        "maxNanoseconds" : 208,
+        "medianNanoseconds" : 125,
+        "minNanoseconds" : 125
+      }
+    },
+    {
+      "algorithm" : "LunarPosition.position",
+      "category" : "Ephemeris",
+      "frame" : {
+        "channels" : 1,
+        "height" : 1,
+        "isNormalized" : false,
+        "layout" : "scalar (no image)",
+        "name" : "n\/a",
+        "notes" : "Positional astronomy — no image input.",
+        "width" : 1
+      },
+      "peakAllocationBytes" : 336,
+      "timings" : {
+        "iterations" : 20,
+        "maxNanoseconds" : 334,
+        "medianNanoseconds" : 250,
+        "minNanoseconds" : 208
+      }
+    },
+    {
+      "algorithm" : "TwilightEvents.compute",
+      "category" : "Ephemeris",
+      "frame" : {
+        "channels" : 1,
+        "height" : 1,
+        "isNormalized" : false,
+        "layout" : "scalar (no image)",
+        "name" : "n\/a",
+        "notes" : "Positional astronomy — no image input.",
+        "width" : 1
+      },
+      "peakAllocationBytes" : 336,
+      "timings" : {
+        "iterations" : 20,
+        "maxNanoseconds" : 1041,
+        "medianNanoseconds" : 875,
+        "minNanoseconds" : 833
+      }
+    },
+    {
+      "algorithm" : "MoonPhase(date:)",
+      "category" : "Ephemeris",
+      "frame" : {
+        "channels" : 1,
+        "height" : 1,
+        "isNormalized" : false,
+        "layout" : "scalar (no image)",
+        "name" : "n\/a",
+        "notes" : "Positional astronomy — no image input.",
+        "width" : 1
+      },
+      "peakAllocationBytes" : 336,
+      "timings" : {
+        "iterations" : 20,
+        "maxNanoseconds" : 84,
+        "medianNanoseconds" : 20,
+        "minNanoseconds" : 0
+      }
+    }
+  ],
+  "metadata" : {
+    "capturedAt" : "2026-07-15T19:33:04Z",
+    "configuration" : "release",
+    "host" : "Mac16,12",
+    "iterations" : 20,
+    "module" : "SwiftAstro",
+    "operatingSystem" : "Version 26.5.1 (Build 25F80)"
+  }
+}
