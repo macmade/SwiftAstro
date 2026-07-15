@@ -270,6 +270,13 @@ public struct MatchedFilterStarDetector: StarDetecting
     /// so a rich, many-megapixel frame costs the same as a modest one.
     private static let refinementSampleSize = 120
 
+    /// The smallest ``sampleWidth`` window radius, in pixels, independent of the
+    /// current FWHM estimate. It keeps the sky annulus clear of a large or
+    /// saturated star's core even when the bootstrap scale is badly underestimated,
+    /// so the refinement can climb out of a too-small starting point instead of
+    /// stalling because every sample's window falls inside its own star.
+    private static let sampleWidthMinRadius = 8
+
     /// Refines the matched-filter scale by grounding it in the widths of the stars
     /// the frame actually contains, rather than the brightest-peak bootstrap alone.
     ///
@@ -350,10 +357,22 @@ public struct MatchedFilterStarDetector: StarDetecting
     /// - Returns: The peak's FWHM, or `nil` when it cannot be sized.
     private static func sampleWidth( around index: Int, in image: PixelBuffer, fwhm: Double, background: Double, noise: Double ) -> Double?
     {
-        let radius     = Swift.max( 3, Int( ( 1.5 * fwhm ).rounded() ) )
+        // Size the window generously — with a floor independent of the possibly
+        // underestimated `fwhm` — and read the sky from its outer annulus rather
+        // than its full extent. The brightest sample peaks are often the large,
+        // saturated stars whose flat core fills a tight window, so a whole-window
+        // median would read the star itself as "background": the footprint level
+        // would land at the core, the footprint would collapse below the minimum,
+        // and every sample would fail to size — stalling the refinement at the
+        // bootstrap scale. The annulus sits beyond the core, on true sky.
+        let radius     = Swift.max( Self.sampleWidthMinRadius, Int( ( 2.0 * fwhm ).rounded() ) )
         let samples    = Self.window( around: index, radius: radius, in: image )
-        let localBg    = PixelUtilities.median( samples.map { $0.value } ) ?? background
-        let localNoise = ( PixelUtilities.medianAbsoluteDeviation( samples.map { $0.value }, around: localBg ) ?? 0 ) * 1.4826
+        let peakX      = Double( index % image.width )
+        let peakY      = Double( index / image.width )
+        let skyInner   = Double( radius ) * 0.65
+        let annulus    = samples.filter { Foundation.hypot( $0.x - peakX, $0.y - peakY ) >= skyInner }.map { $0.value }
+        let localBg    = PixelUtilities.median( annulus ) ?? ( PixelUtilities.median( samples.map { $0.value } ) ?? background )
+        let localNoise = ( PixelUtilities.medianAbsoluteDeviation( annulus, around: localBg ) ?? 0 ) * 1.4826
         let level      = localBg + ( Self.footprintSigma * Swift.max( localNoise, noise ) )
         let footprint  = Self.connectedFootprint( around: index, radius: radius, level: level, in: image )
 
