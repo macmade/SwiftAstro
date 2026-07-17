@@ -112,4 +112,44 @@ struct FITSImageDecoderTests
         #expect( detection.channels == 1 )
         #expect( detection.pixels   == linear.pixels )
     }
+
+    // MARK: - BAYERPAT keyword mapping
+
+    /// The four valid Bayer arrangements map to their matching debayer pattern.
+    @Test
+    func mapsTheSupportedBayerPatterns() throws
+    {
+        #expect( try FITSImageDecoder.pattern( forBayerKeyword: "BGGR" ) == .bggr )
+        #expect( try FITSImageDecoder.pattern( forBayerKeyword: "GRBG" ) == .grbg )
+        #expect( try FITSImageDecoder.pattern( forBayerKeyword: "RGGB" ) == .rggb )
+    }
+
+    /// The valid `GBRG` pattern — common on Sony / ZWO one-shot-colour sensors —
+    /// is accepted rather than rejected outright.
+    @Test
+    func acceptsGBRG() throws
+    {
+        #expect( try FITSImageDecoder.pattern( forBayerKeyword: "GBRG" ) == .gbrg )
+    }
+
+    /// The non-standard `RGBG` value — which no capture software emits and which
+    /// used to select a broken demosaic — is now rejected.
+    @Test
+    func rejectsRGBG() throws
+    {
+        #expect( throws: SwiftAstro.Error.self )
+        {
+            try FITSImageDecoder.pattern( forBayerKeyword: "RGBG" )
+        }
+    }
+
+    /// An unrecognized `BAYERPAT` value throws rather than silently mis-decoding.
+    @Test
+    func rejectsAnUnknownPattern() throws
+    {
+        #expect( throws: SwiftAstro.Error.self )
+        {
+            try FITSImageDecoder.pattern( forBayerKeyword: "XYZW" )
+        }
+    }
 }

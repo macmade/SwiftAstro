@@ -123,19 +123,29 @@ public enum FITSImageDecoder
     /// - Throws: ``SwiftAstro/Error`` when `BAYERPAT` holds an unsupported value.
     public static func bayerPattern( in header: FITSSection ) throws -> Processors.Debayer.Pattern?
     {
-        guard let pattern = header[ "BAYERPAT" ]?.value.string
+        guard let keyword = header[ "BAYERPAT" ]?.value.string
         else
         {
             return nil
         }
 
-        switch pattern
+        return try self.pattern( forBayerKeyword: keyword )
+    }
+
+    /// Maps a FITS `BAYERPAT` keyword value to a debayer pattern.
+    ///
+    /// - Parameter keyword: The `BAYERPAT` value (e.g. `"RGGB"`).
+    /// - Returns: The matching colour-filter-array pattern.
+    /// - Throws: ``SwiftAstro/Error`` when the value is not a supported Bayer pattern.
+    internal static func pattern( forBayerKeyword keyword: String ) throws -> Processors.Debayer.Pattern
+    {
+        switch keyword
         {
             case "BGGR": return .bggr
-            case "RGBG": return .rgbg
             case "GRBG": return .grbg
             case "RGGB": return .rggb
-            default:     throw Error( message: "Unsupported BAYERPAT value \( pattern )" )
+            case "GBRG": return .gbrg
+            default:     throw Error( message: "Unsupported BAYERPAT value \( keyword )" )
         }
     }
 
