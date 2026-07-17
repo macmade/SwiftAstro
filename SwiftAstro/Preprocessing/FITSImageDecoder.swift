@@ -69,8 +69,13 @@ public enum FITSImageDecoder
 
         // The data segment is padded to whole 2880-byte FITS blocks; readRawPixels
         // wants exactly the sample bytes, so trim the trailing block padding.
-        let expectedBytes = format.size( numberOfPixels: width * height )
-        let raw           = Data( hdu.data.prefix( expectedBytes ) )
+        guard let expectedBytes = format.size( numberOfPixels: width * height )
+        else
+        {
+            throw Error( message: "FITS image byte size overflows Int" )
+        }
+
+        let raw = Data( hdu.data.prefix( expectedBytes ) )
 
         guard raw.count == expectedBytes
         else
