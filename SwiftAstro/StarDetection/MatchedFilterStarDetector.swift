@@ -102,6 +102,16 @@ public struct MatchedFilterStarDetector: StarDetecting
         /// nebulosity harder.
         public var brightStarLocalContrastSigma: Double
 
+        /// The largest number of distinct stellar peaks a bright blob may contain and
+        /// still be reported as a single star. A genuine star — however large or
+        /// bright — is a *single* peak; a blob holding several peaks is a blended pair
+        /// or a crowded cluster core (a globular, say), measured as one broad source
+        /// with inflated metrics, so it is dropped rather than reported as one giant
+        /// spurious "star". Peaks are counted above the local noise floor within the
+        /// measurement aperture, so this discriminates on structure, not size — a
+        /// genuinely large single star is kept regardless of how broad it is.
+        public var brightStarMaxPeaks: Int
+
         /// How many noise sigmas above the background a convolved peak must reach
         /// to count as a candidate.
         public var thresholdSigma: Double
@@ -134,7 +144,9 @@ public struct MatchedFilterStarDetector: StarDetecting
         public var edgeMargin: Int
 
         /// When set, candidates whose peak sample is at or above this level are
-        /// dropped as saturated / bloomed.
+        /// dropped as saturated / bloomed. This applies to **both** detection
+        /// paths — the matched-filter pass and the bright-star pass — so setting it
+        /// reliably excludes saturated stars regardless of ``detectsBrightStars``.
         public var saturationLevel: Double?
 
         /// Creates a configuration with the default purity-oriented parameters.
@@ -145,6 +157,7 @@ public struct MatchedFilterStarDetector: StarDetecting
             brightStarMinRadiusFactor:    Double  = 1.5,
             brightStarMaxRadiusFactor:    Double  = 10.0,
             brightStarLocalContrastSigma: Double  = 0,
+            brightStarMaxPeaks:           Int     = 2,
             thresholdSigma:               Double  = 5,
             sharpnessLow:                 Double  = 0.2,
             roundnessLimit:               Double  = 0.6,
@@ -161,6 +174,7 @@ public struct MatchedFilterStarDetector: StarDetecting
             self.brightStarMinRadiusFactor    = brightStarMinRadiusFactor
             self.brightStarMaxRadiusFactor    = brightStarMaxRadiusFactor
             self.brightStarLocalContrastSigma = brightStarLocalContrastSigma
+            self.brightStarMaxPeaks           = brightStarMaxPeaks
             self.thresholdSigma               = thresholdSigma
             self.sharpnessLow                 = sharpnessLow
             self.roundnessLimit               = roundnessLimit
@@ -384,9 +398,27 @@ public struct MatchedFilterStarDetector: StarDetecting
 
         let seed = GaussianFit.Parameters( moments: moments, amplitude: image.pixels[ index ] - localBg, background: localBg )
 
+        // Bound the Gaussian fit to the star's actual extent (IMP-5). The window is
+        // sized generously from `fwhm` for the annulus and footprint search, but when
+        // the bootstrap over-shoots — the very case this refinement exists to correct
+        // — that window can reach ~160×160, and the per-sample fit, run for every
+        // sampled peak on every iteration, then dominates the cost. The connected
+        // footprint is the star's true extent, so fitting over it plus a background
+        // margin fully encloses the star: the measured width is unchanged to within
+        // noise while the wasted work on distant sky is cut. The bound only ever
+        // shrinks the fit set (a `filter` of the window), never grows it; for a small
+        // or normally-sized star it already exceeds the window, so the fit set is the
+        // full window as before, and it engages for an inflated bootstrap or a
+        // genuinely large star, where the enclosed core still pins the width. Only the
+        // internal scale refinement reads this width; the reported `measure` is
+        // untouched.
+        let footprintReach = footprint.reduce( 0.0 ) { Swift.max( $0, Foundation.hypot( $1.x - peakX, $1.y - peakY ) ) }
+        let fitRadius      = footprintReach + Double( Self.sampleWidthMinRadius )
+        let fitSamples     = fitRadius < Double( radius ) ? samples.filter { Foundation.hypot( $0.x - peakX, $0.y - peakY ) <= fitRadius } : samples
+
         let width: Double
 
-        if let fit = GaussianFit.fit( samples: samples, initialGuess: seed )
+        if let fit = GaussianFit.fit( samples: fitSamples, initialGuess: seed )
         {
             let sigmaMajor = Swift.max( abs( fit.sigmaX ), abs( fit.sigmaY ) )
             let sigmaMinor = Swift.min( abs( fit.sigmaX ), abs( fit.sigmaY ) )
@@ -467,7 +499,8 @@ public struct MatchedFilterStarDetector: StarDetecting
     /// - Parameters:
     ///   - index:         The star's peak pixel index.
     ///   - image:         The single-channel image.
-    ///   - background:    The global background, used when a window has no median.
+    ///   - background:    The global background, the final fallback when neither the
+    ///                    sky annulus nor the whole window yields a median.
     ///   - noise:         The robust background noise.
     ///   - isolatedAmong: The set of bright-peak indices to test the footprint
     ///                    against, or `nil` to skip the merge test.
@@ -475,10 +508,25 @@ public struct MatchedFilterStarDetector: StarDetecting
     ///   when it cannot be sized or its footprint merged a neighbour.
     private static func footprintWidth( around index: Int, in image: PixelBuffer, background: Double, noise: Double, isolatedAmong: Set< Int >? ) -> Double?
     {
-        let window          = Self.window( around: index, radius: Self.bootstrapWindowRadius, in: image )
-        let localBackground  = PixelUtilities.median( window.map { $0.value } ) ?? background
+        // Read the sky from the window's outer annulus, not its whole extent
+        // (IMP-12), giving the bootstrap seed the annulus-sky robustness the
+        // refinement's `sampleWidth` already has. A bright star's core fills much of
+        // this fixed-radius window, so a whole-window median reads the star itself as
+        // "background" — landing the footprint level inside the core, so the
+        // footprint shrinks toward the core and the star sizes small. The annulus
+        // sits beyond the core, on true sky. Only the *background* is read from the
+        // annulus; the level keeps the global `noise` (unlike `sampleWidth`, whose
+        // window grows with the estimate, this fixed radius-10 annulus straddles a
+        // moderate star's skirt, so its local MAD would be skirt-driven, not sky).
+        let radius          = Self.bootstrapWindowRadius
+        let window          = Self.window( around: index, radius: radius, in: image )
+        let peakX           = Double( index % image.width )
+        let peakY           = Double( index / image.width )
+        let skyInner        = Double( radius ) * 0.65
+        let annulus         = window.filter { Foundation.hypot( $0.x - peakX, $0.y - peakY ) >= skyInner }.map { $0.value }
+        let localBackground = PixelUtilities.median( annulus ) ?? ( PixelUtilities.median( window.map { $0.value } ) ?? background )
         let level           = localBackground + ( Self.footprintSigma * noise )
-        let body            = Self.connectedFootprint( around: index, radius: Self.bootstrapWindowRadius, level: level, in: image )
+        let body            = Self.connectedFootprint( around: index, radius: radius, level: level, in: image )
 
         guard body.count >= Self.minFootprintSamples
         else

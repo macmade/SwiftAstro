@@ -80,6 +80,39 @@ struct BrightStarDetectionTests
         return try withBig.addingNoise( seed: seed, amplitude: 8 ).saturating( at: 40000 ).image()
     }
 
+    /// A frame whose large, bright sources include one *cluster blend*: several
+    /// stars crammed into one blob, measured together as a single broad source with
+    /// inflated metrics — the synthetic analogue of the M12 globular-core outlier (a
+    /// dense knot of stars read as one giant "star"). Two genuinely large single
+    /// bright stars and a scale-setting lattice sit around it.
+    private func blendField( seed: UInt64 ) throws -> PixelBuffer
+    {
+        var field = SyntheticStarField( width: 360, height: 360, background: 200 )
+
+        for row in 0 ..< 5
+        {
+            for column in 0 ..< 5
+            {
+                field = field.addingStar( cx: 45 + Double( column ) * 65, cy: 45 + Double( row ) * 65, peak: 5000, sigma: 3 )
+            }
+        }
+
+        field = field.addingStar( cx: 100, cy: 300, peak: 90000, sigma: 5.0 ) // genuine large, saturated, kept
+        field = field.addingStar( cx: 300, cy: 100, peak: 30000, sigma: 4.5 ) // genuine large, kept
+
+        // The cluster: several unsaturated stars in a tight knot, each a distinct
+        // peak, merging into one broad blob (many peaks → dropped as a blend).
+        let cluster: [ ( x: Double, y: Double ) ] =
+            [
+                ( 189, 189 ), ( 201, 190 ), ( 194, 198 ), ( 204, 201 ),
+                ( 188, 202 ), ( 197, 207 ), ( 208, 194 ),
+            ]
+
+        field = cluster.reduce( field ) { $0.addingStar( cx: $1.x, cy: $1.y, peak: 8000, sigma: 3 ) }
+
+        return try field.addingNoise( seed: seed, amplitude: 8 ).saturating( at: 40000 ).image()
+    }
+
     /// The default detector recovers every large star — saturated or not — that
     /// the matched filter alone drops, while still finding the small stars.
     @Test
@@ -181,18 +214,77 @@ struct BrightStarDetectionTests
         #expect( strict.count == off.count )
     }
 
-    /// The bright-pass threshold is honoured: lowering it and the minimum radius
-    /// only widens what the pass accepts, so it still recovers every large star.
+    /// The bright-pass threshold is honoured, isolated from the other knobs: at the
+    /// default it recovers the big stars the matched filter misses, but raised far
+    /// above any blob's peak it admits nothing, so the pass contributes nothing and
+    /// the result collapses to the matched filter alone — a change versus the
+    /// default that the threshold parameter alone drives.
     @Test
     func honorsBrightPassThreshold() throws
     {
-        let image = try self.reproductionField( seed: 21 )
-        let loose = try MatchedFilterStarDetector( configuration: .init( brightStarThresholdSigma: 6, brightStarMinRadiusFactor: 1.5 ) ).detectStars( in: image )
+        let image  = try self.reproductionField( seed: 21 )
+        let off     = try MatchedFilterStarDetector( configuration: .init( detectsBrightStars: false ) ).detectStars( in: image )
+        let normal = try MatchedFilterStarDetector().detectStars( in: image )
+        let strict = try MatchedFilterStarDetector( configuration: .init( brightStarThresholdSigma: 100000 ) ).detectStars( in: image )
 
+        // The default bright pass recovers the big stars, so it finds strictly more
+        // than the matched filter alone...
+        #expect( normal.count > off.count )
         Self.bigStars.forEach
         {
-            #expect( self.hasStar( loose, nearX: $0.x, y: $0.y ), "missing big star at (\( $0.x ), \( $0.y ))" )
+            #expect( self.hasStar( normal, nearX: $0.x, y: $0.y ), "missing big star at (\( $0.x ), \( $0.y ))" )
         }
+
+        // ...while an unreachable threshold admits no blob, collapsing the result to
+        // exactly the matched filter alone.
+        #expect( strict.count == off.count )
+    }
+
+    /// `saturationLevel` is honoured by the bright pass too, not only the
+    /// matched-filter pass (CR-6): with it set, a saturated big star (flat-topped
+    /// at the level) is dropped by *both* paths rather than silently re-added by
+    /// the bright pass, while an unsaturated big star of the same size is still
+    /// recovered.
+    @Test
+    func honorsSaturationLevelInTheBrightPass() throws
+    {
+        let image = try self.reproductionField( seed: 21 )
+        let field = try MatchedFilterStarDetector( configuration: .init( saturationLevel: 40000 ) ).detectStars( in: image )
+
+        // The two saturated big stars (peak clipped to the 40000 level) are now
+        // excluded — the bright pass no longer defeats the saturation gate.
+        #expect( self.hasStar( field, nearX: 130, y: 130 ) == false, "saturated big star at (130, 130) should be dropped" )
+        #expect( self.hasStar( field, nearX: 270, y: 270 ) == false, "saturated big star at (270, 270) should be dropped" )
+
+        // The two unsaturated big stars (peaks 22000 / 30000, below the level) are
+        // still recovered, so the gate drops only what is actually saturated.
+        #expect( self.hasStar( field, nearX: 270, y: 130 ), "unsaturated big star at (270, 130) should be kept" )
+        #expect( self.hasStar( field, nearX: 130, y: 270 ), "unsaturated big star at (130, 270) should be kept" )
+    }
+
+    /// The bright-pass peak-count discriminator drops a crowded cluster measured as
+    /// one broad source (the M12 globular-core outlier), while still recovering the
+    /// genuinely large *single* bright stars the pass exists for — regardless of how
+    /// broad they are.
+    @Test
+    func dropsAClusterBlendButKeepsGenuineLargeStars() throws
+    {
+        let image = try self.blendField( seed: 21 )
+
+        // With the discriminator disabled, the crowded cluster leaks through as one
+        // spurious broad "star" — the pre-fix behaviour.
+        let undiscriminated = try MatchedFilterStarDetector( configuration: .init( brightStarMaxPeaks: 100000 ) ).detectStars( in: image )
+
+        #expect( undiscriminated.stars.contains { abs( $0.x - 195 ) < 20 && abs( $0.y - 195 ) < 20 && $0.fwhm > 14 }, "the un-discriminated cluster should leak through as one broad artefact" )
+
+        // The default discriminator drops that multi-peak cluster...
+        let field = try MatchedFilterStarDetector().detectStars( in: image )
+
+        #expect( field.stars.contains { abs( $0.x - 195 ) < 20 && abs( $0.y - 195 ) < 20 && $0.fwhm > 14 } == false, "the multi-peak cluster should be dropped" )
+
+        // ...while still recovering the two genuinely large single bright stars.
+        #expect( self.hasStar( field, nearX: 100, y: 300, tolerance: 4 ), "genuine large star at (100, 300) should be kept" )
+        #expect( self.hasStar( field, nearX: 300, y: 100, tolerance: 4 ), "genuine large star at (300, 100) should be kept" )
     }
 
     /// The local-contrast cut is honoured: an impossibly high requirement rejects
