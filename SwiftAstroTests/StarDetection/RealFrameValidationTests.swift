@@ -28,8 +28,8 @@ import SwiftPixel
 import Testing
 
 /// End-to-end validation of ``MatchedFilterStarDetector`` on real astronomical
-/// frames, decoded through the library's ``FITSImageDecoder/detectionImage(from:)``
-/// path exactly as a consumer would.
+/// frames, decoded through ``FITSTestImage`` — the same readRawPixels + BZERO /
+/// BSCALE + demosaic recipe the app now uses.
 ///
 /// These lock in the matched-filter rewrite: the headline check is that the
 /// committed one-shot-colour frame's median half-flux radius matches the value

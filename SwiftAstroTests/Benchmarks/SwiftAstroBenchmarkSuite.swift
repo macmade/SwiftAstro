@@ -132,14 +132,14 @@ struct SwiftAstroBenchmarkSuite
         {
             decode in
 
-            try record( "FITSImageDecoder.linearImage", category: "Decode", frame: decode.descriptor )
+            try record( "FITSTestImage.linearImage", category: "Decode", frame: decode.descriptor )
             {
-                self.keep( try FITSImageDecoder.linearImage( from: decode.file ) )
+                self.keep( try FITSTestImage.linearImage( from: decode.file ) )
             }
 
-            try record( "FITSImageDecoder.detectionImage", category: "Decode", frame: decode.descriptor )
+            try record( "FITSTestImage.detectionImage", category: "Decode", frame: decode.descriptor )
             {
-                self.keep( try FITSImageDecoder.detectionImage( from: decode.file ) )
+                self.keep( try FITSTestImage.detectionImage( from: decode.file ) )
             }
         }
 

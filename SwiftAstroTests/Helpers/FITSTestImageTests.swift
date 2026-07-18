@@ -72,84 +72,34 @@ struct FITSTestImageTests
     }
 }
 
-/// Tests for ``FITSImageDecoder`` loading real FITS frames, covering the
-/// one-shot-colour (demosaiced) and monochrome (passthrough) branches.
-struct FITSImageDecoderTests
+/// Tests for ``FITSTestImage``'s FITS decoding: the one-shot-colour (demosaiced)
+/// and monochrome (passthrough) detection branches, over the committed fixtures.
+struct FITSTestImageDecodingTests
 {
-    /// Opens a bundled fixture as a parsed FITS file.
-    private static func file( named name: String ) throws -> FITSFile
-    {
-        try FITSFile( url: try FITSTestImage.url( resource: name ), options: .lenient )
-    }
-
     /// A one-shot-colour frame (a `BAYERPAT` header) is demosaiced to a single
-    /// luminance channel at native resolution, so the detection image differs
-    /// from the raw mosaic while keeping the same geometry.
+    /// luminance channel at native resolution, so the detection image differs from
+    /// the raw mosaic while keeping the same geometry.
     @Test
     func detectionImageDemosaicsOneShotColorFrame() throws
     {
-        let file      = try Self.file( named: FITSTestImage.realLightFrameName )
-        let linear    = try FITSImageDecoder.linearImage( from: file )
-        let detection = try FITSImageDecoder.detectionImage( from: file )
+        let linear    = try FITSTestImage.realLightFrame()
+        let detection = try FITSTestImage.realLightFrameDetection()
 
-        #expect( try FITSImageDecoder.bayerPattern( in: #require( file.header ) ) == .rggb )
         #expect( detection.channels == 1 )
         #expect( detection.width    == linear.width )
         #expect( detection.height   == linear.height )
         #expect( detection.pixels   != linear.pixels )
     }
 
-    /// A monochrome frame (no `BAYERPAT`) is returned as its linear single
-    /// channel, unchanged by the detection-image step.
+    /// A monochrome frame (no `BAYERPAT`) is returned as its linear single channel,
+    /// unchanged by the detection-image step.
     @Test
     func detectionImageLeavesMonochromeFrameUnchanged() throws
     {
-        let file      = try Self.file( named: FITSTestImage.esaM35BlueFrameName )
-        let linear    = try FITSImageDecoder.linearImage( from: file )
-        let detection = try FITSImageDecoder.detectionImage( from: file )
+        let linear    = try FITSTestImage.esaM35Blue()
+        let detection = try FITSTestImage.esaM35BlueDetection()
 
-        #expect( try FITSImageDecoder.bayerPattern( in: #require( file.header ) ) == nil )
         #expect( detection.channels == 1 )
         #expect( detection.pixels   == linear.pixels )
-    }
-
-    // MARK: - BAYERPAT keyword mapping
-
-    /// The four valid Bayer arrangements map to their matching debayer pattern.
-    @Test
-    func mapsTheSupportedBayerPatterns() throws
-    {
-        #expect( try FITSImageDecoder.pattern( forBayerKeyword: "BGGR" ) == .bggr )
-        #expect( try FITSImageDecoder.pattern( forBayerKeyword: "GRBG" ) == .grbg )
-        #expect( try FITSImageDecoder.pattern( forBayerKeyword: "RGGB" ) == .rggb )
-    }
-
-    /// The valid `GBRG` pattern — common on Sony / ZWO one-shot-colour sensors —
-    /// is accepted rather than rejected outright.
-    @Test
-    func acceptsGBRG() throws
-    {
-        #expect( try FITSImageDecoder.pattern( forBayerKeyword: "GBRG" ) == .gbrg )
-    }
-
-    /// The non-standard `RGBG` value — which no capture software emits and which
-    /// used to select a broken demosaic — is now rejected.
-    @Test
-    func rejectsRGBG() throws
-    {
-        #expect( throws: SwiftAstro.Error.self )
-        {
-            try FITSImageDecoder.pattern( forBayerKeyword: "RGBG" )
-        }
-    }
-
-    /// An unrecognized `BAYERPAT` value throws rather than silently mis-decoding.
-    @Test
-    func rejectsAnUnknownPattern() throws
-    {
-        #expect( throws: SwiftAstro.Error.self )
-        {
-            try FITSImageDecoder.pattern( forBayerKeyword: "XYZW" )
-        }
     }
 }
