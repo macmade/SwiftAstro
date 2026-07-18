@@ -79,19 +79,23 @@ extension MatchedFilterStarDetector
 
     /// Measures a bright blob and applies the star-shape purity cuts.
     ///
-    /// The blob is measured with the same ``StarMoments`` used everywhere else, so
-    /// its metrics are comparable to a matched-filter star's; its `flux` is the
-    /// footprint's background-subtracted sum (a lower bound), as for a
-    /// fit-failed matched-filter star.
+    /// The blob is measured with the same ``StarMoments`` used everywhere else, but
+    /// over a circular aperture (which includes sky pixels), whereas the
+    /// matched-filter path measures over the connected footprint above `bg + 3σ` —
+    /// so its `flux`, `fwhm` and `hfr` share the same definitions but sit on a
+    /// broadly similar, not identical, basis. Its `flux` is the aperture's
+    /// background-subtracted sum (a lower bound), as for a fit-failed matched-filter
+    /// star.
     ///
     /// - Returns: The measured star, or `nil` if the blob is too small, too
     ///   elongated, or clipped by the edge.
     private func measureBright( component: [ ( x: Double, y: Double, value: Double ) ], in image: PixelBuffer, background: Double, noise: Double, fwhm: Double, minArea: Double ) -> Star?
     {
         // Detection: decide star-or-not from the detection footprint against the
-        // global background — the original behaviour, so this step keeps exactly
-        // the stars it kept before; the local-background sizing below only refines
-        // an accepted star and never drops one.
+        // global background. Size and position are gated here on the detection
+        // footprint; the roundness cut, however, is applied after refinement to the
+        // refined eccentricity that is actually reported (CR-5), so the emitted star
+        // can never be less round than its own limit.
         guard Double( component.count ) >= minArea,
               let peak = component.map( { $0.value } ).max(),
               let base = StarMoments( samples: component, background: background )
@@ -103,8 +107,7 @@ extension MatchedFilterStarDetector
         let margin = self.configuration.edgeMargin
 
         guard base.x >= Double( margin ), base.y >= Double( margin ),
-              base.x < Double( image.width - margin ), base.y < Double( image.height - margin ),
-              base.eccentricity <= self.configuration.roundnessLimit
+              base.x < Double( image.width - margin ), base.y < Double( image.height - margin )
         else
         {
             return nil
@@ -161,14 +164,17 @@ extension MatchedFilterStarDetector
             refinedBackground = background
         }
 
-        let hfr = StarMoments.halfFluxRadius( samples: coreSamples, background: refinedBackground, aroundX: refined.x, y: refined.y )
+        let hfr = StarMoments.halfFluxRadius( samples: coreSamples, background: refinedBackground, aroundX: refined.x, y: refined.y, withinRadius: StarMoments.hfrApertureRadiusFactor * refined.fwhm )
 
-        // Reject a degenerate measurement: a near-flux-less patch of bright
-        // nebulosity can collapse the flux-weighted moments to zero width and throw
-        // the centroid — and so the half-flux radius — far outside the aperture,
-        // producing a spurious giant "star". A real star has a positive width and a
-        // radius no larger than the aperture it was measured in.
-        guard refined.fwhm > 0, hfr.isFinite, hfr > 0, hfr <= aperture
+        // Reject a degenerate or non-round measurement. A near-flux-less patch of
+        // bright nebulosity can collapse the flux-weighted moments to zero width and
+        // throw the centroid — and so the half-flux radius — far outside the
+        // aperture, producing a spurious giant "star"; a real star has a positive
+        // width and a radius no larger than the aperture it was measured in. The
+        // roundness cut is applied here, on the refined eccentricity that is
+        // reported, so the emitted star honours the stated purity contract (CR-5).
+        guard refined.fwhm > 0, hfr.isFinite, hfr > 0, hfr <= aperture,
+              refined.eccentricity <= self.configuration.roundnessLimit
         else
         {
             return nil

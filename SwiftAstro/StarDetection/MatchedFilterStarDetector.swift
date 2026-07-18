@@ -402,13 +402,14 @@ public struct MatchedFilterStarDetector: StarDetecting
     }
 
     /// Estimates the stellar FWHM from an image's brightest stars: it finds the
-    /// brightest local maxima, sizes each one by its empirical half-flux radius
-    /// against its own local background, and takes the median.
+    /// brightest local maxima, sizes each one by the geometric-mean width of its
+    /// connected footprint against its own local background, and takes the median.
     ///
-    /// The half-flux radius is used rather than the second moments because it is
-    /// dominated by the star's core and so is far less sensitive to the broad
-    /// wings of bright, near-saturated stars — which otherwise bias the estimate
-    /// high. For a Gaussian, FWHM = 2·HFR.
+    /// The size is read from the footprint's second moments, not from the reported
+    /// half-flux radius: that HFR is now a flux-weighted mean, which is
+    /// crowding-sensitive, whereas the footprint (the 8-connected patch above the
+    /// local noise floor) is compact and yields a stable, self-contained FWHM for
+    /// the detection scale.
     ///
     /// - Parameter image: The single-channel image to size.
     /// - Returns: The median FWHM, in pixels, or `nil` when no bright star can be
@@ -455,8 +456,9 @@ public struct MatchedFilterStarDetector: StarDetecting
         return PixelUtilities.median( merged )
     }
 
-    /// Sizes a bright star by the half-flux radius of its connected footprint — the
-    /// 8-connected patch above the local noise floor containing the peak.
+    /// Sizes a bright star by the geometric-mean width (FWHM) of its connected
+    /// footprint — the 8-connected patch above the local noise floor containing the
+    /// peak.
     ///
     /// When `isolatedAmong` is given, the star is skipped (returns `nil`) if its
     /// footprint also contains another of those bright peaks: the footprint has
@@ -469,8 +471,8 @@ public struct MatchedFilterStarDetector: StarDetecting
     ///   - noise:         The robust background noise.
     ///   - isolatedAmong: The set of bright-peak indices to test the footprint
     ///                    against, or `nil` to skip the merge test.
-    /// - Returns: The star's FWHM (2·HFR), or `nil` when it cannot be sized or its
-    ///   footprint merged a neighbour.
+    /// - Returns: The star's FWHM (the footprint's geometric-mean width), or `nil`
+    ///   when it cannot be sized or its footprint merged a neighbour.
     private static func footprintWidth( around index: Int, in image: PixelBuffer, background: Double, noise: Double, isolatedAmong: Set< Int >? ) -> Double?
     {
         let window          = Self.window( around: index, radius: Self.bootstrapWindowRadius, in: image )
@@ -499,13 +501,13 @@ public struct MatchedFilterStarDetector: StarDetecting
             }
         }
 
-        guard let moments = StarMoments( samples: body, background: localBackground ), moments.hfr.isFinite, moments.hfr > 0.3
+        guard let moments = StarMoments( samples: body, background: localBackground ), moments.fwhm.isFinite, moments.fwhm > 0.6
         else
         {
             return nil
         }
 
-        return moments.hfr * 2
+        return moments.fwhm
     }
 
     // MARK: - Peak detection
@@ -715,7 +717,7 @@ public struct MatchedFilterStarDetector: StarDetecting
             return nil
         }
 
-        let hfr = StarMoments.halfFluxRadius( samples: samples, background: hfrBackground, aroundX: centerX, y: centerY )
+        let hfr = StarMoments.halfFluxRadius( samples: samples, background: hfrBackground, aroundX: centerX, y: centerY, withinRadius: StarMoments.hfrApertureRadiusFactor * fwhmStar )
 
         return Star( x: centerX, y: centerY, flux: flux, hfr: hfr, fwhm: fwhmStar, eccentricity: eccentricity )
     }

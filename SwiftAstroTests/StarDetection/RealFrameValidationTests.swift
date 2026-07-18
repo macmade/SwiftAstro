@@ -45,10 +45,12 @@ struct RealFrameValidationTests
     /// from the `H3.69` token of the frame's filename.
     private static let reportedHFR = 3.69
 
-    /// Relative tolerance on the median HFR. The detector measures HFR over a
-    /// Gaussian-fitted profile, a different definition than the acquisition
-    /// software's, so an exact match is not expected; at authoring time the
-    /// measured median was ≈ 3.75 px (~2 % high).
+    /// Relative tolerance on the median HFR. The detector now measures the same
+    /// half-flux radius the acquisition software does (the NINA flux-weighted mean,
+    /// HFD/2), so this is a genuine like-for-like comparison; the tolerance absorbs
+    /// the measurement differences that remain between two independent
+    /// implementations (aperture size, local-background estimate, the per-star fit
+    /// centre).
     private static let hfrTolerance = 0.20
 
     /// On the real one-shot-colour frame the detector finds a plausible star
@@ -92,10 +94,13 @@ struct RealFrameValidationTests
 
         let medianHFR = try #require( field.medianHFR )
 
-        // Well above 1 px — the pre-rewrite detector reported ≈ 1.25 px of
-        // sub-pixel noise clusters here.
+        // A stellar, not sub-pixel-noise, median. The upper bound is a "not blown
+        // up" sanity guard, loosened from the pre-rewrite value: the NINA half-flux
+        // radius is a flux-weighted mean (definitionally larger than the former
+        // enclosed-50% radius) and, unlike it, is crowding-sensitive, so this dense
+        // cluster core reads a few px higher. (Crowding robustness is M5.14.)
         #expect( medianHFR > 1.5 )
-        #expect( medianHFR < 5 )
+        #expect( medianHFR < 7 )
     }
 
     /// On a single, short, light-polluted Seestar S30 M42 sub — a real

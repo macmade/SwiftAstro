@@ -29,8 +29,9 @@ import Testing
 /// Tests for ``StarMoments``.
 struct StarMomentsTests
 {
-    /// For a 2D Gaussian, the half-flux radius is σ·√(2 ln 2).
-    private static let hfrPerSigma  = ( 2 * Foundation.log( 2.0 ) ).squareRoot()
+    /// For a 2D Gaussian, the half-flux radius (HFD/2, the flux-weighted mean
+    /// radius acquisition software reports) is σ·√(π/2).
+    private static let hfrPerSigma  = ( Double.pi / 2 ).squareRoot()
 
     /// For a 2D Gaussian, FWHM = 2√(2 ln 2)·σ.
     private static let fwhmPerSigma = 2 * ( 2 * Foundation.log( 2.0 ) ).squareRoot()
@@ -79,8 +80,11 @@ struct StarMomentsTests
         #expect( abs( moments.x - fixture.center ) < 0.05 )
         #expect( abs( moments.y - fixture.center ) < 0.05 )
         #expect( abs( moments.fwhm - Self.fwhmPerSigma * sigma ) < 0.05 * Self.fwhmPerSigma * sigma )
-        #expect( abs( moments.hfr  - Self.hfrPerSigma  * sigma ) < 0.10 * Self.hfrPerSigma  * sigma )
         #expect( moments.eccentricity < 0.05 )
+
+        let hfr = StarMoments.halfFluxRadius( samples: fixture.samples, background: 200, aroundX: moments.x, y: moments.y, withinRadius: StarMoments.hfrApertureRadiusFactor * moments.fwhm )
+
+        #expect( abs( hfr - Self.hfrPerSigma * sigma ) < 0.05 * Self.hfrPerSigma * sigma )
     }
 
     /// An elongated Gaussian yields the expected eccentricity.
@@ -136,5 +140,64 @@ struct StarMomentsTests
         let moments = StarMoments( samples: samples, background: 200 )
 
         #expect( moments == nil )
+    }
+
+    /// The one-number FWHM is the geometric mean of the axis widths, so an
+    /// elongated Gaussian reports `(FWHM/σ)·√(σx·σy)`, matching the Gaussian-fit
+    /// path rather than the RMS of the widths.
+    @Test
+    func measuresFWHMAsGeometricMeanForAnElongatedGaussian() throws
+    {
+        let sigmaX  = 2.0
+        let sigmaY  = 4.0
+        let fixture = self.gaussianSamples( sigmaX: sigmaX, sigmaY: sigmaY, peak: 3000, background: 200, radius: 20 )
+        let moments = try #require( StarMoments( samples: fixture.samples, background: 200 ) )
+        let sigma   = ( sigmaX * sigmaY ).squareRoot()
+
+        #expect( abs( moments.fwhm - Self.fwhmPerSigma * sigma ) < 0.05 * Self.fwhmPerSigma * sigma )
+    }
+
+    /// The half-flux radius is the flux-weighted mean distance from the centre,
+    /// with below-background samples contributing no flux (clamped to zero).
+    ///
+    /// About `(5, 5)` with a background of `100`: the centre carries flux `8` at
+    /// radius `0`, a neighbour flux `2` at radius `4`, and a far below-background
+    /// sample (value `0`, clamped to zero) — so HFR = (8·0 + 2·4) / (8 + 2) = 0.8.
+    @Test
+    func halfFluxRadiusIsTheFluxWeightedMeanIgnoringBelowBackgroundSamples() throws
+    {
+        let samples: [ ( x: Double, y: Double, value: Double ) ] =
+            [
+                ( x: 5, y:  5, value: 108 ),
+                ( x: 9, y:  5, value: 102 ),
+                ( x: 5, y: 15, value:   0 ),
+            ]
+
+        let hfr = StarMoments.halfFluxRadius( samples: samples, background: 100, aroundX: 5, y: 5, withinRadius: .infinity )
+
+        #expect( abs( hfr - 0.8 ) < 1e-9 )
+    }
+
+    /// The eccentricity is clamped to `[0, 1]`: a non-positive-definite moment
+    /// matrix (from mixed-sign, below-background weights) would otherwise exceed 1.
+    ///
+    /// These weights give `Mxy² > Mxx·Myy` (a negative determinant), so the minor
+    /// eigenvalue is negative and `√(1 − minor/major) ≈ 1.155` without the clamp;
+    /// the clamp pins it at exactly `1`.
+    @Test
+    func eccentricityIsClampedForANonPositiveDefiniteMomentMatrix() throws
+    {
+        let samples: [ ( x: Double, y: Double, value: Double ) ] =
+            [
+                ( x:  1, y:  1, value:  3 ),
+                ( x: -1, y: -1, value:  3 ),
+                ( x:  1, y: -1, value: -1 ),
+                ( x: -1, y:  1, value: -1 ),
+                ( x:  0, y:  0, value:  2 ),
+            ]
+
+        let moments = try #require( StarMoments( samples: samples, background: 0 ) )
+
+        #expect( moments.eccentricity == 1 )
     }
 }
