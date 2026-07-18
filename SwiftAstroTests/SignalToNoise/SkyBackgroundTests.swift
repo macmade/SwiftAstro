@@ -96,4 +96,65 @@ struct SkyBackgroundTests
         #expect( estimate.relativeLevel == nil )
         #expect( estimate.relativeNoise == nil )
     }
+
+    /// Non-finite (NaN / ±Inf) blanks are ignored, including for the extremes.
+    ///
+    /// Float FITS frames legitimately carry non-finite blanks. A leading `NaN`
+    /// would otherwise poison `pixels.min()` / `.max()` and a `±Inf` would leak
+    /// straight into them, so the level, noise and extremes are all measured
+    /// over the finite samples only. The finite samples here are `[0…6]`, so the
+    /// result matches the clean-frame case.
+    @Test
+    func ignoresNonFiniteBlanks() throws
+    {
+        let image    = try self.buffer( [ .nan, 0, 1, 2, 3, 4, 5, 6, .infinity, -.infinity ] )
+        let estimate = try #require( SkyBackground.estimate( in: image ) )
+
+        #expect( estimate.level   == 3 )
+        #expect( estimate.minimum == 0 )
+        #expect( estimate.maximum == 6 )
+        #expect( estimate.range   == 6 )
+        #expect( abs( estimate.noise - 1.4826 * 2.0 ) < 1e-9 )
+        #expect( estimate.minimum.isFinite )
+        #expect( estimate.maximum.isFinite )
+    }
+
+    /// A `+Inf` blank must not leak into the maximum (and thus the range) even
+    /// when it is not the first sample; it is filtered out like any other
+    /// non-finite blank.
+    @Test
+    func positiveInfinityDoesNotLeakIntoExtremes() throws
+    {
+        let image    = try self.buffer( [ 0, 1, 2, 3, 4, 5, 6, .infinity ] )
+        let estimate = try #require( SkyBackground.estimate( in: image ) )
+
+        #expect( estimate.maximum == 6 )
+        #expect( estimate.range   == 6 )
+        #expect( estimate.maximum.isFinite )
+    }
+
+    /// A `−Inf` blank must not leak into the minimum (and thus the range) even
+    /// when it is not the first sample; it is filtered out like any other
+    /// non-finite blank — the symmetric guard to
+    /// ``positiveInfinityDoesNotLeakIntoExtremes()``.
+    @Test
+    func negativeInfinityDoesNotLeakIntoExtremes() throws
+    {
+        let image    = try self.buffer( [ 0, 1, 2, 3, 4, 5, 6, -.infinity ] )
+        let estimate = try #require( SkyBackground.estimate( in: image ) )
+
+        #expect( estimate.minimum == 0 )
+        #expect( estimate.range   == 6 )
+        #expect( estimate.minimum.isFinite )
+    }
+
+    /// A frame of only non-finite blanks has no finite samples, hence no
+    /// meaningful background, so no estimate is produced.
+    @Test
+    func allNonFiniteImageHasNoEstimate() throws
+    {
+        let image = try self.buffer( [ .nan, .infinity, -.infinity, .nan ] )
+
+        #expect( SkyBackground.estimate( in: image ) == nil )
+    }
 }

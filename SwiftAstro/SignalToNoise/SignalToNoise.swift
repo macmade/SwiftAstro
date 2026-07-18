@@ -68,6 +68,12 @@ public struct SignalToNoise: Sendable, Equatable
     /// `Sendable` ``SwiftPixel/PixelBuffer``, so a caller can run it off the main
     /// actor.
     ///
+    /// Non-finite (NaN / ±Inf) blanks — which float FITS frames legitimately
+    /// carry — are ignored: the robust median and MAD are measured over the
+    /// finite samples only (`PixelUtilities`' median / MAD drop them), so a stray
+    /// blank neither poisons the noise to `NaN` nor discards an otherwise good
+    /// frame.
+    ///
     /// - Parameter image: The linear image to measure, or `nil` when none is
     ///   available (estimation is then skipped).
     /// - Returns: The estimate, or `nil` when there is no image, it has no

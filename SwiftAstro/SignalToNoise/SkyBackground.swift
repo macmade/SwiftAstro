@@ -111,22 +111,39 @@ public struct SkyBackground: Sendable, Equatable
     /// works on the `Sendable` ``SwiftPixel/PixelBuffer``, so a caller can run it
     /// off the main actor.
     ///
+    /// Non-finite (NaN / ±Inf) blanks — which float FITS frames legitimately
+    /// carry — are ignored: the level, noise and extremes are all measured over
+    /// the finite samples only, so a blank cannot poison the median or leak into
+    /// the minimum, maximum or range.
+    ///
     /// - Parameter image: The linear image to measure, or `nil` when none is
     ///   available (estimation is then skipped).
-    /// - Returns: The estimate, or `nil` when there is no image or it has no
-    ///   pixels.
+    /// - Returns: The estimate, or `nil` when there is no image, it has no
+    ///   pixels, or none of its samples are finite.
     public static func estimate( in image: PixelBuffer? ) -> SkyBackground?
     {
-        guard let image, image.pixels.isEmpty == false,
-              let median  = PixelUtilities.median( image.pixels ),
-              let minimum = image.pixels.min(),
-              let maximum = image.pixels.max()
+        guard let image, image.pixels.isEmpty == false
         else
         {
             return nil
         }
 
-        let mad   = PixelUtilities.medianAbsoluteDeviation( image.pixels, around: median ) ?? 0
+        // Float FITS frames legitimately carry non-finite (NaN / ±Inf) blanks.
+        // Measure the robust statistics over the finite samples only, so a blank
+        // cannot poison the extremes: `pixels.min()` / `.max()` would otherwise
+        // return NaN for a leading blank or let a ±Inf leak into the range. An
+        // all-finite frame is used as-is, avoiding a copy.
+        let finite = image.pixels.contains { $0.isFinite == false } ? image.pixels.filter { $0.isFinite } : image.pixels
+
+        guard let median  = PixelUtilities.median( finite ),
+              let minimum = finite.min(),
+              let maximum = finite.max()
+        else
+        {
+            return nil
+        }
+
+        let mad   = PixelUtilities.medianAbsoluteDeviation( finite, around: median ) ?? 0
         let noise = mad * Self.madToSigma
 
         return SkyBackground( level: median, noise: noise, minimum: minimum, maximum: maximum )

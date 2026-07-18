@@ -76,4 +76,23 @@ struct SignalToNoiseTests
         #expect( abs( estimate.noise  - expected               ) < 1e-9 )
         #expect( abs( estimate.weight - 1.0 / ( expected * expected ) ) < 1e-9 )
     }
+
+    /// Non-finite (NaN / ±Inf) blanks are ignored: a frame carrying a few blanks
+    /// yields the same finite robust noise as the clean frame, so a good frame
+    /// with a stray blank is not discarded.
+    ///
+    /// Float FITS frames legitimately carry non-finite blanks; the robust
+    /// median / MAD are measured over the finite samples only, so a `NaN` no
+    /// longer poisons the noise to `NaN` (which `guard noise > 0` would reject).
+    /// The finite samples here are `[0…6]`, matching the clean-frame case.
+    @Test
+    func ignoresNonFiniteBlanks() throws
+    {
+        let clean    = try #require( SignalToNoise.estimate( in: try self.buffer( [ 0, 1, 2, 3, 4, 5, 6 ] ) ) )
+        let blanked  = try self.buffer( [ 0, 1, 2, 3, .nan, 4, 5, 6, .infinity, -.infinity ] )
+        let estimate = try #require( SignalToNoise.estimate( in: blanked ) )
+
+        #expect( estimate.noise.isFinite )
+        #expect( abs( estimate.noise - clean.noise ) < 1e-9 )
+    }
 }
