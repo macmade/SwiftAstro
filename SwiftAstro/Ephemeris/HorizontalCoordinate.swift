@@ -36,9 +36,40 @@ public struct HorizontalCoordinate: Sendable, Equatable
     public let altitude: Double
 
     /// Whether the body is above the ideal (`0°`) horizon.
+    ///
+    /// This is the *geometric* horizon: it ignores atmospheric refraction, so a body
+    /// whose true altitude is between about −0.6° and 0° is reported below the horizon
+    /// even though refraction lifts it into view. It therefore disagrees with the
+    /// refraction-and-semidiameter sunrise/sunset convention `TwilightEvents` uses
+    /// (−0.833°): for the minutes the Sun's centre sits in that band it is *after* the
+    /// reported sunrise yet `isAboveHorizon` is still `false`. Use
+    /// ``isAboveHorizon(refraction:)`` for the apparent horizon.
     public var isAboveHorizon: Bool
     {
         self.altitude > 0
+    }
+
+    /// The standard atmospheric refraction at the horizon, in degrees (about 34′).
+    ///
+    /// A body whose true altitude is this far below the ideal horizon still appears
+    /// above it, refraction lifting it into view.
+    public static let horizonRefraction = 0.583
+
+    /// Whether the body appears above the horizon once atmospheric refraction is
+    /// allowed for.
+    ///
+    /// Unlike ``isAboveHorizon`` (the ideal `0°` horizon), this uses the *apparent*
+    /// horizon: the body is up when its true altitude exceeds `−refraction`. Pass the
+    /// default ``horizonRefraction`` (about 34′) for a point source such as a planet
+    /// or star; pass `0.833` to include a body's semidiameter, matching the Sun-centre
+    /// sunrise/sunset threshold `TwilightEvents` uses.
+    ///
+    /// - Parameter refraction: The atmospheric-refraction lift at the horizon, in
+    ///   degrees. Defaults to ``horizonRefraction``.
+    /// - Returns: Whether the body appears above the refraction-adjusted horizon.
+    public func isAboveHorizon( refraction: Double = HorizontalCoordinate.horizonRefraction ) -> Bool
+    {
+        self.altitude > -refraction
     }
 
     /// Creates a horizontal coordinate.

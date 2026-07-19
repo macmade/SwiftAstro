@@ -36,6 +36,12 @@ import Foundation
 /// Times are computed from the Sun's low-precision position and are good to about
 /// a minute at mid-latitudes. The Sun's declination is taken at the day's solar
 /// transit, so the rise and set of a given threshold are symmetric about it.
+///
+/// - Note: Sunrise/sunset here use the −0.833° convention (refraction + the solar
+///   semidiameter), which differs from `HorizontalCoordinate.isAboveHorizon`'s ideal
+///   0° geometric horizon. To decide "is the Sun up?" so it agrees with `sunrise` /
+///   `sunset`, use `HorizontalCoordinate.isAboveHorizon(refraction:)` with a
+///   refraction of `0.833`, not the plain `isAboveHorizon` property.
 public struct TwilightEvents: Sendable, Equatable
 {
     /// The time the Sun rises (centre at −0.833°), or `nil` if it does not rise.

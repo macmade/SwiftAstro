@@ -28,9 +28,11 @@ import Foundation
 ///
 /// Every planet observable from Earth is covered (all but Earth itself). Their
 /// low-precision orbital elements (after Schlyter) are good to roughly an
-/// arc-minute for the inner planets and a fraction of a degree for the outer
-/// ones, whose larger mutual perturbations are not modelled — ample for deciding
-/// whether a planet is above the horizon.
+/// arc-minute for the inner planets; for Jupiter, Saturn and Uranus, whose larger
+/// mutual perturbations would otherwise reach a fraction of a degree, Schlyter's
+/// largest periodic perturbation terms are applied in the position reduction (see
+/// `PlanetPosition.heliocentricEcliptic(of:dayNumber:)`), bringing them to a few
+/// arc-minutes — ample for deciding whether a planet is above the horizon.
 public enum Planet: String, CaseIterable, Sendable
 {
     /// Mercury.

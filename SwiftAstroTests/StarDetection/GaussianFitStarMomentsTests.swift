@@ -71,4 +71,40 @@ struct GaussianFitStarMomentsTests
 
         #expect( rms < 20 )
     }
+
+    /// The seed takes its widths from the eigenvalues of the second-moment ellipse
+    /// (`sigmaX = √λ_major`, `sigmaY = √λ_minor`) and its orientation from the mixed
+    /// moment (`θ = ½·atan2(2·Mxy, Mxx − Myy)`), and passes the centroid, amplitude and
+    /// background straight through — asserted directly on a known ellipse (the seed is
+    /// only exercised end-to-end above).
+    @Test
+    func seedsInitialGuessDirectlyFromKnownEllipseMoments() throws
+    {
+        // Four samples over a zero background whose flux weights give a centroid at the
+        // origin and second moments Mxx = Myy = 1, Mxy = 1/3 — a 45° ellipse with
+        // eigenvalues 4/3 (major) and 2/3 (minor).
+        let samples: [ ( x: Double, y: Double, value: Double ) ] =
+            [
+                ( x:  1, y:  1, value: 2 ),
+                ( x: -1, y: -1, value: 2 ),
+                ( x:  1, y: -1, value: 1 ),
+                ( x: -1, y:  1, value: 1 ),
+            ]
+
+        let moments = try #require( StarMoments( samples: samples, background: 0 ) )
+
+        #expect( abs( moments.mxx - 1 ) < 1e-12 )
+        #expect( abs( moments.myy - 1 ) < 1e-12 )
+        #expect( abs( moments.mxy - ( 1.0 / 3.0 ) ) < 1e-12 )
+
+        let seed = GaussianFit.Parameters( moments: moments, amplitude: 42, background: 7 )
+
+        #expect( abs( seed.sigmaX - ( 4.0 / 3.0 ).squareRoot() ) < 1e-12 )
+        #expect( abs( seed.sigmaY - ( 2.0 / 3.0 ).squareRoot() ) < 1e-12 )
+        #expect( abs( seed.theta - ( .pi / 4 ) ) < 1e-12 )
+        #expect( seed.x == moments.x )
+        #expect( seed.y == moments.y )
+        #expect( seed.amplitude == 42 )
+        #expect( seed.background == 7 )
+    }
 }

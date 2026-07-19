@@ -137,19 +137,22 @@ struct LunarPositionTests
         #expect( abs( topocentric.azimuth - geocentric.azimuth ) < 1e-9 )
     }
 
-    /// The horizontal reduction is consistent: the Moon is reported above the
-    /// horizon exactly when its altitude is positive.
+    /// The Moon rises and sets over a day at mid-latitude — a non-tautological check
+    /// that the topocentric reduction feeds ``HorizontalCoordinate/isAboveHorizon`` a
+    /// position that tracks the sky (its declination stays within ±~28°, so at 40° N
+    /// it is neither circumpolar nor perpetually below the horizon). The fixed-value
+    /// boundary and refraction cases are in `HorizontalCoordinateTests`.
     @Test
-    func aboveHorizonMatchesAltitudeSign() throws
+    func moonRisesAndSetsOverADay() throws
     {
         let location = GeographicLocation( latitude: 40, longitude: -74 )
 
-        try ( 0 ..< 8 ).forEach
+        let states = try ( 0 ..< 24 ).map
         {
-            let date       = try self.utcDate( 2024, 7, 15, $0 * 3 )
-            let horizontal = LunarPosition.horizontal( at: date, location: location )
-
-            #expect( horizontal.isAboveHorizon == ( horizontal.altitude > 0 ) )
+            LunarPosition.horizontal( at: try self.utcDate( 2024, 7, 15, $0 ), location: location ).isAboveHorizon
         }
+
+        #expect( states.contains( true ),  "the Moon is never above the horizon over the day" )
+        #expect( states.contains( false ), "the Moon never sets over the day" )
     }
 }

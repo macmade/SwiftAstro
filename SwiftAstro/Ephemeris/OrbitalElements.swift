@@ -29,6 +29,13 @@ import Foundation
 ///
 /// Angles are in degrees; the semi-major axis and the resulting coordinates are
 /// in astronomical units.
+///
+/// - Important: This is an internal helper for the library's own bound, elliptical
+///   orbits (`eccentricity < 1`), not a general-purpose two-body solver. The
+///   `trueAnomalyAndDistance` reduction takes `√(1 − e²)`, so an eccentricity of `1`
+///   or more yields NaN. Every element set this library builds is a fixed
+///   low-eccentricity body (the largest is Mercury at `e ≈ 0.206`), so the parabolic
+///   and hyperbolic cases never arise.
 struct OrbitalElements
 {
     /// The longitude of the ascending node, `N`, in degrees.

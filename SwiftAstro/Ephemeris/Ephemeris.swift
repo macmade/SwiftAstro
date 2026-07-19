@@ -70,6 +70,30 @@ enum Ephemeris
         radians * 180 / .pi
     }
 
+    /// The sine of an angle given in degrees.
+    ///
+    /// A convenience for the ecliptic perturbation series, whose terms are written
+    /// with degree arguments.
+    ///
+    /// - Parameter degrees: The angle, in degrees.
+    /// - Returns: Its sine.
+    static func sineDegrees( _ degrees: Double ) -> Double
+    {
+        sin( self.radians( degrees ) )
+    }
+
+    /// The cosine of an angle given in degrees.
+    ///
+    /// A convenience for the ecliptic perturbation series, whose terms are written
+    /// with degree arguments.
+    ///
+    /// - Parameter degrees: The angle, in degrees.
+    /// - Returns: Its cosine.
+    static func cosineDegrees( _ degrees: Double ) -> Double
+    {
+        cos( self.radians( degrees ) )
+    }
+
     /// Reduces an angle in degrees to the `0 ..< 360` range.
     static func normalizedDegrees( _ value: Double ) -> Double
     {
@@ -160,7 +184,12 @@ enum Ephemeris
         let horizontalZ = x * cos( latitude ) + z * sin( latitude )
 
         let azimuth  = self.normalizedDegrees( self.degrees( atan2( horizontalY, horizontalX ) ) + 180 )
-        let altitude = self.degrees( asin( horizontalZ ) )
+
+        // `horizontalZ` is mathematically in `[-1, 1]`, but floating-point rounding at
+        // the zenith or nadir can push it a hair past either bound and make `asin`
+        // return NaN; clamp it — two-sided here, since the altitude reaches the nadir,
+        // unlike the one-sided guard in `EquatorialCoordinate.angularSeparation`.
+        let altitude = self.degrees( asin( Swift.min( 1, Swift.max( -1, horizontalZ ) ) ) )
 
         return HorizontalCoordinate( azimuth: azimuth, altitude: altitude )
     }

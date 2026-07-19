@@ -89,8 +89,8 @@ public enum LunarPosition
         let el = lm - ls
         let fl = lm - elements.longitudeOfAscendingNode
 
-        let sine   = { ( degrees: Double ) in sin( Ephemeris.radians( degrees ) ) }
-        let cosine = { ( degrees: Double ) in cos( Ephemeris.radians( degrees ) ) }
+        let sine   = Ephemeris.sineDegrees
+        let cosine = Ephemeris.cosineDegrees
 
         let longitudePerturbation =
             -1.274 * sine( mm - 2 * el )            // Evection

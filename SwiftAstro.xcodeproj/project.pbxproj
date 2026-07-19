@@ -16,6 +16,7 @@
 		14AD3DD95320795D4D70DCFD /* SyntheticStarGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 640F4CC836996C8EAB142051 /* SyntheticStarGrid.swift */; };
 		1E0F08AC1507C6A05DF3F85E /* SkyBackgroundTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D51DA97B8E04F7BD94A77CB /* SkyBackgroundTests.swift */; };
 		29E83D144B5E2D652073587C /* AllocationMeterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5B9B6F9A7066126333834AE /* AllocationMeterTests.swift */; };
+		32E342BE5EE4254ED18D9F9F /* HorizontalCoordinateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DB3ABF6FB77D64BD4AAEE9F /* HorizontalCoordinateTests.swift */; };
 		337E3933CD4EC6E2A2C84C3F /* BenchmarkReportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7FF77AA386CF8830E7ED9A /* BenchmarkReportTests.swift */; };
 		4FAC2D9A3824A904B4E86FD6 /* HorizontalCoordinate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85D5904EE6A384AC3F1F534 /* HorizontalCoordinate.swift */; };
 		50417E11A024BEABF7EE09F8 /* Ephemeris.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76BFA2150AB7F933679FC3CA /* Ephemeris.swift */; };
@@ -38,6 +39,7 @@
 		88AB3ECEB388F83A8BE989B6 /* SkyBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C7731DCA4E1120E39F0A960 /* SkyBackground.swift */; };
 		8D604805568BC397DA345F6B /* BenchmarkFrameDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67A43EC8B336424EE152B188 /* BenchmarkFrameDescriptor.swift */; };
 		8D6365D502F68BC0B1ECE19D /* SolarPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = F602446866EA87E2E0229DDB /* SolarPosition.swift */; };
+		8FAE86A4E7BA8A08FCEEAC6A /* EphemerisTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4489C63A31C35183CBDAD82F /* EphemerisTests.swift */; };
 		9391A7D42992E196308957EA /* AstroBenchmarkInputs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641A41645FD5F6BA368E16FF /* AstroBenchmarkInputs.swift */; };
 		954CE790A4B63D459117E5E3 /* StarDetecting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65743BE21FA6DF080957A92C /* StarDetecting.swift */; };
 		97A53164B9AC46B2F79C2BFF /* Star.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B96C49E375EAF3E94A7C1FB /* Star.swift */; };
@@ -185,6 +187,7 @@
 		3BB7A519F56E3BAD1E4C4B43 /* ErrorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ErrorTests.swift; sourceTree = "<group>"; };
 		3DF248B9ACD91483F6C3A72E /* SwiftAstroBenchmarks.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwiftAstroBenchmarks.swift; sourceTree = "<group>"; };
 		43D6A51E4B26E1C11A362EE1 /* BenchmarkTimings.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BenchmarkTimings.swift; sourceTree = "<group>"; };
+		4489C63A31C35183CBDAD82F /* EphemerisTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EphemerisTests.swift; sourceTree = "<group>"; };
 		4FA0FF73C6C04C36BDDA20D8 /* PlanetPositionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PlanetPositionTests.swift; sourceTree = "<group>"; };
 		53CD8B38EF112769C6C6B8EE /* Planet.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Planet.swift; sourceTree = "<group>"; };
 		5A516E0150000000000000A2 /* SignalToNoise.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SignalToNoise.swift; sourceTree = "<group>"; };
@@ -197,6 +200,7 @@
 		67A43EC8B336424EE152B188 /* BenchmarkFrameDescriptor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BenchmarkFrameDescriptor.swift; sourceTree = "<group>"; };
 		6C37E0F1ABBBCBF13FD1F4A8 /* SyntheticStarGridTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SyntheticStarGridTests.swift; sourceTree = "<group>"; };
 		6D6159EA803406B8C437B937 /* BenchmarkReport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BenchmarkReport.swift; sourceTree = "<group>"; };
+		6DB3ABF6FB77D64BD4AAEE9F /* HorizontalCoordinateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HorizontalCoordinateTests.swift; sourceTree = "<group>"; };
 		7012E290AE1E9219851C22E6 /* BenchmarkRunner.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BenchmarkRunner.swift; sourceTree = "<group>"; };
 		753AFF1F15A64F1BA33F6D54 /* SolarPositionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SolarPositionTests.swift; sourceTree = "<group>"; };
 		76BFA2150AB7F933679FC3CA /* Ephemeris.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Ephemeris.swift; sourceTree = "<group>"; };
@@ -469,6 +473,8 @@
 				A1B2C3D4E5F60718293A4B06 /* EquatorialCoordinateTests.swift */,
 				7E959722FCC2AE7A3F65A52D /* TwilightEventsTests.swift */,
 				76DDE518E7571A155E3CEE2E /* MoonPhaseTests.swift */,
+				4489C63A31C35183CBDAD82F /* EphemerisTests.swift */,
+				6DB3ABF6FB77D64BD4AAEE9F /* HorizontalCoordinateTests.swift */,
 			);
 			path = Ephemeris;
 			sourceTree = "<group>";
@@ -870,6 +876,8 @@
 				52E1B6372EB90205F16D4321 /* BenchmarkFrame.swift in Sources */,
 				0FA167776A133FB17C518E81 /* SwiftAstroBenchmarkSuite.swift in Sources */,
 				648EE2FA3B2A395AAD3DAD59 /* SwiftAstroBenchmarks.swift in Sources */,
+				8FAE86A4E7BA8A08FCEEAC6A /* EphemerisTests.swift in Sources */,
+				32E342BE5EE4254ED18D9F9F /* HorizontalCoordinateTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

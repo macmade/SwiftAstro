@@ -36,15 +36,21 @@ import Testing
 /// maximum elongation.
 struct PlanetPositionTests
 {
-    /// The heliocentric ecliptic longitude, latitude (degrees) and distance (AU).
+    /// The planet's perturbed heliocentric ecliptic longitude, latitude (degrees)
+    /// and distance (AU) — the position `PlanetPosition` actually uses, including the
+    /// Schlyter perturbation terms for Jupiter, Saturn and Uranus.
     private func heliocentric( _ planet: Planet, dayNumber: Double ) -> ( longitude: Double, latitude: Double, distance: Double )
     {
-        let ( x, y, z ) = planet.elements( dayNumber: dayNumber ).heliocentricEcliptic
-        let longitude   = Ephemeris.normalizedDegrees( Ephemeris.degrees( atan2( y, x ) ) )
-        let latitude    = Ephemeris.degrees( atan2( z, ( x * x + y * y ).squareRoot() ) )
-        let distance    = ( x * x + y * y + z * z ).squareRoot()
+        PlanetPosition.heliocentricEcliptic( of: planet, dayNumber: dayNumber )
+    }
 
-        return ( longitude, latitude, distance )
+    /// The planet's *unperturbed* heliocentric ecliptic longitude and latitude, in
+    /// degrees, straight from the Keplerian reduction (no perturbation terms).
+    private func unperturbed( _ planet: Planet, dayNumber: Double ) -> ( longitude: Double, latitude: Double )
+    {
+        let ( x, y, z ) = planet.elements( dayNumber: dayNumber ).heliocentricEcliptic
+
+        return ( Ephemeris.normalizedDegrees( Ephemeris.degrees( atan2( y, x ) ) ), Ephemeris.degrees( atan2( z, ( x * x + y * y ).squareRoot() ) ) )
     }
 
     /// The angular separation between two equatorial coordinates, in degrees.
@@ -58,14 +64,15 @@ struct PlanetPositionTests
         return Ephemeris.degrees( acos( min( max( cosine, -1 ), 1 ) ) )
     }
 
-    /// Builds a UTC date at 00:00.
-    private func utcDate( _ year: Int, _ month: Int, _ day: Int ) throws -> Date
+    /// Builds a UTC date at a whole hour.
+    private func utcDate( _ year: Int, _ month: Int, _ day: Int, _ hour: Int = 0 ) throws -> Date
     {
         var components = DateComponents()
 
         components.year   = year
         components.month  = month
         components.day    = day
+        components.hour   = hour
 
         var calendar      = Calendar( identifier: .gregorian )
         calendar.timeZone = .gmt
@@ -73,14 +80,22 @@ struct PlanetPositionTests
         return try #require( calendar.date( from: components ) )
     }
 
-    /// The heliocentric positions of Mercury, Venus and Mars match Schlyter's
-    /// worked example at `d = -3543`.
+    /// The heliocentric positions of Mercury, Venus, Mars, Jupiter and Saturn match
+    /// Schlyter's worked example at `d = -3543`. The Jupiter and Saturn values are the
+    /// perturbation-corrected ones from the tutorial (Jupiter longitude 105.2423°,
+    /// Saturn longitude 289.3824° / latitude +0.1845°), so a future typo in an
+    /// outer-planet element polynomial would fail here. A small error confined to a
+    /// perturbation term is caught by ``outerPlanetPerturbationsMatchSchlyterCorrections``
+    /// instead: Jupiter's own perturbation (0.012°) is within this test's 0.02°
+    /// tolerance, so this test does not by itself exercise the Jupiter term.
     @Test
     func heliocentricMatchesSchlyterExample()
     {
         let mercury = self.heliocentric( .mercury, dayNumber: -3543 )
         let venus   = self.heliocentric( .venus,   dayNumber: -3543 )
         let mars    = self.heliocentric( .mars,    dayNumber: -3543 )
+        let jupiter = self.heliocentric( .jupiter, dayNumber: -3543 )
+        let saturn  = self.heliocentric( .saturn,  dayNumber: -3543 )
 
         #expect( abs( mercury.longitude - 170.5709 ) < 0.02 )
         #expect( abs( mercury.latitude  -   5.9255 ) < 0.02 )
@@ -93,6 +108,46 @@ struct PlanetPositionTests
         #expect( abs( mars.longitude - 290.6297 ) < 0.02 )
         #expect( abs( mars.latitude  - ( -1.6203 ) ) < 0.02 )
         #expect( abs( mars.distance  -   1.417194 ) < 0.001 )
+
+        #expect( abs( jupiter.longitude - 105.2423 ) < 0.02 )
+        #expect( abs( jupiter.latitude  -   0.1113 ) < 0.02 )
+        #expect( abs( jupiter.distance  -   5.19508 ) < 0.001 )
+
+        #expect( abs( saturn.longitude - 289.3824 ) < 0.02 )
+        #expect( abs( saturn.latitude  -   0.1845 ) < 0.02 )
+        #expect( abs( saturn.distance  -  10.06118 ) < 0.001 )
+    }
+
+    /// The Schlyter perturbation terms shift Jupiter's, Saturn's and Uranus's
+    /// heliocentric longitude (and Saturn's latitude) by the exact corrections given
+    /// in the tutorial's worked example at `d = -3543` — a direct check that the
+    /// perturbations are applied (without them every correction below would be zero).
+    @Test
+    func outerPlanetPerturbationsMatchSchlyterCorrections()
+    {
+        let jupiter = self.heliocentric( .jupiter, dayNumber: -3543 )
+        let saturn  = self.heliocentric( .saturn,  dayNumber: -3543 )
+        let uranus  = self.heliocentric( .uranus,  dayNumber: -3543 )
+
+        let jupiterRaw = self.unperturbed( .jupiter, dayNumber: -3543 )
+        let saturnRaw  = self.unperturbed( .saturn,  dayNumber: -3543 )
+        let uranusRaw  = self.unperturbed( .uranus,  dayNumber: -3543 )
+
+        #expect( abs( ( jupiter.longitude - jupiterRaw.longitude ) - ( -0.0120 ) ) < 0.001 )
+        #expect( abs( ( saturn.longitude  - saturnRaw.longitude  ) - ( -0.0699 ) ) < 0.001 )
+        #expect( abs( ( saturn.latitude   - saturnRaw.latitude   ) -    0.0053   ) < 0.001 )
+        #expect( abs( ( uranus.longitude  - uranusRaw.longitude  ) - ( -0.0327 ) ) < 0.001 )
+
+        // Mercury, Venus, Mars and Neptune have no modelled terms — perturbed equals
+        // unperturbed.
+        [ Planet.mercury, .venus, .mars, .neptune ].forEach
+        {
+            let perturbed = self.heliocentric( $0, dayNumber: -3543 )
+            let raw       = self.unperturbed( $0, dayNumber: -3543 )
+
+            #expect( abs( perturbed.longitude - raw.longitude ) < 1e-9 )
+            #expect( abs( perturbed.latitude  - raw.latitude  ) < 1e-9 )
+        }
     }
 
     /// Venus never appears more than ~47° from the Sun and Mercury never more
@@ -149,21 +204,27 @@ struct PlanetPositionTests
         #expect( neptune > 29 && neptune < 31, "Neptune distance \( neptune ) AU is out of range" )
     }
 
-    /// The horizontal reduction is consistent: a planet is reported above the
-    /// horizon exactly when its altitude is positive.
+    /// Each planet rises and sets over a day at mid-latitude — a non-tautological
+    /// check that the horizontal reduction feeds ``HorizontalCoordinate/isAboveHorizon``
+    /// a position that tracks the sky (every planet stays near the ecliptic, so at
+    /// 40° N none is circumpolar or perpetually below the horizon). The fixed-value
+    /// boundary and refraction cases are in `HorizontalCoordinateTests`.
     @Test
-    func aboveHorizonMatchesAltitudeSign() throws
+    func everyPlanetRisesAndSetsOverADay() throws
     {
-        let date     = try self.utcDate( 2024, 7, 15 )
         let location = GeographicLocation( latitude: 40, longitude: -74 )
 
-        Planet.allCases.forEach
+        try Planet.allCases.forEach
         {
             planet in
 
-            let horizontal = PlanetPosition.horizontal( of: planet, at: date, location: location )
+            let states = try ( 0 ..< 24 ).map
+            {
+                PlanetPosition.horizontal( of: planet, at: try self.utcDate( 2024, 7, 15, $0 ), location: location ).isAboveHorizon
+            }
 
-            #expect( horizontal.isAboveHorizon == ( horizontal.altitude > 0 ) )
+            #expect( states.contains( true ),  "\( planet.name ) is never above the horizon over the day" )
+            #expect( states.contains( false ), "\( planet.name ) never sets over the day" )
         }
     }
 }
