@@ -55,7 +55,7 @@ extension MatchedFilterStarDetector
     func brightStars( in image: PixelBuffer, fwhm: Double, minSeparation: Double, excluding existing: [ Star ] ) -> [ Star ]
     {
         let background = PixelUtilities.median( image.pixels ) ?? 0
-        let noise      = ( PixelUtilities.medianAbsoluteDeviation( image.pixels, around: background ) ?? 0 ) * 1.4826
+        let noise      = ( PixelUtilities.medianAbsoluteDeviation( image.pixels, around: background ) ?? 0 ) * Self.madToSigma
 
         guard noise > 0
         else

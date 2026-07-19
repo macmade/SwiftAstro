@@ -40,8 +40,21 @@ struct SignalToNoiseTests
     @Test
     func weightIsInverseNoiseVariance() throws
     {
-        #expect( SignalToNoise( noise: 2 ).weight == 0.25 )
-        #expect( SignalToNoise( noise: 0.5 ).weight == 4.0 )
+        #expect( try #require( SignalToNoise( noise: 2 ) ).weight == 0.25 )
+        #expect( try #require( SignalToNoise( noise: 0.5 ) ).weight == 4.0 )
+    }
+
+    /// A non-positive or non-finite noise has no meaningful inverse-variance
+    /// weight (`1 / 0² = +∞`, `1 / NaN² = NaN`), so the failable initializer
+    /// rejects it rather than producing a garbage estimate.
+    @Test
+    func initRejectsNonPositiveOrNonFiniteNoise() throws
+    {
+        #expect( SignalToNoise( noise: 0 )          == nil )
+        #expect( SignalToNoise( noise: -1 )         == nil )
+        #expect( SignalToNoise( noise: .nan )       == nil )
+        #expect( SignalToNoise( noise: .infinity )  == nil )
+        #expect( SignalToNoise( noise: -.infinity ) == nil )
     }
 
     /// No image yields no estimate.

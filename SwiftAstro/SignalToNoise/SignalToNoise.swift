@@ -49,24 +49,42 @@ public struct SignalToNoise: Sendable, Equatable
         1.0 / ( self.noise * self.noise )
     }
 
-    /// The factor converting a median absolute deviation to a standard deviation
-    /// for normally distributed data.
-    private static let madToSigma = 1.4826
-
     /// Creates an estimate from a known noise standard deviation.
     ///
-    /// - Parameter noise: The robust noise standard deviation.
-    public init( noise: Double )
+    /// - Parameter noise: The robust noise standard deviation. Must be finite and
+    ///   positive: a non-positive or non-finite noise has no meaningful
+    ///   inverse-variance ``weight`` (`1 / 0² = +∞`, `1 / NaN² = NaN`), so the
+    ///   initializer fails rather than constructing a garbage estimate.
+    /// - Returns: `nil` if `noise` is not finite and positive.
+    public init?( noise: Double )
     {
+        guard noise.isFinite, noise > 0
+        else
+        {
+            return nil
+        }
+
         self.noise = noise
     }
 
     /// Estimates the image-wide noise and SNR weight of a frame.
     ///
-    /// The noise is the robust `1.4826 × MAD` about the image median; the weight
-    /// is its inverse variance. The entry point is pure and works on the
-    /// `Sendable` ``SwiftPixel/PixelBuffer``, so a caller can run it off the main
-    /// actor.
+    /// The noise is the robust `1.4826 × MAD` about the image median (see
+    /// ``SwiftPixel/PixelUtilities/madStandardDeviationScale``); the weight is its
+    /// inverse variance. The entry point is pure and works on the `Sendable`
+    /// ``SwiftPixel/PixelBuffer``, so a caller can run it off the main actor.
+    ///
+    /// **This is a whole-image estimate.** The MAD is taken over every sample, so
+    /// — unlike a multiscale (MRS) noise estimate, which isolates the background
+    /// by excluding stars, nebulosity and gradients — real structure inflates it
+    /// on high-signal frames. That is a deliberate trade-off: the estimator is
+    /// intentionally the same one the star detector and ``SkyBackground`` use, so
+    /// all three agree on what "noise" means, and because the weight is *relative*
+    /// (it only ranks frames of the same target against one another) the shared
+    /// bias largely cancels. For a frame demosaiced from a one-shot-colour (CFA)
+    /// sensor the noise is additionally smoothing-suppressed (see
+    /// ``BayerGrayscaleConverter``), so it is not directly comparable to a true
+    /// mono frame's.
     ///
     /// Non-finite (NaN / ±Inf) blanks — which float FITS frames legitimately
     /// carry — are ignored: the robust median and MAD are measured over the
@@ -89,14 +107,11 @@ public struct SignalToNoise: Sendable, Equatable
 
         let median = PixelUtilities.median( image.pixels ) ?? 0
         let mad    = PixelUtilities.medianAbsoluteDeviation( image.pixels, around: median ) ?? 0
-        let noise  = mad * Self.madToSigma
+        let noise  = mad * PixelUtilities.madStandardDeviationScale
 
-        guard noise > 0
-        else
-        {
-            return nil
-        }
-
+        // A flat or degenerate frame yields zero (or non-finite) noise and hence
+        // no meaningful signal-to-noise; the failable initializer rejects it, so
+        // the positivity check lives in one place.
         return SignalToNoise( noise: noise )
     }
 }

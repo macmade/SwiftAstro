@@ -43,6 +43,11 @@ public struct SkyBackground: Sendable, Equatable
     public let level: Double
 
     /// The robust background noise — `1.4826 × MAD` about the median (ADU).
+    ///
+    /// This is a whole-image estimate, shared with ``SignalToNoise`` and the star
+    /// detector; for a frame demosaiced from a one-shot-colour (CFA) sensor it is
+    /// smoothing-suppressed (see ``BayerGrayscaleConverter``) and so not directly
+    /// comparable to a true mono frame's.
     public let noise: Double
 
     /// The smallest sample value in the image (ADU).
@@ -50,10 +55,6 @@ public struct SkyBackground: Sendable, Equatable
 
     /// The largest sample value in the image (ADU).
     public let maximum: Double
-
-    /// The factor converting a median absolute deviation to a standard deviation
-    /// for normally distributed data.
-    private static let madToSigma = 1.4826
 
     /// The image's value range, `maximum − minimum` (ADU).
     public var range: Double
@@ -128,24 +129,23 @@ public struct SkyBackground: Sendable, Equatable
             return nil
         }
 
-        // Float FITS frames legitimately carry non-finite (NaN / ±Inf) blanks.
-        // Measure the robust statistics over the finite samples only, so a blank
-        // cannot poison the extremes: `pixels.min()` / `.max()` would otherwise
-        // return NaN for a leading blank or let a ±Inf leak into the range. An
-        // all-finite frame is used as-is, avoiding a copy.
-        let finite = image.pixels.contains { $0.isFinite == false } ? image.pixels.filter { $0.isFinite } : image.pixels
-
-        guard let median  = PixelUtilities.median( finite ),
-              let minimum = finite.min(),
-              let maximum = finite.max()
+        // Float FITS frames legitimately carry non-finite (NaN / ±Inf) blanks, so
+        // the level, noise and extremes are all measured over the finite samples
+        // only. All blank-filtering lives in one layer, `PixelUtilities`: `median`
+        // / `medianAbsoluteDeviation` drop non-finite samples internally, and
+        // `finiteExtent` gives the blank-safe minimum / maximum that raw
+        // `pixels.min()` / `.max()` cannot — a leading NaN would poison them and a
+        // ±Inf would leak straight into the range.
+        guard let median = PixelUtilities.median( image.pixels ),
+              let extent = PixelUtilities.finiteExtent( image.pixels )
         else
         {
             return nil
         }
 
-        let mad   = PixelUtilities.medianAbsoluteDeviation( finite, around: median ) ?? 0
-        let noise = mad * Self.madToSigma
+        let mad   = PixelUtilities.medianAbsoluteDeviation( image.pixels, around: median ) ?? 0
+        let noise = mad * PixelUtilities.madStandardDeviationScale
 
-        return SkyBackground( level: median, noise: noise, minimum: minimum, maximum: maximum )
+        return SkyBackground( level: median, noise: noise, minimum: extent.minimum, maximum: extent.maximum )
     }
 }

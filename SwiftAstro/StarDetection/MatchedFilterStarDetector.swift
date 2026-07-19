@@ -189,6 +189,13 @@ public struct MatchedFilterStarDetector: StarDetecting
     /// For a 2D Gaussian, FWHM = 2√(2 ln 2)·σ.
     private static let fwhmPerSigma = 2 * ( 2 * Foundation.log( 2.0 ) ).squareRoot()
 
+    /// The factor converting a median absolute deviation to a robust standard
+    /// deviation, sourced from the shared
+    /// ``SwiftPixel/PixelUtilities/madStandardDeviationScale`` so the detector,
+    /// ``SignalToNoise`` and ``SkyBackground`` all use one value and cannot drift.
+    /// Internal (like ``neighborOffsets``) so the bright-star extension shares it.
+    static let madToSigma = PixelUtilities.madStandardDeviationScale
+
     /// The FWHM used when auto-estimation finds no stars to size.
     private static let defaultFWHM = 3.0
 
@@ -249,7 +256,7 @@ public struct MatchedFilterStarDetector: StarDetecting
         let response = Convolution.zeroSumResponse( of: image, kernel: kernel )
 
         let center = PixelUtilities.median( response ) ?? 0
-        let sigmaC = ( PixelUtilities.medianAbsoluteDeviation( response, around: center ) ?? 0 ) * 1.4826
+        let sigmaC = ( PixelUtilities.medianAbsoluteDeviation( response, around: center ) ?? 0 ) * Self.madToSigma
 
         guard sigmaC > 0
         else
@@ -315,7 +322,7 @@ public struct MatchedFilterStarDetector: StarDetecting
         var fwhm = Swift.max( Self.estimateFWHM( in: image ) ?? Self.defaultFWHM, 1 )
 
         let background = PixelUtilities.median( image.pixels ) ?? 0
-        let noise      = ( PixelUtilities.medianAbsoluteDeviation( image.pixels, around: background ) ?? 0 ) * 1.4826
+        let noise      = ( PixelUtilities.medianAbsoluteDeviation( image.pixels, around: background ) ?? 0 ) * Self.madToSigma
 
         guard noise > 0
         else
@@ -386,7 +393,7 @@ public struct MatchedFilterStarDetector: StarDetecting
         let skyInner   = Double( radius ) * 0.65
         let annulus    = samples.filter { Foundation.hypot( $0.x - peakX, $0.y - peakY ) >= skyInner }.map { $0.value }
         let localBg    = PixelUtilities.median( annulus ) ?? ( PixelUtilities.median( samples.map { $0.value } ) ?? background )
-        let localNoise = ( PixelUtilities.medianAbsoluteDeviation( annulus, around: localBg ) ?? 0 ) * 1.4826
+        let localNoise = ( PixelUtilities.medianAbsoluteDeviation( annulus, around: localBg ) ?? 0 ) * Self.madToSigma
         let level      = localBg + ( Self.footprintSigma * Swift.max( localNoise, noise ) )
         let footprint  = Self.connectedFootprint( around: index, radius: radius, level: level, in: image )
 
@@ -455,7 +462,7 @@ public struct MatchedFilterStarDetector: StarDetecting
         }
 
         let background = PixelUtilities.median( image.pixels ) ?? 0
-        let noise      = ( PixelUtilities.medianAbsoluteDeviation( image.pixels, around: background ) ?? 0 ) * 1.4826
+        let noise      = ( PixelUtilities.medianAbsoluteDeviation( image.pixels, around: background ) ?? 0 ) * Self.madToSigma
 
         guard noise > 0
         else
@@ -703,7 +710,7 @@ public struct MatchedFilterStarDetector: StarDetecting
         // inflates until they no longer describe the star — the footprint moments
         // are compact and physical, so they both seed the fit well and provide a
         // reliable measurement when the fit does not converge.
-        let noise     = ( PixelUtilities.medianAbsoluteDeviation( samples.map { $0.value }, around: background ) ?? 0 ) * 1.4826
+        let noise     = ( PixelUtilities.medianAbsoluteDeviation( samples.map { $0.value }, around: background ) ?? 0 ) * Self.madToSigma
         let level     = background + ( Self.footprintSigma * noise )
         let footprint = Self.connectedFootprint( around: index, radius: radius, level: level, in: image )
 

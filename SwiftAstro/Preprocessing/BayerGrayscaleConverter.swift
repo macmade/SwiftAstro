@@ -40,6 +40,15 @@ import SwiftPixel
 /// The channels are combined with an **equal-weight mean** rather than a
 /// perceptual (Rec. 709) luminance, so red- and blue-dominant stars are not
 /// suppressed relative to green ones.
+///
+/// - Note: Bilinear demosaicing is a low-pass filter — each reconstructed red /
+///   blue sample averages neighbouring photosites — so the per-pixel noise of the
+///   grayscale output is suppressed relative to a true monochrome frame. Absolute
+///   noise measured downstream (``SkyBackground`` / ``SignalToNoise``) on a
+///   CFA-derived frame is therefore biased **low** and is not directly comparable
+///   to a mono frame's; it stays self-consistent for CFA-vs-CFA weighting. If an
+///   absolute, mono-comparable noise is ever needed, estimate it on the raw
+///   mosaic per CFA phase instead.
 public struct BayerGrayscaleConverter: Sendable
 {
     /// The mosaic's colour-filter-array pattern.
@@ -64,8 +73,9 @@ public struct BayerGrayscaleConverter: Sendable
     /// - Parameter mosaic: A single-channel, non-normalized Bayer mosaic.
     /// - Returns: A single-channel grayscale image of the same geometry, with the
     ///   demosaiced colour channels averaged. Not normalized.
-    /// - Throws: ``SwiftAstro/Error`` if `mosaic` is not single-channel, or any
-    ///   error raised while demosaicing.
+    /// - Throws: ``SwiftAstro/Error`` if `mosaic` is not single-channel or the
+    ///   demosaic does not yield three RGB channels, or any error raised while
+    ///   demosaicing.
     public func grayscale( from mosaic: PixelBuffer ) throws -> PixelBuffer
     {
         guard mosaic.channels == 1
@@ -78,14 +88,24 @@ public struct BayerGrayscaleConverter: Sendable
 
         // run(pixels:) treats the samples as an already-decoded mosaic; the
         // bitsPerPixel argument is informational only and does not re-decode.
-        let rgb      = try pipeline.run( pixels: mosaic.pixels, width: mosaic.width, height: mosaic.height, bitsPerPixel: .int16 )
-        let channels = rgb.channels
+        let rgb = try pipeline.run( pixels: mosaic.pixels, width: mosaic.width, height: mosaic.height, bitsPerPixel: .int16 )
+
+        // The CFA pipeline always demosaics to three interleaved RGB channels;
+        // combine them with an equal-weight mean. Guarding the channel count makes
+        // that contract explicit and keeps the stride, the read offsets and the
+        // divisor on one consistent convention, rather than mixing a dynamic
+        // `channels` stride with a hardcoded `/ 3`.
+        guard rgb.channels == 3
+        else
+        {
+            throw Error( message: "BayerGrayscaleConverter expected a 3-channel RGB demosaic, got \( rgb.channels ) channels" )
+        }
 
         let gray = ( 0 ..< ( mosaic.width * mosaic.height ) ).map
         {
             index -> Double in
 
-            let base = index * channels
+            let base = index * 3
 
             return ( rgb.pixels[ base ] + rgb.pixels[ base + 1 ] + rgb.pixels[ base + 2 ] ) / 3
         }
