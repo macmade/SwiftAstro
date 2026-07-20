@@ -69,14 +69,11 @@
 		F7ABE1220962410D12EB161C /* AstroBenchmarkFrames.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA63DC24A7B0C738B70C5B7F /* AstroBenchmarkFrames.swift */; };
 		FA000000000000000000000D /* SwiftPixel.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000007 /* SwiftPixel.framework */; };
 		FA000000000000000000000F /* SwiftPixel.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000007 /* SwiftPixel.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		FA0000000000000000000016 /* 2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits in Resources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000014 /* 2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits */; };
 		FA0000000000000000000018 /* FITSTestImageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000017 /* FITSTestImageTests.swift */; };
 		FA000000000000000000001A /* FITSTestImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000019 /* FITSTestImage.swift */; };
-		FA000000000000000000001C /* m35_40min_blue.fits in Resources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000001B /* m35_40min_blue.fits */; };
 		FA0000000000000000000020 /* BayerGrayscaleConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000001F /* BayerGrayscaleConverter.swift */; };
 		FA0000000000000000000023 /* BayerGrayscaleConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000022 /* BayerGrayscaleConverterTests.swift */; };
 		FA0000000000000000000026 /* RealFrameValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000025 /* RealFrameValidationTests.swift */; };
-		FA0000000000000000000027 /* Light_M 42_10.0s_LP_20260101-234803.fit in Resources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000015 /* Light_M 42_10.0s_LP_20260101-234803.fit */; };
 		FA0000000000000000000035 /* SwiftFITS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000009 /* SwiftFITS.framework */; };
 		FA0000000000000000000036 /* SwiftFITS.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000009 /* SwiftFITS.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		FA161376C312A18994FE2710 /* StarFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13643E128A2102A6EB107EE /* StarFieldTests.swift */; };
@@ -829,9 +826,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FA0000000000000000000016 /* 2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits in Resources */,
-				FA000000000000000000001C /* m35_40min_blue.fits in Resources */,
-				FA0000000000000000000027 /* Light_M 42_10.0s_LP_20260101-234803.fit in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

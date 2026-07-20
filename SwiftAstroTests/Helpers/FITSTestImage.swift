@@ -27,7 +27,7 @@ import Foundation
 import SwiftFITS
 import SwiftPixel
 
-/// Loads bundled FITS frames into a single-channel ``SwiftPixel/PixelBuffer``,
+/// Loads committed FITS frames into a single-channel ``SwiftPixel/PixelBuffer``,
 /// for running the detector against real astronomical data in tests.
 ///
 /// This is the FITS counterpart to ``SyntheticStarField``: where that builds
@@ -60,9 +60,18 @@ enum FITSTestImage
     /// fixtures use (its original acquisition name is preserved).
     static let seestarM42FrameExtension = "fit"
 
-    /// Anchors `Bundle(for:)` to the test bundle in Xcode builds.
-    private final class BundleToken
-    {}
+    /// The `Test Files` directory at the repository root.
+    ///
+    /// The heavy fixtures live at the repository root, outside any target
+    /// directory, so they cannot be declared as SwiftPM package resources and are
+    /// deliberately not bundled into the test bundle either. They are located
+    /// relative to this source file's compile-time path, which resolves on the
+    /// machine that built the tests under both SwiftPM and Xcode.
+    static let testFilesDirectory: URL = .init( fileURLWithPath: #filePath )
+        .deletingLastPathComponent() // Helpers/
+        .deletingLastPathComponent() // SwiftAstroTests/
+        .deletingLastPathComponent() // repository root
+        .appendingPathComponent( "Test Files", isDirectory: true )
 
     /// Loads the real one-shot-colour light frame as a single-channel pixel
     /// buffer (the raw Bayer mosaic).
@@ -86,10 +95,8 @@ enum FITSTestImage
     /// Locates a committed FITS test file by name.
     ///
     /// Mirrors how the `SwiftFITS` submodule locates its own fixtures: the heavy
-    /// `Test Files` frames live at the repository root (outside any target), so
-    /// under SwiftPM they are found relative to this source file's compile-time
-    /// path; in an Xcode build they are bundled into the test target and found
-    /// through ``BundleToken``.
+    /// `Test Files` frames live at the repository root, outside any target, and
+    /// are searched recursively under ``testFilesDirectory``.
     ///
     /// - Parameters:
     ///   - resource: The resource base name.
@@ -98,41 +105,21 @@ enum FITSTestImage
     /// - Throws: ``SwiftAstro/Error`` if the resource cannot be found.
     static func url( resource: String, extension ext: String = "fits" ) throws -> URL
     {
-        #if SWIFT_PACKAGE
+        let root   = self.testFilesDirectory
+        let target = "\( resource ).\( ext )"
 
-            // #filePath -> Helpers -> SwiftAstroTests -> repository root -> Test Files.
-            let root = URL( fileURLWithPath: #filePath )
-                .deletingLastPathComponent()
-                .deletingLastPathComponent()
-                .deletingLastPathComponent()
-                .appendingPathComponent( "Test Files" )
-
-            let target = "\( resource ).\( ext )"
-
-            if let enumerator = FileManager.default.enumerator( at: root, includingPropertiesForKeys: nil )
+        if let enumerator = FileManager.default.enumerator( at: root, includingPropertiesForKeys: nil )
+        {
+            for case let url as URL in enumerator where url.lastPathComponent == target
             {
-                for case let url as URL in enumerator where url.lastPathComponent == target
-                {
-                    return url
-                }
+                return url
             }
+        }
 
-            throw Error( message: "Missing FITS test file: \( target ) under \( root.path )" )
-
-        #else
-
-            guard let url = Bundle( for: BundleToken.self ).url( forResource: resource, withExtension: ext )
-            else
-            {
-                throw Error( message: "Missing bundled FITS test file: \( resource ).\( ext )" )
-            }
-
-            return url
-
-        #endif
+        throw Error( message: "Missing FITS test file: \( target ) under \( root.path )" )
     }
 
-    /// Loads a bundled FITS resource as a single-channel pixel buffer.
+    /// Loads a committed FITS resource as a single-channel pixel buffer.
     ///
     /// - Parameters:
     ///   - resource: The resource base name.
@@ -148,7 +135,7 @@ enum FITSTestImage
     ///
     /// Decodes with the helper's own ``linearImage(from:)`` (the library no longer
     /// ships a FITS decoder — the app decodes FITS itself), so this only locates the
-    /// bundled fixture and keeps the fixture decoding in one place.
+    /// committed fixture and keeps the fixture decoding in one place.
     ///
     /// - Parameter url: The FITS file location.
     /// - Returns: The frame's linear samples as a ``SwiftPixel/PixelBuffer``.
