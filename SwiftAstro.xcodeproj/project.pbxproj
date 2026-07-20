@@ -693,25 +693,13 @@
 		};
 /* End PBXGroup section */
 
-/* Begin PBXHeadersBuildPhase section */
-		05E974BB2FE921070078F616 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXHeadersBuildPhase section */
-
 /* Begin PBXNativeTarget section */
 		05E974BF2FE921070078F616 /* SwiftAstro */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 05E974D22FE921070078F616 /* Build configuration list for PBXNativeTarget "SwiftAstro" */;
 			buildPhases = (
-				05E974BB2FE921070078F616 /* Headers */,
 				05E974BC2FE921070078F616 /* Sources */,
 				05E974BD2FE921070078F616 /* Frameworks */,
-				05E974BE2FE921070078F616 /* Resources */,
 				FA0000000000000000000013 /* Embed Frameworks */,
 			);
 			buildRules = (
@@ -729,7 +717,6 @@
 			buildPhases = (
 				05E974C52FE921070078F616 /* Sources */,
 				05E974C62FE921070078F616 /* Frameworks */,
-				05E974C72FE921070078F616 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -813,23 +800,6 @@
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
-
-/* Begin PBXResourcesBuildPhase section */
-		05E974BE2FE921070078F616 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		05E974C72FE921070078F616 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		05E974BC2FE921070078F616 /* Sources */ = {
