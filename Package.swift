@@ -37,6 +37,8 @@ let package = Package(
     dependencies: [
         .package( path: "Submodules/SwiftPixel" ),
         .package( path: "Submodules/SwiftFITS" ),
+        .package( path: "Submodules/SwiftXISF" ),
+        .package( path: "Submodules/SwiftRAW" ),
     ],
     targets: [
         .target(
@@ -44,6 +46,8 @@ let package = Package(
             dependencies: [
                 .product( name: "SwiftPixel", package: "SwiftPixel" ),
                 .product( name: "SwiftFITS",  package: "SwiftFITS"  ),
+                .product( name: "SwiftXISF",  package: "SwiftXISF"  ),
+                .product( name: "SwiftRAW",   package: "SwiftRAW"   ),
             ],
             path: "SwiftAstro"
         ),
@@ -51,8 +55,10 @@ let package = Package(
             name: "SwiftAstroTests",
             dependencies: [
                 "SwiftAstro",
-                .product( name: "SwiftFITS",  package: "SwiftFITS"  ),
                 .product( name: "SwiftPixel", package: "SwiftPixel" ),
+                .product( name: "SwiftFITS",  package: "SwiftFITS"  ),
+                .product( name: "SwiftXISF",  package: "SwiftXISF"  ),
+                .product( name: "SwiftRAW",   package: "SwiftRAW"   ),
             ],
             path: "SwiftAstroTests"
         ),
