@@ -83,6 +83,21 @@
 		FE00000000000000000000E4 /* GaussianFitStarMomentsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE00000000000000000000E3 /* GaussianFitStarMomentsTests.swift */; };
 		FE00000000000000000000F2 /* MatchedFilterStarDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE00000000000000000000F1 /* MatchedFilterStarDetector.swift */; };
 		FE00000000000000000000F4 /* MatchedFilterStarDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE00000000000000000000F3 /* MatchedFilterStarDetectorTests.swift */; };
+		FA0000000000000000000104 /* ImageDecoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000103 /* ImageDecoding.swift */; };
+		FA0000000000000000000106 /* ColorFilterArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000105 /* ColorFilterArray.swift */; };
+		FA0000000000000000000108 /* FITSPropertySnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000107 /* FITSPropertySnapshot.swift */; };
+		FA000000000000000000010A /* XISFImageProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000109 /* XISFImageProperties.swift */; };
+		FA000000000000000000010C /* RAWImageProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000010B /* RAWImageProperties.swift */; };
+		FA000000000000000000010E /* BitmapImageProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000010D /* BitmapImageProperties.swift */; };
+		FA0000000000000000000110 /* FITSImageFrame.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000010F /* FITSImageFrame.swift */; };
+		FA0000000000000000000112 /* FITSImageDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000111 /* FITSImageDecoder.swift */; };
+		FA0000000000000000000114 /* XISFImageFrame.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000113 /* XISFImageFrame.swift */; };
+		FA0000000000000000000116 /* XISFImageDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000115 /* XISFImageDecoder.swift */; };
+		FA0000000000000000000118 /* RAWImageFrame.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000117 /* RAWImageFrame.swift */; };
+		FA000000000000000000011A /* RAWImageDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000119 /* RAWImageDecoder.swift */; };
+		FA000000000000000000011C /* BitmapImageFrame.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000011B /* BitmapImageFrame.swift */; };
+		FA000000000000000000011E /* BitmapImageDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000011D /* BitmapImageDecoder.swift */; };
+		FA0000000000000000000120 /* DecoderSymmetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000011F /* DecoderSymmetryTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -254,6 +269,21 @@
 		FE00000000000000000000E3 /* GaussianFitStarMomentsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GaussianFitStarMomentsTests.swift; sourceTree = "<group>"; };
 		FE00000000000000000000F1 /* MatchedFilterStarDetector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MatchedFilterStarDetector.swift; sourceTree = "<group>"; };
 		FE00000000000000000000F3 /* MatchedFilterStarDetectorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MatchedFilterStarDetectorTests.swift; sourceTree = "<group>"; };
+		FA0000000000000000000103 /* ImageDecoding.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ImageDecoding.swift; sourceTree = "<group>"; };
+		FA0000000000000000000105 /* ColorFilterArray.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ColorFilterArray.swift; sourceTree = "<group>"; };
+		FA0000000000000000000107 /* FITSPropertySnapshot.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FITSPropertySnapshot.swift; sourceTree = "<group>"; };
+		FA0000000000000000000109 /* XISFImageProperties.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = XISFImageProperties.swift; sourceTree = "<group>"; };
+		FA000000000000000000010B /* RAWImageProperties.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RAWImageProperties.swift; sourceTree = "<group>"; };
+		FA000000000000000000010D /* BitmapImageProperties.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BitmapImageProperties.swift; sourceTree = "<group>"; };
+		FA000000000000000000010F /* FITSImageFrame.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FITSImageFrame.swift; sourceTree = "<group>"; };
+		FA0000000000000000000111 /* FITSImageDecoder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FITSImageDecoder.swift; sourceTree = "<group>"; };
+		FA0000000000000000000113 /* XISFImageFrame.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = XISFImageFrame.swift; sourceTree = "<group>"; };
+		FA0000000000000000000115 /* XISFImageDecoder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = XISFImageDecoder.swift; sourceTree = "<group>"; };
+		FA0000000000000000000117 /* RAWImageFrame.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RAWImageFrame.swift; sourceTree = "<group>"; };
+		FA0000000000000000000119 /* RAWImageDecoder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RAWImageDecoder.swift; sourceTree = "<group>"; };
+		FA000000000000000000011B /* BitmapImageFrame.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BitmapImageFrame.swift; sourceTree = "<group>"; };
+		FA000000000000000000011D /* BitmapImageDecoder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BitmapImageDecoder.swift; sourceTree = "<group>"; };
+		FA000000000000000000011F /* DecoderSymmetryTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DecoderSymmetryTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -665,6 +695,7 @@
 		FA0000000000000000000021 /* Preprocessing */ = {
 			isa = PBXGroup;
 			children = (
+				FA0000000000000000000101 /* Decoding */,
 				FA000000000000000000001F /* BayerGrayscaleConverter.swift */,
 			);
 			path = Preprocessing;
@@ -673,6 +704,7 @@
 		FA0000000000000000000024 /* Preprocessing */ = {
 			isa = PBXGroup;
 			children = (
+				FA0000000000000000000102 /* Decoding */,
 				FA0000000000000000000022 /* BayerGrayscaleConverterTests.swift */,
 			);
 			path = Preprocessing;
@@ -689,6 +721,35 @@
 				912AD1D86B7EC6A82148CFE3 /* BrightStarDetectionTests.swift */,
 			);
 			path = StarDetection;
+			sourceTree = "<group>";
+		};
+		FA0000000000000000000101 /* Decoding */ = {
+			isa = PBXGroup;
+			children = (
+				FA0000000000000000000103 /* ImageDecoding.swift */,
+				FA0000000000000000000105 /* ColorFilterArray.swift */,
+				FA0000000000000000000107 /* FITSPropertySnapshot.swift */,
+				FA0000000000000000000109 /* XISFImageProperties.swift */,
+				FA000000000000000000010B /* RAWImageProperties.swift */,
+				FA000000000000000000010D /* BitmapImageProperties.swift */,
+				FA000000000000000000010F /* FITSImageFrame.swift */,
+				FA0000000000000000000111 /* FITSImageDecoder.swift */,
+				FA0000000000000000000113 /* XISFImageFrame.swift */,
+				FA0000000000000000000115 /* XISFImageDecoder.swift */,
+				FA0000000000000000000117 /* RAWImageFrame.swift */,
+				FA0000000000000000000119 /* RAWImageDecoder.swift */,
+				FA000000000000000000011B /* BitmapImageFrame.swift */,
+				FA000000000000000000011D /* BitmapImageDecoder.swift */,
+			);
+			path = Decoding;
+			sourceTree = "<group>";
+		};
+		FA0000000000000000000102 /* Decoding */ = {
+			isa = PBXGroup;
+			children = (
+				FA000000000000000000011F /* DecoderSymmetryTests.swift */,
+			);
+			path = Decoding;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -806,6 +867,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA0000000000000000000104 /* ImageDecoding.swift in Sources */,
+				FA0000000000000000000106 /* ColorFilterArray.swift in Sources */,
+				FA0000000000000000000108 /* FITSPropertySnapshot.swift in Sources */,
+				FA000000000000000000010A /* XISFImageProperties.swift in Sources */,
+				FA000000000000000000010C /* RAWImageProperties.swift in Sources */,
+				FA000000000000000000010E /* BitmapImageProperties.swift in Sources */,
+				FA0000000000000000000110 /* FITSImageFrame.swift in Sources */,
+				FA0000000000000000000112 /* FITSImageDecoder.swift in Sources */,
+				FA0000000000000000000114 /* XISFImageFrame.swift in Sources */,
+				FA0000000000000000000116 /* XISFImageDecoder.swift in Sources */,
+				FA0000000000000000000118 /* RAWImageFrame.swift in Sources */,
+				FA000000000000000000011A /* RAWImageDecoder.swift in Sources */,
+				FA000000000000000000011C /* BitmapImageFrame.swift in Sources */,
+				FA000000000000000000011E /* BitmapImageDecoder.swift in Sources */,
 				A20000BA03275C3C3A09B6A6 /* Error.swift in Sources */,
 				97A53164B9AC46B2F79C2BFF /* Star.swift in Sources */,
 				DEFF42CB10493A2ADDEE7A2A /* StarField.swift in Sources */,
@@ -835,6 +910,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA0000000000000000000120 /* DecoderSymmetryTests.swift in Sources */,
 				FA161376C312A18994FE2710 /* StarFieldTests.swift in Sources */,
 				5A516E0150000000000000A4 /* SignalToNoiseTests.swift in Sources */,
 				FE00000000000000000000D4 /* StarMomentsTests.swift in Sources */,

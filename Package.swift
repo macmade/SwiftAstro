@@ -49,7 +49,10 @@ let package = Package(
                 .product( name: "SwiftXISF",  package: "SwiftXISF"  ),
                 .product( name: "SwiftRAW",   package: "SwiftRAW"   ),
             ],
-            path: "SwiftAstro"
+            path: "SwiftAstro",
+            swiftSettings: [
+                .interoperabilityMode( .Cxx ),
+            ]
         ),
         .testTarget(
             name: "SwiftAstroTests",
@@ -60,7 +63,10 @@ let package = Package(
                 .product( name: "SwiftXISF",  package: "SwiftXISF"  ),
                 .product( name: "SwiftRAW",   package: "SwiftRAW"   ),
             ],
-            path: "SwiftAstroTests"
+            path: "SwiftAstroTests",
+            swiftSettings: [
+                .interoperabilityMode( .Cxx ),
+            ]
         ),
     ]
 )
