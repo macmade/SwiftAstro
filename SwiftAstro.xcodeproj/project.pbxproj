@@ -84,6 +84,8 @@
 		FE00000000000000000000F2 /* MatchedFilterStarDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE00000000000000000000F1 /* MatchedFilterStarDetector.swift */; };
 		FE00000000000000000000F4 /* MatchedFilterStarDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE00000000000000000000F3 /* MatchedFilterStarDetectorTests.swift */; };
 		FA0000000000000000000104 /* ImageDecoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000103 /* ImageDecoding.swift */; };
+		FA0000000000000000000131 /* CaptureFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000130 /* CaptureFixtures.swift */; };
+		FA0000000000000000000133 /* CaptureFixturesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000132 /* CaptureFixturesTests.swift */; };
 		FA0000000000000000000106 /* ColorFilterArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000105 /* ColorFilterArray.swift */; };
 		FA0000000000000000000108 /* FITSPropertySnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000107 /* FITSPropertySnapshot.swift */; };
 		FA000000000000000000010A /* XISFImageProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000109 /* XISFImageProperties.swift */; };
@@ -270,6 +272,22 @@
 		FE00000000000000000000F1 /* MatchedFilterStarDetector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MatchedFilterStarDetector.swift; sourceTree = "<group>"; };
 		FE00000000000000000000F3 /* MatchedFilterStarDetectorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MatchedFilterStarDetectorTests.swift; sourceTree = "<group>"; };
 		FA0000000000000000000103 /* ImageDecoding.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ImageDecoding.swift; sourceTree = "<group>"; };
+		FA0000000000000000000130 /* CaptureFixtures.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CaptureFixtures.swift; sourceTree = "<group>"; };
+		FA0000000000000000000132 /* CaptureFixturesTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CaptureFixturesTests.swift; sourceTree = "<group>"; };
+		FA0000000000000000000140 /* C6-ASI533-M104-Final.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "C6-ASI533-M104-Final.jpg"; sourceTree = "<group>"; };
+		FA0000000000000000000141 /* C6-ASI533-M104-Light.fits */ = {isa = PBXFileReference; lastKnownFileType = text; path = "C6-ASI533-M104-Light.fits"; sourceTree = "<group>"; };
+		FA0000000000000000000142 /* C6-ASI533-M12-Final.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "C6-ASI533-M12-Final.jpg"; sourceTree = "<group>"; };
+		FA0000000000000000000143 /* C6-ASI533-M12-Light.fits */ = {isa = PBXFileReference; lastKnownFileType = text; path = "C6-ASI533-M12-Light.fits"; sourceTree = "<group>"; };
+		FA0000000000000000000144 /* C6-ASI585-M42-Final.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "C6-ASI585-M42-Final.jpg"; sourceTree = "<group>"; };
+		FA0000000000000000000145 /* C6-ASI585-M42-Light.fits */ = {isa = PBXFileReference; lastKnownFileType = text; path = "C6-ASI585-M42-Light.fits"; sourceTree = "<group>"; };
+		FA0000000000000000000146 /* C6-R7-M42-Light.cr3 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "C6-R7-M42-Light.cr3"; sourceTree = "<group>"; };
+		FA0000000000000000000147 /* S30-M42-Corrected.xisf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "S30-M42-Corrected.xisf"; sourceTree = "<group>"; };
+		FA0000000000000000000148 /* S30-M42-Light.fit */ = {isa = PBXFileReference; lastKnownFileType = text; path = "S30-M42-Light.fit"; sourceTree = "<group>"; };
+		FA0000000000000000000149 /* S30Pro-NGC7822-Final.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "S30Pro-NGC7822-Final.jpg"; sourceTree = "<group>"; };
+		FA000000000000000000014A /* S30Pro-NGC7822-Light.fit */ = {isa = PBXFileReference; lastKnownFileType = text; path = "S30Pro-NGC7822-Light.fit"; sourceTree = "<group>"; };
+		FA000000000000000000014B /* S30Pro-NGC7822-Stacked.fit */ = {isa = PBXFileReference; lastKnownFileType = text; path = "S30Pro-NGC7822-Stacked.fit"; sourceTree = "<group>"; };
+		FA000000000000000000014C /* S50-M33-Final.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "S50-M33-Final.jpg"; sourceTree = "<group>"; };
+		FA000000000000000000014D /* S50-M33-Light.fit */ = {isa = PBXFileReference; lastKnownFileType = text; path = "S50-M33-Light.fit"; sourceTree = "<group>"; };
 		FA0000000000000000000105 /* ColorFilterArray.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ColorFilterArray.swift; sourceTree = "<group>"; };
 		FA0000000000000000000107 /* FITSPropertySnapshot.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FITSPropertySnapshot.swift; sourceTree = "<group>"; };
 		FA0000000000000000000109 /* XISFImageProperties.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = XISFImageProperties.swift; sourceTree = "<group>"; };
@@ -652,6 +670,8 @@
 				B6381522374836B9D1795FED /* SyntheticStarField.swift */,
 				FA0000000000000000000019 /* FITSTestImage.swift */,
 				FA0000000000000000000017 /* FITSTestImageTests.swift */,
+				FA0000000000000000000130 /* CaptureFixtures.swift */,
+				FA0000000000000000000132 /* CaptureFixturesTests.swift */,
 				640F4CC836996C8EAB142051 /* SyntheticStarGrid.swift */,
 				6C37E0F1ABBBCBF13FD1F4A8 /* SyntheticStarGridTests.swift */,
 			);
@@ -679,6 +699,20 @@
 			children = (
 				FA0000000000000000000014 /* 2025-03-02_21-20-31_G252_B1x1_O7_T-9.80_F_10.00s_0000_H3.69.fits */,
 				FA0000000000000000000015 /* Light_M 42_10.0s_LP_20260101-234803.fit */,
+				FA0000000000000000000140 /* C6-ASI533-M104-Final.jpg */,
+				FA0000000000000000000141 /* C6-ASI533-M104-Light.fits */,
+				FA0000000000000000000142 /* C6-ASI533-M12-Final.jpg */,
+				FA0000000000000000000143 /* C6-ASI533-M12-Light.fits */,
+				FA0000000000000000000144 /* C6-ASI585-M42-Final.jpg */,
+				FA0000000000000000000145 /* C6-ASI585-M42-Light.fits */,
+				FA0000000000000000000146 /* C6-R7-M42-Light.cr3 */,
+				FA0000000000000000000147 /* S30-M42-Corrected.xisf */,
+				FA0000000000000000000148 /* S30-M42-Light.fit */,
+				FA0000000000000000000149 /* S30Pro-NGC7822-Final.jpg */,
+				FA000000000000000000014A /* S30Pro-NGC7822-Light.fit */,
+				FA000000000000000000014B /* S30Pro-NGC7822-Stacked.fit */,
+				FA000000000000000000014C /* S50-M33-Final.jpg */,
+				FA000000000000000000014D /* S50-M33-Light.fit */,
 				FA000000000000000000001E /* ESA */,
 			);
 			path = "Test Files";
@@ -911,6 +945,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				FA0000000000000000000120 /* DecoderSymmetryTests.swift in Sources */,
+				FA0000000000000000000131 /* CaptureFixtures.swift in Sources */,
+				FA0000000000000000000133 /* CaptureFixturesTests.swift in Sources */,
 				FA161376C312A18994FE2710 /* StarFieldTests.swift in Sources */,
 				5A516E0150000000000000A4 /* SignalToNoiseTests.swift in Sources */,
 				FE00000000000000000000D4 /* StarMomentsTests.swift in Sources */,
