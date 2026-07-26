@@ -126,35 +126,6 @@ struct DecoderSymmetryTests
 
     // MARK: - Run-time symmetry over the properties-based operations
 
-    /// Calls every operation that needs only a `Properties` value, asserting each
-    /// is reachable and answers with the unimplemented stub's contract: the
-    /// throwing operations throw, the optional ones return `nil`.
-    ///
-    /// - Parameters:
-    ///   - decoder:    The decoder under test.
-    ///   - properties: A synthetic layout for that format.
-    ///   - bytes:      Sample bytes matching the layout.
-    private func expectUnimplemented< D: ImageDecoding >( _ decoder: D.Type, properties: D.Properties, bytes: Data )
-    {
-        #expect( throws: SwiftAstro.Error.self ) { try decoder.planeSamples( bytes: bytes, properties: properties ) }
-        #expect( throws: SwiftAstro.Error.self ) { try decoder.cfaPattern( from: properties ) }
-
-        #expect( decoder.linearImage( bytes: bytes, properties: properties )                            == nil )
-        #expect( decoder.linearLuminance( fromPlanes: [ [ 0 ] ], properties: properties )                == nil )
-        #expect( decoder.fullScale( from: properties )                                                   == nil )
-        #expect( decoder.bitsPerPixel( from: properties )                                                == nil )
-        #expect( decoder.dimensions( from: properties )                                                  == nil )
-        #expect( decoder.decodeSample( bytes: bytes, at: bytes.startIndex, properties: properties )       == nil )
-        #expect( decoder.sampleByteOffsets( x: 0, y: 0, properties: properties )                          == nil )
-        #expect( decoder.detectionImage( bytes: bytes, properties: properties )                           == nil )
-
-        let ( scale, offset ) = decoder.scaling( from: properties )
-
-        #expect( scale  == 0 )
-        #expect( offset == 0 )
-        #expect( decoder.channelCount( from: properties ) == 0 )
-    }
-
     /// The FITS decoder exposes the whole operation set and, now that its body has
     /// landed, answers each with real behaviour for the synthetic 8 × 4 monochrome
     /// header — no operation left throwing the unimplemented sentinel.
@@ -271,12 +242,43 @@ struct DecoderSymmetryTests
     }
 
     /// The photographic decoder exposes the whole operation set — including
-    /// ``ImageDecoding/cfaPattern(from:)``, which a photographic frame answers
-    /// with "none" rather than by not having the member.
+    /// ``ImageDecoding/cfaPattern(from:)``, which a photographic frame answers with
+    /// "none" (`nil`, never throwing) rather than by not having the member — and, now
+    /// that its body has landed, answers each with real behaviour for the synthetic
+    /// 8 × 4, 8-bit grayscale layout.
     @Test
-    func bitmapExposesEveryOperation()
+    func bitmapExposesEveryOperation() throws
     {
-        self.expectUnimplemented( BitmapImageDecoder.self, properties: self.bitmapProperties, bytes: self.bytes )
+        let properties = self.bitmapProperties
+        let bytes      = self.bytes
+
+        #expect( BitmapImageDecoder.dimensions( from: properties ).map { [ $0.width, $0.height ] } == [ 8, 4 ] )
+        #expect( BitmapImageDecoder.bitsPerPixel( from: properties ) == .uint8 )
+        #expect( BitmapImageDecoder.channelCount( from: properties ) == 1 )
+        #expect( BitmapImageDecoder.fullScale( from: properties ) == 255 )
+        #expect( try BitmapImageDecoder.cfaPattern( from: properties ) == nil )
+
+        let ( scale, offset ) = BitmapImageDecoder.scaling( from: properties )
+
+        #expect( scale  == 1 )
+        #expect( offset == 0 )
+
+        let linear = try #require( BitmapImageDecoder.linearImage( bytes: bytes, properties: properties ) )
+
+        #expect( linear.width == 8 )
+        #expect( linear.height == 4 )
+        #expect( linear.samples.count == 32 )
+
+        let planes = try BitmapImageDecoder.planeSamples( bytes: bytes, properties: properties )
+
+        #expect( planes.count == 1 )
+        #expect( planes.first?.count == 32 )
+
+        #expect( BitmapImageDecoder.decodeSample( bytes: bytes, at: bytes.startIndex, properties: properties ) == 0 )
+        #expect( BitmapImageDecoder.sampleByteOffsets( x: 0, y: 0, properties: properties ) == [ 0 ] )
+        #expect( BitmapImageDecoder.sampleByteOffsets( x: 1, y: 0, properties: properties ) == [ 1 ] )
+        #expect( BitmapImageDecoder.sampleByteOffsets( x: 8, y: 0, properties: properties ) == nil )
+        #expect( BitmapImageDecoder.detectionImage( bytes: bytes, properties: properties )?.channels == 1 )
     }
 
     // MARK: - The shared colour-filter-array mapping

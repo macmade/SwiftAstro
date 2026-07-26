@@ -263,17 +263,3 @@ public protocol ImageDecoding
     ///   detection image can be built from them.
     static func detectionImage( of frame: Frame ) throws -> PixelBuffer
 }
-
-internal extension ImageDecoding
-{
-    /// The error an operation throws while its format's decoder body has not yet
-    /// landed, naming the format and the operation so a partially-migrated build
-    /// says which piece is missing.
-    ///
-    /// - Parameter operation: The operation's name.
-    /// - Returns: The error to throw.
-    static func unimplemented( _ operation: String ) -> Error
-    {
-        Error( message: "\( Self.self ).\( operation ) is not implemented yet" )
-    }
-}
