@@ -193,11 +193,42 @@ struct DecoderSymmetryTests
         #expect( FITSImageDecoder.detectionImage( bytes: bytes, properties: properties )?.channels == 1 )
     }
 
-    /// The XISF decoder exposes the whole operation set.
+    /// The XISF decoder exposes the whole operation set and, now that its body has
+    /// landed, answers each with real behaviour for the synthetic 8 × 4 grayscale
+    /// layout — no operation left throwing the unimplemented sentinel.
     @Test
-    func xisfExposesEveryOperation()
+    func xisfExposesEveryOperation() throws
     {
-        self.expectUnimplemented( XISFImageDecoder.self, properties: self.xisfProperties, bytes: self.bytes )
+        let properties = self.xisfProperties
+        let bytes      = self.bytes
+
+        #expect( XISFImageDecoder.dimensions( from: properties ).map { [ $0.width, $0.height ] } == [ 8, 4 ] )
+        #expect( XISFImageDecoder.bitsPerPixel( from: properties ) == .int16 )
+        #expect( XISFImageDecoder.channelCount( from: properties ) == 1 )
+        #expect( XISFImageDecoder.fullScale( from: properties ) == 65535 )
+        #expect( try XISFImageDecoder.cfaPattern( from: properties ) == nil )
+
+        let ( scale, offset ) = XISFImageDecoder.scaling( from: properties )
+
+        #expect( scale  == 1 )
+        #expect( offset == 0 )
+
+        let linear = try #require( XISFImageDecoder.linearImage( bytes: bytes, properties: properties ) )
+
+        #expect( linear.width == 8 )
+        #expect( linear.height == 4 )
+        #expect( linear.samples.count == 32 )
+
+        let planes = try XISFImageDecoder.planeSamples( bytes: bytes, properties: properties )
+
+        #expect( planes.count == 1 )
+        #expect( planes.first?.count == 32 )
+
+        #expect( XISFImageDecoder.decodeSample( bytes: bytes, at: bytes.startIndex, properties: properties ) == 0 )
+        #expect( XISFImageDecoder.sampleByteOffsets( x: 0, y: 0, properties: properties ) == [ 0 ] )
+        #expect( XISFImageDecoder.sampleByteOffsets( x: 1, y: 0, properties: properties ) == [ 2 ] )
+        #expect( XISFImageDecoder.sampleByteOffsets( x: 8, y: 0, properties: properties ) == nil )
+        #expect( XISFImageDecoder.detectionImage( bytes: bytes, properties: properties )?.channels == 1 )
     }
 
     /// The RAW decoder exposes the whole operation set — including the ones a
