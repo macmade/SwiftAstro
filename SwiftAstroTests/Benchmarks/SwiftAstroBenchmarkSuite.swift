@@ -80,6 +80,23 @@ struct SwiftAstroBenchmarkSuite
         withExtendedLifetime( value ) {}
     }
 
+    /// The file's first image frame, enumerated through ``FITSImageDecoder`` — the
+    /// entry the decode benchmarks measure against.
+    ///
+    /// - Parameter file: The parsed FITS file.
+    /// - Returns: The first image frame.
+    /// - Throws: ``SwiftAstro/Error`` when the file holds no image frame.
+    private func firstImageFrame( in file: FITSFile ) throws -> FITSImageDecoder.Frame
+    {
+        guard let frame = try FITSImageDecoder.frames( in: file ).first
+        else
+        {
+            throw Error( message: "FITS file contains no image frame" )
+        }
+
+        return frame
+    }
+
     /// A placeholder descriptor for cases with no image input (the ephemeris
     /// models).
     private static let scalarFrame = BenchmarkFrameDescriptor( name: "n/a", width: 1, height: 1, channels: 1, layout: "scalar (no image)", isNormalized: false, notes: "Positional astronomy — no image input." )
@@ -132,14 +149,19 @@ struct SwiftAstroBenchmarkSuite
         {
             decode in
 
-            try record( "FITSTestImage.linearImage", category: "Decode", frame: decode.descriptor )
+            try record( "FITSImageDecoder.linearImage", category: "Decode", frame: decode.descriptor )
             {
-                self.keep( try FITSTestImage.linearImage( from: decode.file ) )
+                let frame                 = try self.firstImageFrame( in: decode.file )
+                let ( bytes, properties ) = try FITSImageDecoder.contents( of: frame )
+
+                self.keep( FITSImageDecoder.linearImage( bytes: bytes, properties: properties ) )
             }
 
-            try record( "FITSTestImage.detectionImage", category: "Decode", frame: decode.descriptor )
+            try record( "FITSImageDecoder.detectionImage", category: "Decode", frame: decode.descriptor )
             {
-                self.keep( try FITSTestImage.detectionImage( from: decode.file ) )
+                let frame = try self.firstImageFrame( in: decode.file )
+
+                self.keep( try FITSImageDecoder.detectionImage( of: frame ) )
             }
         }
 

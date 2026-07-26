@@ -155,11 +155,42 @@ struct DecoderSymmetryTests
         #expect( decoder.channelCount( from: properties ) == 0 )
     }
 
-    /// The FITS decoder exposes the whole operation set.
+    /// The FITS decoder exposes the whole operation set and, now that its body has
+    /// landed, answers each with real behaviour for the synthetic 8 × 4 monochrome
+    /// header — no operation left throwing the unimplemented sentinel.
     @Test
-    func fitsExposesEveryOperation()
+    func fitsExposesEveryOperation() throws
     {
-        self.expectUnimplemented( FITSImageDecoder.self, properties: self.fitsProperties, bytes: self.bytes )
+        let properties = self.fitsProperties
+        let bytes      = self.bytes
+
+        #expect( FITSImageDecoder.dimensions( from: properties ).map { [ $0.width, $0.height ] } == [ 8, 4 ] )
+        #expect( FITSImageDecoder.bitsPerPixel( from: properties ) == .int16 )
+        #expect( FITSImageDecoder.channelCount( from: properties ) == 1 )
+        #expect( FITSImageDecoder.fullScale( from: properties ) == 65535 )
+        #expect( try FITSImageDecoder.cfaPattern( from: properties ) == nil )
+
+        let ( scale, offset ) = FITSImageDecoder.scaling( from: properties )
+
+        #expect( scale  == 1 )
+        #expect( offset == 0 )
+
+        let linear = try #require( FITSImageDecoder.linearImage( bytes: bytes, properties: properties ) )
+
+        #expect( linear.width == 8 )
+        #expect( linear.height == 4 )
+        #expect( linear.samples.count == 32 )
+
+        let planes = try FITSImageDecoder.planeSamples( bytes: bytes, properties: properties )
+
+        #expect( planes.count == 1 )
+        #expect( planes.first?.count == 32 )
+
+        #expect( FITSImageDecoder.decodeSample( bytes: bytes, at: bytes.startIndex, properties: properties ) == 0 )
+        #expect( FITSImageDecoder.sampleByteOffsets( x: 0, y: 0, properties: properties ) == [ 0 ] )
+        #expect( FITSImageDecoder.sampleByteOffsets( x: 1, y: 0, properties: properties ) == [ 2 ] )
+        #expect( FITSImageDecoder.sampleByteOffsets( x: 8, y: 0, properties: properties ) == nil )
+        #expect( FITSImageDecoder.detectionImage( bytes: bytes, properties: properties )?.channels == 1 )
     }
 
     /// The XISF decoder exposes the whole operation set.

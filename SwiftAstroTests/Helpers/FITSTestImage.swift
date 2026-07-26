@@ -31,12 +31,10 @@ import SwiftPixel
 /// for running the detector against real astronomical data in tests.
 ///
 /// This is the FITS counterpart to ``SyntheticStarField``: where that builds
-/// synthetic fixtures, this adapts a real FITS file into the same detector
-/// input type. It composes `SwiftFITS` (header geometry + raw data segment) with
-/// `SwiftPixel` (`BitsPerPixel` + `PixelUtilities.readRawPixels`) and applies the
-/// FITS `BZERO`/`BSCALE` linear rescaling that `readRawPixels` deliberately
-/// leaves to the caller, passing the header's integer `BLANK` so undefined pixels
-/// decode to NaN.
+/// synthetic fixtures, this adapts a real FITS file into the same detector input
+/// type. It locates the committed fixture and decodes it through the library's
+/// own ``FITSImageDecoder`` — the same decode the application uses — so the tests
+/// exercise the shipping FITS path rather than a private copy of it.
 enum FITSTestImage
 {
     /// The base name (without extension) of the real one-shot-colour light frame,
@@ -131,34 +129,57 @@ enum FITSTestImage
         try self.load( contentsOf: try self.url( resource: resource, extension: ext ) )
     }
 
-    /// Loads a FITS file at the given URL into a single-channel pixel buffer.
-    ///
-    /// Decodes with the helper's own ``linearImage(from:)`` (the library no longer
-    /// ships a FITS decoder — the app decodes FITS itself), so this only locates the
-    /// committed fixture and keeps the fixture decoding in one place.
+    /// Loads a FITS file at the given URL into a single-channel linear pixel buffer,
+    /// through the library's own ``FITSImageDecoder``.
     ///
     /// - Parameter url: The FITS file location.
     /// - Returns: The frame's linear samples as a ``SwiftPixel/PixelBuffer``.
-    /// - Throws: ``SwiftAstro/Error`` if the file has no usable 2D image, or any
-    ///   error raised while parsing or decoding.
+    /// - Throws: ``SwiftAstro/Error`` if the file has no usable image, or any error
+    ///   raised while parsing or decoding.
     static func load( contentsOf url: URL ) throws -> PixelBuffer
     {
-        let file = try FITSFile( url: url, options: .lenient )
+        let file  = try FITSFile( url: url, options: .lenient )
+        let frame = try Self.firstFrame( in: file )
 
-        return try Self.linearImage( from: file )
+        let ( bytes, properties ) = try FITSImageDecoder.contents( of: frame )
+
+        guard let linear = FITSImageDecoder.linearImage( bytes: bytes, properties: properties )
+        else
+        {
+            throw Error( message: "FITS frame at \( url.lastPathComponent ) has no decodable linear image" )
+        }
+
+        return try PixelBuffer( width: linear.width, height: linear.height, channels: 1, pixels: linear.samples, isNormalized: false )
     }
 
-    /// Loads a FITS file as a detection-ready single-channel image — demosaicing
-    /// a Bayer frame to grayscale — via the helper's own ``detectionImage(from:)``.
+    /// Loads a FITS file as a detection-ready single-channel image — demosaicing a
+    /// Bayer frame to grayscale — through the library's own ``FITSImageDecoder``.
     ///
     /// - Parameter url: The FITS file location.
     /// - Returns: The detection-ready single-channel image.
     /// - Throws: Any error raised while parsing or decoding.
     static func detection( contentsOf url: URL ) throws -> PixelBuffer
     {
-        let file = try FITSFile( url: url, options: .lenient )
+        let file  = try FITSFile( url: url, options: .lenient )
+        let frame = try Self.firstFrame( in: file )
 
-        return try Self.detectionImage( from: file )
+        return try FITSImageDecoder.detectionImage( of: frame )
+    }
+
+    /// The file's first image frame, enumerated through ``FITSImageDecoder``.
+    ///
+    /// - Parameter file: The parsed FITS file.
+    /// - Returns: The first image frame.
+    /// - Throws: ``SwiftAstro/Error`` when the file holds no image frame.
+    private static func firstFrame( in file: FITSFile ) throws -> FITSImageDecoder.Frame
+    {
+        guard let frame = try FITSImageDecoder.frames( in: file ).first
+        else
+        {
+            throw Error( message: "FITS file contains no image frame" )
+        }
+
+        return frame
     }
 
     /// The real one-shot-colour light frame, demosaiced to a detection-ready
@@ -227,149 +248,5 @@ enum FITSTestImage
         }
 
         return try PixelBuffer( width: width, height: height, channels: 1, pixels: pixels, isNormalized: false )
-    }
-
-    // MARK: - FITS decoding
-
-    /// Decodes a parsed file's first image HDU into a single-channel, linear
-    /// ``SwiftPixel/PixelBuffer``, applying `BZERO`/`BSCALE` and masking any
-    /// integer `BLANK` sentinel to NaN.
-    ///
-    /// A test-only reimplementation of the FITS→buffer adapter the library no
-    /// longer ships (the app decodes FITS itself); it exists so the real-frame
-    /// tests and the decode benchmarks keep loading the committed fixtures.
-    ///
-    /// - Parameter file: The parsed FITS file.
-    /// - Returns: The image HDU's linear samples as a single-channel buffer.
-    /// - Throws: ``SwiftAstro/Error`` on an unusable image HDU, or any error raised
-    ///   while decoding.
-    static func linearImage( from file: FITSFile ) throws -> PixelBuffer
-    {
-        let hdu = try Self.imageHDU( in: file )
-
-        return try Self.linearImage( header: hdu.header, data: hdu.data )
-    }
-
-    /// Decodes a parsed file's first image HDU into a detection-ready single
-    /// channel: a one-shot-colour (`BAYERPAT`) frame is demosaiced to luminance via
-    /// ``SwiftAstro/BayerGrayscaleConverter``; a monochrome frame is returned as its
-    /// linear channel.
-    ///
-    /// - Parameter file: The parsed FITS file.
-    /// - Returns: A detection-ready single-channel pixel buffer.
-    /// - Throws: ``SwiftAstro/Error`` on an unusable image HDU, or any error raised
-    ///   while decoding or demosaicing.
-    static func detectionImage( from file: FITSFile ) throws -> PixelBuffer
-    {
-        let hdu    = try Self.imageHDU( in: file )
-        let linear = try Self.linearImage( header: hdu.header, data: hdu.data )
-
-        // A monochrome frame (no BAYERPAT) or an unsupported pattern falls back to
-        // the linear single channel, matching how the app's loader handles it.
-        guard let keyword = hdu.header[ "BAYERPAT" ]?.value.string, let pattern = Self.pattern( forBayerKeyword: keyword )
-        else
-        {
-            return linear
-        }
-
-        return try BayerGrayscaleConverter( pattern: pattern ).grayscale( from: linear )
-    }
-
-    /// Decodes an already-fetched image HDU into a single-channel linear buffer.
-    ///
-    /// - Parameters:
-    ///   - header: The image HDU's header section.
-    ///   - data:   The image HDU's raw data bytes.
-    /// - Returns: The HDU's linear samples as a single-channel buffer.
-    /// - Throws: ``SwiftAstro/Error`` if the HDU is not a usable 2D image, or any
-    ///   error raised while decoding.
-    private static func linearImage( header: FITSSection, data: Data ) throws -> PixelBuffer
-    {
-        guard let bitpix = header.bitpix, let format = BitsPerPixel.from( value: bitpix )
-        else
-        {
-            throw Error( message: "FITS image HDU has a missing or unsupported BITPIX" )
-        }
-
-        guard let width  = header.naxis( 1 ).map( Int.init ), width  > 0,
-              let height = header.naxis( 2 ).map( Int.init ), height > 0
-        else
-        {
-            throw Error( message: "FITS image HDU is not a 2D image with positive dimensions" )
-        }
-
-        // The data segment is padded to whole 2880-byte FITS blocks; readRawPixels
-        // wants exactly the sample bytes, so trim the trailing block padding.
-        guard let expectedBytes = format.size( numberOfPixels: width * height )
-        else
-        {
-            throw Error( message: "FITS image byte size overflows Int" )
-        }
-
-        let raw = Data( data.prefix( expectedBytes ) )
-
-        guard raw.count == expectedBytes
-        else
-        {
-            throw Error( message: "FITS data segment is smaller than its geometry implies" )
-        }
-
-        let stored = try PixelUtilities.readRawPixels( data: raw, width: width, height: height, bitsPerPixel: format, blank: header[ "BLANK" ]?.value.integer )
-        let bzero  = Self.numericValue( of: header[ "BZERO"  ]?.value ) ?? 0
-        let bscale = Self.numericValue( of: header[ "BSCALE" ]?.value ) ?? 1
-        let pixels = ( bzero == 0 && bscale == 1 ) ? stored : stored.map { bzero + ( bscale * $0 ) }
-
-        return try PixelBuffer( width: width, height: height, channels: 1, pixels: pixels, isNormalized: false )
-    }
-
-    /// Selects the file's image HDU: the first data section paired with its
-    /// preceding header section.
-    ///
-    /// - Parameter file: The parsed FITS file.
-    /// - Returns: The image HDU's header section and raw data bytes.
-    /// - Throws: ``SwiftAstro/Error`` when the file contains no image HDU.
-    private static func imageHDU( in file: FITSFile ) throws -> ( header: FITSSection, data: Data )
-    {
-        let sections = file.sections
-
-        guard let dataIndex = sections.firstIndex( where: { $0.kind == .data } ), dataIndex > 0
-        else
-        {
-            throw Error( message: "FITS file contains no image HDU" )
-        }
-
-        return ( header: sections[ dataIndex - 1 ], data: try sections[ dataIndex ].data )
-    }
-
-    /// Maps a FITS `BAYERPAT` keyword value to a debayer pattern, or `nil` for a
-    /// monochrome frame or an unsupported value.
-    ///
-    /// - Parameter keyword: The `BAYERPAT` value (e.g. `"RGGB"`).
-    /// - Returns: The matching colour-filter-array pattern, or `nil`.
-    private static func pattern( forBayerKeyword keyword: String ) -> Processors.Debayer.Pattern?
-    {
-        switch keyword
-        {
-            case "BGGR": return .bggr
-            case "GRBG": return .grbg
-            case "RGGB": return .rggb
-            case "GBRG": return .gbrg
-            default:     return nil
-        }
-    }
-
-    /// Reads a numeric FITS header value as a `Double`, whether it was parsed as an
-    /// integer or a float.
-    ///
-    /// - Parameter value: The header value to read.
-    /// - Returns: The value as a `Double`, or `nil` if it is not numeric.
-    private static func numericValue( of value: FITSValue? ) -> Double?
-    {
-        if let integer = value?.integer
-        {
-            return Double( integer )
-        }
-
-        return value?.float
     }
 }
