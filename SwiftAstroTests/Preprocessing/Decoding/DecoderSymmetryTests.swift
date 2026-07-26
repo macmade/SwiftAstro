@@ -232,11 +232,42 @@ struct DecoderSymmetryTests
     }
 
     /// The RAW decoder exposes the whole operation set — including the ones a
-    /// single-frame, single-plane format might have been tempted to omit.
+    /// single-frame, single-plane format might have been tempted to omit — and, now
+    /// that its body has landed, answers each with real behaviour for the synthetic
+    /// 8 × 4 monochrome mosaic.
     @Test
-    func rawExposesEveryOperation()
+    func rawExposesEveryOperation() throws
     {
-        self.expectUnimplemented( RAWImageDecoder.self, properties: self.rawProperties, bytes: self.bytes )
+        let properties = self.rawProperties
+        let bytes      = self.bytes
+
+        #expect( RAWImageDecoder.dimensions( from: properties ).map { [ $0.width, $0.height ] } == [ 8, 4 ] )
+        #expect( RAWImageDecoder.bitsPerPixel( from: properties ) == .int16 )
+        #expect( RAWImageDecoder.channelCount( from: properties ) == 1 )
+        #expect( RAWImageDecoder.fullScale( from: properties ) == 65535 )
+        #expect( try RAWImageDecoder.cfaPattern( from: properties ) == nil )
+
+        let ( scale, offset ) = RAWImageDecoder.scaling( from: properties )
+
+        #expect( scale  == 1 )
+        #expect( offset == 0 )
+
+        let linear = try #require( RAWImageDecoder.linearImage( bytes: bytes, properties: properties ) )
+
+        #expect( linear.width == 8 )
+        #expect( linear.height == 4 )
+        #expect( linear.samples.count == 32 )
+
+        let planes = try RAWImageDecoder.planeSamples( bytes: bytes, properties: properties )
+
+        #expect( planes.count == 1 )
+        #expect( planes.first?.count == 32 )
+
+        #expect( RAWImageDecoder.decodeSample( bytes: bytes, at: bytes.startIndex, properties: properties ) == 0 )
+        #expect( RAWImageDecoder.sampleByteOffsets( x: 0, y: 0, properties: properties ) == [ 0 ] )
+        #expect( RAWImageDecoder.sampleByteOffsets( x: 1, y: 0, properties: properties ) == [ 2 ] )
+        #expect( RAWImageDecoder.sampleByteOffsets( x: 8, y: 0, properties: properties ) == nil )
+        #expect( RAWImageDecoder.detectionImage( bytes: bytes, properties: properties )?.channels == 1 )
     }
 
     /// The photographic decoder exposes the whole operation set — including

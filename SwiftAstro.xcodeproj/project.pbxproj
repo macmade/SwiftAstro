@@ -102,6 +102,7 @@
 		FA0000000000000000000120 /* DecoderSymmetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000011F /* DecoderSymmetryTests.swift */; };
 		FA0000000000000000000150 /* FITSImageDecoderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000151 /* FITSImageDecoderTests.swift */; };
 		FA0000000000000000000153 /* XISFImageDecoderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000152 /* XISFImageDecoderTests.swift */; };
+		FA0000000000000000000155 /* RAWImageDecoderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000154 /* RAWImageDecoderTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -306,6 +307,7 @@
 		FA000000000000000000011F /* DecoderSymmetryTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DecoderSymmetryTests.swift; sourceTree = "<group>"; };
 		FA0000000000000000000151 /* FITSImageDecoderTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FITSImageDecoderTests.swift; sourceTree = "<group>"; };
 		FA0000000000000000000152 /* XISFImageDecoderTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = XISFImageDecoderTests.swift; sourceTree = "<group>"; };
+		FA0000000000000000000154 /* RAWImageDecoderTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RAWImageDecoderTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -788,6 +790,7 @@
 				FA000000000000000000011F /* DecoderSymmetryTests.swift */,
 				FA0000000000000000000151 /* FITSImageDecoderTests.swift */,
 				FA0000000000000000000152 /* XISFImageDecoderTests.swift */,
+				FA0000000000000000000154 /* RAWImageDecoderTests.swift */,
 			);
 			path = Decoding;
 			sourceTree = "<group>";
@@ -953,6 +956,7 @@
 				FA0000000000000000000120 /* DecoderSymmetryTests.swift in Sources */,
 				FA0000000000000000000150 /* FITSImageDecoderTests.swift in Sources */,
 				FA0000000000000000000153 /* XISFImageDecoderTests.swift in Sources */,
+				FA0000000000000000000155 /* RAWImageDecoderTests.swift in Sources */,
 				FA0000000000000000000131 /* CaptureFixtures.swift in Sources */,
 				FA0000000000000000000133 /* CaptureFixturesTests.swift in Sources */,
 				FA161376C312A18994FE2710 /* StarFieldTests.swift in Sources */,
