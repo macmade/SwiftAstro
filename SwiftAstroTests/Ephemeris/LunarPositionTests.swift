@@ -61,9 +61,9 @@ struct LunarPositionTests
     {
         let ecliptic = LunarPosition.geocentricEcliptic( dayNumber: Self.exampleDayNumber )
 
-        #expect( abs( ecliptic.longitude - 306.9484 ) < 0.01 )
-        #expect( abs( ecliptic.latitude  - ( -0.5856 ) ) < 0.01 )
-        #expect( abs( ecliptic.distance  -  60.6779 ) < 0.01 )
+        #expect( Swift.abs( ecliptic.longitude - 306.9484    ) < 0.01 )
+        #expect( Swift.abs( ecliptic.latitude  - ( -0.5856 ) ) < 0.01 )
+        #expect( Swift.abs( ecliptic.distance  -  60.6779    ) < 0.01 )
     }
 
     /// The geocentric equatorial position matches Schlyter's worked example.
@@ -72,8 +72,8 @@ struct LunarPositionTests
     {
         let equatorial = LunarPosition.position( dayNumber: Self.exampleDayNumber )
 
-        #expect( abs( equatorial.rightAscension - 309.5011 ) < 0.02 )
-        #expect( abs( equatorial.declination    - ( -19.1032 ) ) < 0.02 )
+        #expect( Swift.abs( equatorial.rightAscension - 309.5011     ) < 0.02 )
+        #expect( Swift.abs( equatorial.declination    - ( -19.1032 ) ) < 0.02 )
     }
 
     /// The `Date`-based public entry point resolves to the same position as the
@@ -84,8 +84,8 @@ struct LunarPositionTests
         let date       = try self.utcDate( 1990, 4, 19 )
         let equatorial = LunarPosition.position( at: date )
 
-        #expect( abs( equatorial.rightAscension - 309.5011 ) < 0.02 )
-        #expect( abs( equatorial.declination    - ( -19.1032 ) ) < 0.02 )
+        #expect( Swift.abs( equatorial.rightAscension - 309.5011     ) < 0.02 )
+        #expect( Swift.abs( equatorial.declination    - ( -19.1032 ) ) < 0.02 )
     }
 
     /// The distance in kilometres is the Earth-radii distance scaled by the Earth's
@@ -96,7 +96,7 @@ struct LunarPositionTests
         let date     = try self.utcDate( 1990, 4, 19 )
         let expected = 60.6779 * LunarPosition.earthRadiusKilometres
 
-        #expect( abs( LunarPosition.distance( at: date ) - expected ) < 100 )
+        #expect( Swift.abs( LunarPosition.distance( at: date ) - expected ) < 100 )
     }
 
     /// Across a year the Moon's distance stays within its real perigee/apogee
@@ -132,9 +132,9 @@ struct LunarPositionTests
         let topocentric = LunarPosition.horizontal( at: date, location: location )
 
         #expect( parallax > 0.85 && parallax < 1.05, "Lunar parallax \( parallax )° is outside its physical range" )
-        #expect( abs( topocentric.altitude - expected ) < 1e-6 )
+        #expect( Swift.abs( topocentric.altitude - expected ) < 1e-6 )
         #expect( topocentric.altitude <= geocentric.altitude )
-        #expect( abs( topocentric.azimuth - geocentric.azimuth ) < 1e-9 )
+        #expect( Swift.abs( topocentric.azimuth - geocentric.azimuth ) < 1e-9 )
     }
 
     /// The Moon rises and sets over a day at mid-latitude — a non-tautological check

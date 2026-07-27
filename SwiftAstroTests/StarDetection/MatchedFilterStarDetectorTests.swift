@@ -36,7 +36,7 @@ struct MatchedFilterStarDetectorTests
     /// Whether a star was detected within one pixel of an expected position.
     private func hasStar( _ field: StarField, nearX x: Double, y: Double ) -> Bool
     {
-        field.stars.contains { abs( $0.x - x ) < 1 && abs( $0.y - y ) < 1 }
+        field.stars.contains { Swift.abs( $0.x - x ) < 1 && Swift.abs( $0.y - y ) < 1 }
     }
 
     /// Every planted star is detected at its position, and nothing spurious is.
@@ -113,13 +113,13 @@ struct MatchedFilterStarDetectorTests
             .image()
 
         let field = try MatchedFilterStarDetector( configuration: .init( detectsBrightStars: false ) ).detectStars( in: image )
-        let first  = try #require( field.stars.first { abs( $0.x - 60.3 ) < 1 && abs( $0.y - 90.7 ) < 1 } )
-        let second = try #require( field.stars.first { abs( $0.x - 110.8 ) < 1 && abs( $0.y - 40.2 ) < 1 } )
+        let first  = try #require( field.stars.first { Swift.abs( $0.x - 60.3 ) < 1 && Swift.abs( $0.y - 90.7 ) < 1 } )
+        let second = try #require( field.stars.first { Swift.abs( $0.x - 110.8 ) < 1 && Swift.abs( $0.y - 40.2 ) < 1 } )
 
-        #expect( abs( first.x - 60.3 ) < 0.15 )
-        #expect( abs( first.y - 90.7 ) < 0.15 )
-        #expect( abs( second.x - 110.8 ) < 0.15 )
-        #expect( abs( second.y - 40.2 ) < 0.15 )
+        #expect( Swift.abs( first.x - 60.3   ) < 0.15 )
+        #expect( Swift.abs( first.y - 90.7   ) < 0.15 )
+        #expect( Swift.abs( second.x - 110.8 ) < 0.15 )
+        #expect( Swift.abs( second.y - 40.2  ) < 0.15 )
     }
 
     /// The reported metrics of a detected star match the planted profile.
@@ -136,9 +136,9 @@ struct MatchedFilterStarDetectorTests
         let star  = try #require( field.stars.first )
 
         #expect( field.count == 1 )
-        #expect( abs( star.x - 60 ) < 0.3 )
-        #expect( abs( star.y - 60 ) < 0.3 )
-        #expect( abs( star.fwhm - Self.fwhmPerSigma * sigma ) < 0.15 * Self.fwhmPerSigma * sigma )
+        #expect( Swift.abs( star.x - 60                           ) < 0.3 )
+        #expect( Swift.abs( star.y - 60                           ) < 0.3 )
+        #expect( Swift.abs( star.fwhm - Self.fwhmPerSigma * sigma ) < 0.15 * Self.fwhmPerSigma * sigma )
         #expect( star.eccentricity < 0.2 )
     }
 
@@ -156,7 +156,7 @@ struct MatchedFilterStarDetectorTests
 
         let estimated = try #require( MatchedFilterStarDetector.estimateFWHM( in: image ) )
 
-        #expect( abs( estimated - Self.fwhmPerSigma * sigma ) < 0.25 * Self.fwhmPerSigma * sigma )
+        #expect( Swift.abs( estimated - Self.fwhmPerSigma * sigma ) < 0.25 * Self.fwhmPerSigma * sigma )
     }
 
     /// On a dense field of small stars, the estimate tracks the true small scale
@@ -261,7 +261,7 @@ struct MatchedFilterStarDetectorTests
 
         func detected( near star: SyntheticStarGrid.Star ) -> Star?
         {
-            field.stars.first { abs( $0.x - star.x ) < 3 && abs( $0.y - star.y ) < 3 }
+            field.stars.first { Swift.abs( $0.x - star.x ) < 3 && Swift.abs( $0.y - star.y ) < 3 }
         }
 
         let recalled = truth.filter { detected( near: $0 ) != nil }

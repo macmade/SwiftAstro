@@ -77,14 +77,14 @@ struct StarMomentsTests
         let fixture   = self.gaussianSamples( sigmaX: sigma, sigmaY: sigma, peak: 3000, background: 200, radius: 15 )
         let moments   = try #require( StarMoments( samples: fixture.samples, background: 200 ) )
 
-        #expect( abs( moments.x - fixture.center ) < 0.05 )
-        #expect( abs( moments.y - fixture.center ) < 0.05 )
-        #expect( abs( moments.fwhm - Self.fwhmPerSigma * sigma ) < 0.05 * Self.fwhmPerSigma * sigma )
+        #expect( Swift.abs( moments.x - fixture.center               ) < 0.05 )
+        #expect( Swift.abs( moments.y - fixture.center               ) < 0.05 )
+        #expect( Swift.abs( moments.fwhm - Self.fwhmPerSigma * sigma ) < 0.05 * Self.fwhmPerSigma * sigma )
         #expect( moments.eccentricity < 0.05 )
 
         let hfr = StarMoments.halfFluxRadius( samples: fixture.samples, background: 200, aroundX: moments.x, y: moments.y, withinRadius: StarMoments.hfrApertureRadiusFactor * moments.fwhm )
 
-        #expect( abs( hfr - Self.hfrPerSigma * sigma ) < 0.05 * Self.hfrPerSigma * sigma )
+        #expect( Swift.abs( hfr - Self.hfrPerSigma * sigma ) < 0.05 * Self.hfrPerSigma * sigma )
     }
 
     /// An elongated Gaussian yields the expected eccentricity.
@@ -95,7 +95,7 @@ struct StarMomentsTests
         let fixture = self.gaussianSamples( sigmaX: 2, sigmaY: 4, peak: 3000, background: 200, radius: 20 )
         let moments = try #require( StarMoments( samples: fixture.samples, background: 200 ) )
 
-        #expect( abs( moments.eccentricity - 0.866 ) < 0.05 )
+        #expect( Swift.abs( moments.eccentricity - 0.866 ) < 0.05 )
     }
 
     /// The flux-weighted centroid follows the star's position.
@@ -122,8 +122,8 @@ struct StarMomentsTests
 
         let moments = try #require( StarMoments( samples: samples, background: 200 ) )
 
-        #expect( abs( moments.x - cx ) < 0.05 )
-        #expect( abs( moments.y - cy ) < 0.05 )
+        #expect( Swift.abs( moments.x - cx ) < 0.05 )
+        #expect( Swift.abs( moments.y - cy ) < 0.05 )
     }
 
     /// A sample set with no flux above the background yields no measurement.
@@ -154,7 +154,7 @@ struct StarMomentsTests
         let moments = try #require( StarMoments( samples: fixture.samples, background: 200 ) )
         let sigma   = ( sigmaX * sigmaY ).squareRoot()
 
-        #expect( abs( moments.fwhm - Self.fwhmPerSigma * sigma ) < 0.05 * Self.fwhmPerSigma * sigma )
+        #expect( Swift.abs( moments.fwhm - Self.fwhmPerSigma * sigma ) < 0.05 * Self.fwhmPerSigma * sigma )
     }
 
     /// The half-flux radius is the flux-weighted mean distance from the centre,
@@ -175,7 +175,7 @@ struct StarMomentsTests
 
         let hfr = StarMoments.halfFluxRadius( samples: samples, background: 100, aroundX: 5, y: 5, withinRadius: .infinity )
 
-        #expect( abs( hfr - 0.8 ) < 1e-9 )
+        #expect( Swift.abs( hfr - 0.8 ) < 1e-9 )
     }
 
     /// The eccentricity is clamped to `[0, 1]`: a non-positive-definite moment

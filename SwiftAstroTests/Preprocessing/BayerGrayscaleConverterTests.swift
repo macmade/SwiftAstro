@@ -74,7 +74,7 @@ struct BayerGrayscaleConverterTests
         let mosaic = try self.rggbMosaic( width: 8, height: 8, r: 500, g: 500, b: 500 )
         let gray   = try BayerGrayscaleConverter( pattern: .rggb ).grayscale( from: mosaic )
 
-        #expect( gray.pixels.allSatisfy { abs( $0 - 500 ) < 1e-6 } )
+        #expect( gray.pixels.allSatisfy { Swift.abs( $0 - 500 ) < 1e-6 } )
     }
 
     /// The three colour channels are combined by an equal-weight mean, so a
@@ -86,7 +86,7 @@ struct BayerGrayscaleConverterTests
         let gray     = try BayerGrayscaleConverter( pattern: .rggb ).grayscale( from: mosaic )
         let interior = gray.pixels[ ( 8 * 16 ) + 8 ]
 
-        #expect( abs( interior - 200 ) < 1.0 )
+        #expect( Swift.abs( interior - 200 ) < 1.0 )
     }
 
     /// A multi-channel input is rejected — the converter expects a raw mosaic.

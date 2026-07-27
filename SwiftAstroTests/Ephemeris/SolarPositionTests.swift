@@ -57,7 +57,7 @@ struct SolarPositionTests
     {
         let date = try self.utcDate( 1990, 4, 19 )
 
-        #expect( abs( Ephemeris.dayNumber( from: date ) - ( -3543.0 ) ) < 1e-6 )
+        #expect( Swift.abs( Ephemeris.dayNumber( from: date ) - ( -3543.0 ) ) < 1e-6 )
     }
 
     /// The local sidereal time at the example instant is 13.78925 h at Greenwich
@@ -67,8 +67,8 @@ struct SolarPositionTests
     {
         let date = try self.utcDate( 1990, 4, 19 )
 
-        #expect( abs( Ephemeris.localSiderealTimeHours( date: date, longitude: 0  ) - 13.78925 ) < 0.001 )
-        #expect( abs( Ephemeris.localSiderealTimeHours( date: date, longitude: 15 ) - 14.78925 ) < 0.001 )
+        #expect( Swift.abs( Ephemeris.localSiderealTimeHours( date: date, longitude: 0  ) - 13.78925 ) < 0.001 )
+        #expect( Swift.abs( Ephemeris.localSiderealTimeHours( date: date, longitude: 15 ) - 14.78925 ) < 0.001 )
     }
 
     /// The Sun's geocentric equatorial coordinates match the tutorial:
@@ -79,8 +79,8 @@ struct SolarPositionTests
         let date     = try self.utcDate( 1990, 4, 19 )
         let position = SolarPosition.position( at: date )
 
-        #expect( abs( position.rightAscension - 26.6580 ) < 0.02 )
-        #expect( abs( position.declination    - 11.0084 ) < 0.02 )
+        #expect( Swift.abs( position.rightAscension - 26.6580 ) < 0.02 )
+        #expect( Swift.abs( position.declination    - 11.0084 ) < 0.02 )
     }
 
     /// The Sun's horizontal coordinates for the tutorial's observer (60° N,
@@ -92,8 +92,8 @@ struct SolarPositionTests
         let location   = GeographicLocation( latitude: 60, longitude: 15 )
         let horizontal = SolarPosition.horizontal( at: date, location: location )
 
-        #expect( abs( horizontal.azimuth  - 15.68  ) < 0.1 )
-        #expect( abs( horizontal.altitude - ( -17.96 ) ) < 0.1 )
+        #expect( Swift.abs( horizontal.azimuth  - 15.68      ) < 0.1 )
+        #expect( Swift.abs( horizontal.altitude - ( -17.96 ) ) < 0.1 )
         #expect( horizontal.isAboveHorizon == false )
     }
 
@@ -106,7 +106,7 @@ struct SolarPositionTests
         let solstice = try self.utcDate( 2024, 6, 20, 12 )
         let equinox  = try self.utcDate( 2024, 9, 22, 12 )
 
-        #expect( abs( SolarPosition.position( at: solstice ).declination - 23.4 ) < 0.3 )
-        #expect( abs( SolarPosition.position( at: equinox ).declination ) < 0.5 )
+        #expect( Swift.abs( SolarPosition.position( at: solstice ).declination - 23.4 ) < 0.3 )
+        #expect( Swift.abs( SolarPosition.position( at: equinox ).declination         ) < 0.5 )
     }
 }

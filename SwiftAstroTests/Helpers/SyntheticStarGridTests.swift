@@ -117,12 +117,12 @@ struct SyntheticStarGridTests
 
         // The big star's core is clipped exactly at the saturation level, and the
         // clip forms a flat top of several pixels; the small star peaks below it.
-        #expect( abs( bigCenter - 40000 ) < 0.001 )
+        #expect( Swift.abs( bigCenter - 40000 ) < 0.001 )
         #expect( smallCenter < 40000 )
 
         let flatTop = ( -3 ... 3 ).flatMap { dy in ( -3 ... 3 ).map { dx in self.value( image, x: Int( big.x ) + dx, y: Int( big.y ) + dy ) } }
 
-        #expect( flatTop.filter { abs( $0 - 40000 ) < 0.001 }.count >= 5 )
+        #expect( flatTop.filter { Swift.abs( $0 - 40000 ) < 0.001 }.count >= 5 )
     }
 
     /// A high-eccentricity star is elongated: it extends farther along the x axis

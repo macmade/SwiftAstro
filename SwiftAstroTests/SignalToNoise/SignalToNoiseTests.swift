@@ -86,8 +86,8 @@ struct SignalToNoiseTests
         let estimate = try #require( SignalToNoise.estimate( in: image ) )
         let expected = 1.4826 * 2.0
 
-        #expect( abs( estimate.noise  - expected               ) < 1e-9 )
-        #expect( abs( estimate.weight - 1.0 / ( expected * expected ) ) < 1e-9 )
+        #expect( Swift.abs( estimate.noise  - expected                      ) < 1e-9 )
+        #expect( Swift.abs( estimate.weight - 1.0 / ( expected * expected ) ) < 1e-9 )
     }
 
     /// Non-finite (NaN / ±Inf) blanks are ignored: a frame carrying a few blanks
@@ -106,6 +106,6 @@ struct SignalToNoiseTests
         let estimate = try #require( SignalToNoise.estimate( in: blanked ) )
 
         #expect( estimate.noise.isFinite )
-        #expect( abs( estimate.noise - clean.noise ) < 1e-9 )
+        #expect( Swift.abs( estimate.noise - clean.noise ) < 1e-9 )
     }
 }

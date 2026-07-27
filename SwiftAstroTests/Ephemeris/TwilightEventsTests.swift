@@ -77,7 +77,7 @@ struct TwilightEventsTests
             let date     = try #require( time, "event at threshold \( threshold ) should occur" )
             let altitude = SolarPosition.horizontal( at: date, location: location ).altitude
 
-            #expect( abs( altitude - threshold ) < 0.3, "Sun altitude \( altitude ) at the event should be \( threshold )" )
+            #expect( Swift.abs( altitude - threshold ) < 0.3, "Sun altitude \( altitude ) at the event should be \( threshold )" )
         }
     }
 

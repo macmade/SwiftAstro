@@ -35,7 +35,7 @@ struct EquatorialCoordinateTests
     {
         let coordinate = EquatorialCoordinate( rightAscension: 123.456, declination: -12.34 )
 
-        #expect( abs( coordinate.angularSeparation( to: coordinate ) ) < 1e-6 )
+        #expect( Swift.abs( coordinate.angularSeparation( to: coordinate ) ) < 1e-6 )
     }
 
     /// Two points on the equator 90° apart in right ascension are 90° apart.
@@ -45,7 +45,7 @@ struct EquatorialCoordinateTests
         let a = EquatorialCoordinate( rightAscension:  10, declination: 0 )
         let b = EquatorialCoordinate( rightAscension: 100, declination: 0 )
 
-        #expect( abs( a.angularSeparation( to: b ) - 90 ) < 1e-6 )
+        #expect( Swift.abs( a.angularSeparation( to: b ) - 90 ) < 1e-6 )
     }
 
     /// A point at the north celestial pole is its declination's complement — 90° —
@@ -57,8 +57,8 @@ struct EquatorialCoordinateTests
         let equator1 = EquatorialCoordinate( rightAscension:  37, declination:  0 )
         let equator2 = EquatorialCoordinate( rightAscension: 200, declination:  0 )
 
-        #expect( abs( pole.angularSeparation( to: equator1 ) - 90 ) < 1e-6 )
-        #expect( abs( pole.angularSeparation( to: equator2 ) - 90 ) < 1e-6 )
+        #expect( Swift.abs( pole.angularSeparation( to: equator1 ) - 90 ) < 1e-6 )
+        #expect( Swift.abs( pole.angularSeparation( to: equator2 ) - 90 ) < 1e-6 )
     }
 
     /// Antipodal points — opposite in right ascension and declination — are 180°
@@ -69,7 +69,7 @@ struct EquatorialCoordinateTests
         let a = EquatorialCoordinate( rightAscension:  0, declination:  45 )
         let b = EquatorialCoordinate( rightAscension: 180, declination: -45 )
 
-        #expect( abs( a.angularSeparation( to: b ) - 180 ) < 1e-6 )
+        #expect( Swift.abs( a.angularSeparation( to: b ) - 180 ) < 1e-6 )
     }
 
     /// The separation is symmetric: measuring A→B equals B→A.
@@ -79,7 +79,7 @@ struct EquatorialCoordinateTests
         let a = EquatorialCoordinate( rightAscension:  83.8, declination:  -5.4 )
         let b = EquatorialCoordinate( rightAscension: 201.3, declination:  54.9 )
 
-        #expect( abs( a.angularSeparation( to: b ) - b.angularSeparation( to: a ) ) < 1e-9 )
+        #expect( Swift.abs( a.angularSeparation( to: b ) - b.angularSeparation( to: a ) ) < 1e-9 )
     }
 
     /// A small separation across the 0°/360° right-ascension wrap is measured the
@@ -90,6 +90,6 @@ struct EquatorialCoordinateTests
         let a = EquatorialCoordinate( rightAscension: 359, declination: 0 )
         let b = EquatorialCoordinate( rightAscension:   1, declination: 0 )
 
-        #expect( abs( a.angularSeparation( to: b ) - 2 ) < 1e-6 )
+        #expect( Swift.abs( a.angularSeparation( to: b ) - 2 ) < 1e-6 )
     }
 }

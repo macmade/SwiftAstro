@@ -97,25 +97,25 @@ struct PlanetPositionTests
         let jupiter = self.heliocentric( .jupiter, dayNumber: -3543 )
         let saturn  = self.heliocentric( .saturn,  dayNumber: -3543 )
 
-        #expect( abs( mercury.longitude - 170.5709 ) < 0.02 )
-        #expect( abs( mercury.latitude  -   5.9255 ) < 0.02 )
-        #expect( abs( mercury.distance  -   0.374862 ) < 0.001 )
+        #expect( Swift.abs( mercury.longitude - 170.5709   ) < 0.02 )
+        #expect( Swift.abs( mercury.latitude  -   5.9255   ) < 0.02 )
+        #expect( Swift.abs( mercury.distance  -   0.374862 ) < 0.001 )
 
-        #expect( abs( venus.longitude - 263.6570 ) < 0.02 )
-        #expect( abs( venus.latitude  - ( -0.4180 ) ) < 0.02 )
-        #expect( abs( venus.distance  -   0.726607 ) < 0.001 )
+        #expect( Swift.abs( venus.longitude - 263.6570    ) < 0.02 )
+        #expect( Swift.abs( venus.latitude  - ( -0.4180 ) ) < 0.02 )
+        #expect( Swift.abs( venus.distance  -   0.726607  ) < 0.001 )
 
-        #expect( abs( mars.longitude - 290.6297 ) < 0.02 )
-        #expect( abs( mars.latitude  - ( -1.6203 ) ) < 0.02 )
-        #expect( abs( mars.distance  -   1.417194 ) < 0.001 )
+        #expect( Swift.abs( mars.longitude - 290.6297    ) < 0.02 )
+        #expect( Swift.abs( mars.latitude  - ( -1.6203 ) ) < 0.02 )
+        #expect( Swift.abs( mars.distance  -   1.417194  ) < 0.001 )
 
-        #expect( abs( jupiter.longitude - 105.2423 ) < 0.02 )
-        #expect( abs( jupiter.latitude  -   0.1113 ) < 0.02 )
-        #expect( abs( jupiter.distance  -   5.19508 ) < 0.001 )
+        #expect( Swift.abs( jupiter.longitude - 105.2423  ) < 0.02 )
+        #expect( Swift.abs( jupiter.latitude  -   0.1113  ) < 0.02 )
+        #expect( Swift.abs( jupiter.distance  -   5.19508 ) < 0.001 )
 
-        #expect( abs( saturn.longitude - 289.3824 ) < 0.02 )
-        #expect( abs( saturn.latitude  -   0.1845 ) < 0.02 )
-        #expect( abs( saturn.distance  -  10.06118 ) < 0.001 )
+        #expect( Swift.abs( saturn.longitude - 289.3824  ) < 0.02 )
+        #expect( Swift.abs( saturn.latitude  -   0.1845  ) < 0.02 )
+        #expect( Swift.abs( saturn.distance  -  10.06118 ) < 0.001 )
     }
 
     /// The Schlyter perturbation terms shift Jupiter's, Saturn's and Uranus's
@@ -133,10 +133,10 @@ struct PlanetPositionTests
         let saturnRaw  = self.unperturbed( .saturn,  dayNumber: -3543 )
         let uranusRaw  = self.unperturbed( .uranus,  dayNumber: -3543 )
 
-        #expect( abs( ( jupiter.longitude - jupiterRaw.longitude ) - ( -0.0120 ) ) < 0.001 )
-        #expect( abs( ( saturn.longitude  - saturnRaw.longitude  ) - ( -0.0699 ) ) < 0.001 )
-        #expect( abs( ( saturn.latitude   - saturnRaw.latitude   ) -    0.0053   ) < 0.001 )
-        #expect( abs( ( uranus.longitude  - uranusRaw.longitude  ) - ( -0.0327 ) ) < 0.001 )
+        #expect( Swift.abs( ( jupiter.longitude - jupiterRaw.longitude ) - ( -0.0120 ) ) < 0.001 )
+        #expect( Swift.abs( ( saturn.longitude  - saturnRaw.longitude  ) - ( -0.0699 ) ) < 0.001 )
+        #expect( Swift.abs( ( saturn.latitude   - saturnRaw.latitude   ) -    0.0053   ) < 0.001 )
+        #expect( Swift.abs( ( uranus.longitude  - uranusRaw.longitude  ) - ( -0.0327 ) ) < 0.001 )
 
         // Mercury, Venus, Mars and Neptune have no modelled terms — perturbed equals
         // unperturbed.
@@ -145,8 +145,8 @@ struct PlanetPositionTests
             let perturbed = self.heliocentric( $0, dayNumber: -3543 )
             let raw       = self.unperturbed( $0, dayNumber: -3543 )
 
-            #expect( abs( perturbed.longitude - raw.longitude ) < 1e-9 )
-            #expect( abs( perturbed.latitude  - raw.latitude  ) < 1e-9 )
+            #expect( Swift.abs( perturbed.longitude - raw.longitude ) < 1e-9 )
+            #expect( Swift.abs( perturbed.latitude  - raw.latitude  ) < 1e-9 )
         }
     }
 

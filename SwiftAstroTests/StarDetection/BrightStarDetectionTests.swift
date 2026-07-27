@@ -66,7 +66,7 @@ struct BrightStarDetectionTests
     /// Whether a star was detected within a few pixels of an expected position.
     private func hasStar( _ field: StarField, nearX x: Double, y: Double, tolerance: Double = 3 ) -> Bool
     {
-        field.stars.contains { abs( $0.x - x ) < tolerance && abs( $0.y - y ) < tolerance }
+        field.stars.contains { Swift.abs( $0.x - x ) < tolerance && Swift.abs( $0.y - y ) < tolerance }
     }
 
     /// The reproduction frame: the small-star lattice plus the large stars, noise,
@@ -275,12 +275,12 @@ struct BrightStarDetectionTests
         // spurious broad "star" — the pre-fix behaviour.
         let undiscriminated = try MatchedFilterStarDetector( configuration: .init( brightStarMaxPeaks: 100000 ) ).detectStars( in: image )
 
-        #expect( undiscriminated.stars.contains { abs( $0.x - 195 ) < 20 && abs( $0.y - 195 ) < 20 && $0.fwhm > 14 }, "the un-discriminated cluster should leak through as one broad artefact" )
+        #expect( undiscriminated.stars.contains { Swift.abs( $0.x - 195 ) < 20 && Swift.abs( $0.y - 195 ) < 20 && $0.fwhm > 14 }, "the un-discriminated cluster should leak through as one broad artefact" )
 
         // The default discriminator drops that multi-peak cluster...
         let field = try MatchedFilterStarDetector().detectStars( in: image )
 
-        #expect( field.stars.contains { abs( $0.x - 195 ) < 20 && abs( $0.y - 195 ) < 20 && $0.fwhm > 14 } == false, "the multi-peak cluster should be dropped" )
+        #expect( field.stars.contains { Swift.abs( $0.x - 195 ) < 20 && Swift.abs( $0.y - 195 ) < 20 && $0.fwhm > 14 } == false, "the multi-peak cluster should be dropped" )
 
         // ...while still recovering the two genuinely large single bright stars.
         #expect( self.hasStar( field, nearX: 100, y: 300, tolerance: 4 ), "genuine large star at (100, 300) should be kept" )
@@ -334,9 +334,9 @@ struct BrightStarDetectionTests
         let flat = try field( 0 ).addingNoise( seed: 41, amplitude: 8 ).image()
         let neb  = try field( 1000 ).addingNoise( seed: 41, amplitude: 8 ).image()
 
-        let onFlat = try #require( try MatchedFilterStarDetector().detectStars( in: flat ).stars.first { abs( $0.x - 190 ) < 3 && abs( $0.y - 190 ) < 3 } )
-        let onNeb  = try #require( try MatchedFilterStarDetector().detectStars( in: neb ).stars.first  { abs( $0.x - 190 ) < 3 && abs( $0.y - 190 ) < 3 } )
+        let onFlat = try #require( try MatchedFilterStarDetector().detectStars( in: flat ).stars.first { Swift.abs( $0.x - 190 ) < 3 && Swift.abs( $0.y - 190 ) < 3 } )
+        let onNeb  = try #require( try MatchedFilterStarDetector().detectStars( in: neb ).stars.first  { Swift.abs( $0.x - 190 ) < 3 && Swift.abs( $0.y - 190 ) < 3 } )
 
-        #expect( abs( onNeb.hfr - onFlat.hfr ) < 0.4 * onFlat.hfr )
+        #expect( Swift.abs( onNeb.hfr - onFlat.hfr ) < 0.4 * onFlat.hfr )
     }
 }

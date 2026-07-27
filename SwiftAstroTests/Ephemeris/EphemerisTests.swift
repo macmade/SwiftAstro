@@ -56,11 +56,11 @@ struct EphemerisTests
         #expect( Ephemeris.normalizedDegrees( 0 )      == 0 )
         #expect( Ephemeris.normalizedDegrees( 359.5 )  == 359.5 )
         #expect( Ephemeris.normalizedDegrees( 360 )    == 0 )
-        #expect( abs( Ephemeris.normalizedDegrees( 370 )      -  10 ) < 1e-9 )
-        #expect( abs( Ephemeris.normalizedDegrees( 720 )      -   0 ) < 1e-9 )
-        #expect( abs( Ephemeris.normalizedDegrees( -10 )      - 350 ) < 1e-9 )
-        #expect( abs( Ephemeris.normalizedDegrees( -350 )     -  10 ) < 1e-9 )
-        #expect( abs( Ephemeris.normalizedDegrees( -3600.25 ) - 359.75 ) < 1e-9 )
+        #expect( Swift.abs( Ephemeris.normalizedDegrees( 370 )      -  10    ) < 1e-9 )
+        #expect( Swift.abs( Ephemeris.normalizedDegrees( 720 )      -   0    ) < 1e-9 )
+        #expect( Swift.abs( Ephemeris.normalizedDegrees( -10 )      - 350    ) < 1e-9 )
+        #expect( Swift.abs( Ephemeris.normalizedDegrees( -350 )     -  10    ) < 1e-9 )
+        #expect( Swift.abs( Ephemeris.normalizedDegrees( -3600.25 ) - 359.75 ) < 1e-9 )
     }
 
     /// `normalizedDegrees` passes non-finite input through rather than trapping — the
@@ -79,10 +79,10 @@ struct EphemerisTests
     func normalizedHoursWrapsIntoRange()
     {
         #expect( Ephemeris.normalizedHours( 0 )  == 0 )
-        #expect( abs( Ephemeris.normalizedHours( 24 )   -  0 ) < 1e-9 )
-        #expect( abs( Ephemeris.normalizedHours( 25.5 ) -  1.5 ) < 1e-9 )
-        #expect( abs( Ephemeris.normalizedHours( -1 )   - 23 ) < 1e-9 )
-        #expect( abs( Ephemeris.normalizedHours( 48 )   -  0 ) < 1e-9 )
+        #expect( Swift.abs( Ephemeris.normalizedHours( 24 )   -  0   ) < 1e-9 )
+        #expect( Swift.abs( Ephemeris.normalizedHours( 25.5 ) -  1.5 ) < 1e-9 )
+        #expect( Swift.abs( Ephemeris.normalizedHours( -1 )   - 23   ) < 1e-9 )
+        #expect( Swift.abs( Ephemeris.normalizedHours( 48 )   -  0   ) < 1e-9 )
     }
 
     /// The obliquity of the ecliptic is `23.4393°` at the epoch and drifts by
@@ -90,17 +90,17 @@ struct EphemerisTests
     @Test
     func obliquityMatchesSchlyter()
     {
-        #expect( abs( Ephemeris.obliquity( dayNumber: 0 )     - 23.4393 ) < 1e-9 )
-        #expect( abs( Ephemeris.obliquity( dayNumber: -3543 ) - ( 23.4393 - 3.563e-7 * -3543 ) ) < 1e-9 )
+        #expect( Swift.abs( Ephemeris.obliquity( dayNumber: 0 )     - 23.4393                        ) < 1e-9 )
+        #expect( Swift.abs( Ephemeris.obliquity( dayNumber: -3543 ) - ( 23.4393 - 3.563e-7 * -3543 ) ) < 1e-9 )
     }
 
     /// Degrees and radians convert both ways and round-trip.
     @Test
     func radiansAndDegreesConvertBothWays()
     {
-        #expect( abs( Ephemeris.radians( 180 ) - .pi ) < 1e-12 )
-        #expect( abs( Ephemeris.degrees( .pi ) - 180 ) < 1e-12 )
-        #expect( abs( Ephemeris.degrees( Ephemeris.radians( 47.3 ) ) - 47.3 ) < 1e-12 )
+        #expect( Swift.abs( Ephemeris.radians( 180 ) - .pi                        ) < 1e-12 )
+        #expect( Swift.abs( Ephemeris.degrees( .pi ) - 180                        ) < 1e-12 )
+        #expect( Swift.abs( Ephemeris.degrees( Ephemeris.radians( 47.3 ) ) - 47.3 ) < 1e-12 )
     }
 
     /// The ecliptic→equatorial reduction maps the vernal-equinox direction to the
@@ -110,13 +110,13 @@ struct EphemerisTests
     {
         let origin = Ephemeris.equatorial( eclipticX: 1, eclipticY: 0, eclipticZ: 0, dayNumber: 0 )
 
-        #expect( abs( origin.rightAscension - 0 ) < 1e-9 )
-        #expect( abs( origin.declination    - 0 ) < 1e-9 )
+        #expect( Swift.abs( origin.rightAscension - 0 ) < 1e-9 )
+        #expect( Swift.abs( origin.declination    - 0 ) < 1e-9 )
 
         let pole = Ephemeris.equatorial( eclipticX: 0, eclipticY: 0, eclipticZ: 1, dayNumber: 0 )
 
-        #expect( abs( pole.declination    - ( 90 - Ephemeris.obliquity( dayNumber: 0 ) ) ) < 1e-9 )
-        #expect( abs( pole.rightAscension - 270 ) < 1e-9 )
+        #expect( Swift.abs( pole.declination    - ( 90 - Ephemeris.obliquity( dayNumber: 0 ) ) ) < 1e-9 )
+        #expect( Swift.abs( pole.rightAscension - 270                                          ) < 1e-9 )
     }
 
     /// From the north pole every body's altitude is its declination and the azimuth
@@ -133,7 +133,7 @@ struct EphemerisTests
 
             let horizontal = Ephemeris.horizontal( of: EquatorialCoordinate( rightAscension: 123, declination: declination ), date: date, location: location )
 
-            #expect( abs( horizontal.altitude - declination ) < 1e-6 )
+            #expect( Swift.abs( horizontal.altitude - declination ) < 1e-6 )
             #expect( horizontal.azimuth >= 0 && horizontal.azimuth < 360 )
         }
     }
@@ -159,7 +159,7 @@ struct EphemerisTests
         let horizontal = Ephemeris.horizontal( of: coordinate, date: date, location: location )
 
         #expect( horizontal.altitude.isFinite )
-        #expect( abs( horizontal.altitude - 90 ) < 1e-6 )
+        #expect( Swift.abs( horizontal.altitude - 90 ) < 1e-6 )
     }
 
     /// The horizontal reduction keeps the azimuth in `0 ..< 360` and the altitude in

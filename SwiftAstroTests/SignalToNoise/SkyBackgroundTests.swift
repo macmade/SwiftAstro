@@ -67,7 +67,7 @@ struct SkyBackgroundTests
         #expect( estimate.level   == 3 )
         #expect( estimate.minimum == 0 )
         #expect( estimate.maximum == 6 )
-        #expect( abs( estimate.noise - 1.4826 * 2.0 ) < 1e-9 )
+        #expect( Swift.abs( estimate.noise - 1.4826 * 2.0 ) < 1e-9 )
     }
 
     /// The relative level and noise are fractions of the image's value range.
@@ -78,8 +78,8 @@ struct SkyBackgroundTests
         let estimate = try #require( SkyBackground.estimate( in: image ) )
 
         #expect( estimate.range == 6 )
-        #expect( abs( try #require( estimate.relativeLevel ) - 0.5 ) < 1e-9 )
-        #expect( abs( try #require( estimate.relativeNoise ) - ( 1.4826 * 2.0 ) / 6.0 ) < 1e-9 )
+        #expect( Swift.abs( try #require( estimate.relativeLevel ) - 0.5                    ) < 1e-9 )
+        #expect( Swift.abs( try #require( estimate.relativeNoise ) - ( 1.4826 * 2.0 ) / 6.0 ) < 1e-9 )
     }
 
     /// A flat image has a valid background level but zero noise and no range, so
@@ -114,7 +114,7 @@ struct SkyBackgroundTests
         #expect( estimate.minimum == 0 )
         #expect( estimate.maximum == 6 )
         #expect( estimate.range   == 6 )
-        #expect( abs( estimate.noise - 1.4826 * 2.0 ) < 1e-9 )
+        #expect( Swift.abs( estimate.noise - 1.4826 * 2.0 ) < 1e-9 )
         #expect( estimate.minimum.isFinite )
         #expect( estimate.maximum.isFinite )
     }

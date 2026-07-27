@@ -78,7 +78,7 @@ struct RealFrameValidationTests
         #expect( medianEcc <= 1 )
 
         // The headline assertion: median HFR ≈ the reported 3.69 px.
-        #expect( abs( medianHFR - Self.reportedHFR ) <= Self.hfrTolerance * Self.reportedHFR )
+        #expect( Swift.abs( medianHFR - Self.reportedHFR ) <= Self.hfrTolerance * Self.reportedHFR )
     }
 
     /// In the rich M35 star cluster the detector finds a plausible population of

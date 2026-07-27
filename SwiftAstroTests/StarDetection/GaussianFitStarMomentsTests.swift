@@ -58,13 +58,13 @@ struct GaussianFitStarMomentsTests
         let fit = try #require( GaussianFit.fit( samples: samples, initialGuess: guess ) )
 
         // The two axis lengths are recovered regardless of which is labelled x/y.
-        let sigmas = [ abs( fit.sigmaX ), abs( fit.sigmaY ) ].sorted()
+        let sigmas = [ Swift.abs( fit.sigmaX ), Swift.abs( fit.sigmaY ) ].sorted()
 
-        #expect( abs( sigmas[ 0 ] - 2 ) < 0.2 )
-        #expect( abs( sigmas[ 1 ] - 4 ) < 0.2 )
-        #expect( abs( fit.x - truth.x ) < 0.1 )
-        #expect( abs( fit.y - truth.y ) < 0.1 )
-        #expect( abs( fit.amplitude - truth.amplitude ) < 0.05 * truth.amplitude )
+        #expect( Swift.abs( sigmas[ 0 ] - 2                 ) < 0.2 )
+        #expect( Swift.abs( sigmas[ 1 ] - 4                 ) < 0.2 )
+        #expect( Swift.abs( fit.x - truth.x                 ) < 0.1 )
+        #expect( Swift.abs( fit.y - truth.y                 ) < 0.1 )
+        #expect( Swift.abs( fit.amplitude - truth.amplitude ) < 0.05 * truth.amplitude )
 
         // The fitted surface reproduces the data (validates orientation too).
         let rms = ( samples.reduce( 0.0 ) { $0 + pow( fit.value( atX: $1.x, y: $1.y ) - $1.value, 2 ) } / Double( samples.count ) ).squareRoot()
@@ -93,15 +93,15 @@ struct GaussianFitStarMomentsTests
 
         let moments = try #require( StarMoments( samples: samples, background: 0 ) )
 
-        #expect( abs( moments.mxx - 1 ) < 1e-12 )
-        #expect( abs( moments.myy - 1 ) < 1e-12 )
-        #expect( abs( moments.mxy - ( 1.0 / 3.0 ) ) < 1e-12 )
+        #expect( Swift.abs( moments.mxx - 1             ) < 1e-12 )
+        #expect( Swift.abs( moments.myy - 1             ) < 1e-12 )
+        #expect( Swift.abs( moments.mxy - ( 1.0 / 3.0 ) ) < 1e-12 )
 
         let seed = GaussianFit.Parameters( moments: moments, amplitude: 42, background: 7 )
 
-        #expect( abs( seed.sigmaX - ( 4.0 / 3.0 ).squareRoot() ) < 1e-12 )
-        #expect( abs( seed.sigmaY - ( 2.0 / 3.0 ).squareRoot() ) < 1e-12 )
-        #expect( abs( seed.theta - ( .pi / 4 ) ) < 1e-12 )
+        #expect( Swift.abs( seed.sigmaX - ( 4.0 / 3.0 ).squareRoot() ) < 1e-12 )
+        #expect( Swift.abs( seed.sigmaY - ( 2.0 / 3.0 ).squareRoot() ) < 1e-12 )
+        #expect( Swift.abs( seed.theta - ( .pi / 4 )                 ) < 1e-12 )
         #expect( seed.x == moments.x )
         #expect( seed.y == moments.y )
         #expect( seed.amplitude == 42 )
