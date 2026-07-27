@@ -273,7 +273,7 @@ public enum BitmapImageDecoder: ImageDecoding
     }
 
     /// Decodes the single component stored at a byte index, in host byte order — the
-    /// order the loader drew the bitmap into.
+    /// order ``contents(of:)`` draws the bitmap into.
     ///
     /// Bounds-checked against the bytes' own index range rather than trapping, so a
     /// read-out over a truncated frame answers `nil`.
@@ -448,7 +448,7 @@ public enum BitmapImageDecoder: ImageDecoding
     /// decoded the right way up rather than sideways.
     ///
     /// An orientation of `1` (the default and overwhelmingly common case) is returned
-    /// unchanged, so ordinary images take the exact same path as before. Any other
+    /// unchanged, so ordinary images incur no reorientation. Any other
     /// orientation is applied via Core Image's canonical `oriented(forExifOrientation:)`,
     /// preserving the source's bit depth (a deeper-than-8-bit source stays 16-bit). If
     /// the transform cannot be rendered, the original image is returned unchanged.
@@ -479,7 +479,7 @@ public enum BitmapImageDecoder: ImageDecoding
     }
 
     /// Decodes a single component from a raw byte buffer at a byte offset, in host
-    /// byte order — the order the loader drew the bitmap into.
+    /// byte order — the order ``contents(of:)`` draws the bitmap into.
     ///
     /// - Parameters:
     ///   - raw:               The byte buffer.

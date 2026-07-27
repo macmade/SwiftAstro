@@ -43,9 +43,9 @@ import Testing
 /// need a real `CGImageSource`, so they run against a committed JPEG capture and
 /// against PNG/TIFF sources built in memory. The synthetic PNG/TIFF/HEIC *files*
 /// (`PhotoRGB.png`, `PhotoGray16.tiff`, the multi-frame HEIC, the EXIF-oriented
-/// TIFF, …) live in the application's `Test Files`, which this library target does
-/// not reach; the application's golden baseline and `ImageIOImageLoader` tests cover
-/// those end to end, while these tests reproduce the same behaviours from
+/// TIFF, …) are not committed to this library's `Test Files`, so this target does
+/// not reach them; downstream end-to-end tests cover those, while these tests
+/// reproduce the same behaviours from
 /// in-memory containers so the library validates its own decoder without them.
 struct BitmapImageDecoderTests
 {
@@ -382,8 +382,7 @@ struct BitmapImageDecoderTests
     /// frame carrying a 90° rotation comes back 2 × 4. ``BitmapImageDecoder/frames(in:)``
     /// reads the orientation from the container into the frame; here it is set directly,
     /// exercising the upright transform without an EXIF-tagged container this target
-    /// cannot author. The application's `OrientedPhoto.tiff` golden digest covers the
-    /// tagged-container path end to end.
+    /// cannot author. Downstream end-to-end tests cover the tagged-container path.
     @Test
     func appliesTheFrameExifOrientation() throws
     {

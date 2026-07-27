@@ -53,9 +53,9 @@ import Testing
 ///   generic pipeline that never names a format. It is the concrete answer to the
 ///   milestone's question: *can a caller reach a detection image the same way
 ///   without knowing which format it holds?* The only thing that dispatches on
-///   format is choosing which container to parse, exactly as the application's
-///   own `ImageLoader.loader( for: )` selects a loader by file type — container
-///   parsing is the consumer's job, not the decode's.
+///   format is choosing which container to parse — exactly the choice a consumer
+///   makes from a file's type — because container parsing is the consumer's job,
+///   not the decode's.
 struct DecoderSymmetryTests
 {
     // MARK: - Synthetic properties, one per format
@@ -296,9 +296,8 @@ struct DecoderSymmetryTests
         #expect( try ColorFilterArray.pattern( named: "GBRG" ) == .gbrg )
     }
 
-    /// An unknown keyword throws rather than silently yielding "no pattern" — the
-    /// behaviour the app and the removed decoder both had, and the one the shared
-    /// mapping adopts, so a mosaic is never mistaken for a monochrome frame.
+    /// An unknown keyword throws rather than silently yielding "no pattern", so a
+    /// mosaic whose pattern is unrecognised is never mistaken for a monochrome frame.
     @Test
     func colorFilterArrayThrowsOnAnUnknownPattern()
     {
@@ -394,9 +393,8 @@ struct DecoderSymmetryTests
     /// detection images through the one format-blind pipeline above.
     ///
     /// The `switch` is the whole extent of "knowing the format": it only chooses
-    /// which container parser to run, the same choice the application's
-    /// `ImageLoader.loader( for: )` makes from a file's `UTType`. Everything after
-    /// the container is opened is
+    /// which container parser to run, the same choice a consumer makes from a
+    /// file's type. Everything after the container is opened is
     /// ``detectionImagesExercisingEveryOperation(in:using:)``, which is blind to
     /// which case produced the container.
     ///

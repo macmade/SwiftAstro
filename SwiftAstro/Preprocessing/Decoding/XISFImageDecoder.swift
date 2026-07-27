@@ -159,9 +159,8 @@ public enum XISFImageDecoder: ImageDecoding
     /// equal-weight mean.
     ///
     /// XISF's ``scaling(from:)`` is the identity, so no affine `× scale + offset` is
-    /// applied — the per-pixel mean is directly the scaled-linear luminance. This is
-    /// a faithful, byte-for-byte port of the application's own XISF luminance decode,
-    /// down to the `reduce(0.0)` accumulation.
+    /// applied — the per-pixel mean is directly the scaled-linear luminance,
+    /// accumulated from a `reduce(0.0)` seed.
     ///
     /// - Parameters:
     ///   - planes:     The decoded planes.

@@ -57,8 +57,8 @@ public enum FITSImageDecoder: ImageDecoding
         let hdu = try self.imageHDU( in: container.sections )
 
         // A multi-image cube expands into one frame per plane; a truncated cube with
-        // no whole plane present falls back to the single whole-HDU frame, matching
-        // the application's single-source fallback. Everything else is one frame.
+        // no whole plane present falls back to the single whole-HDU frame. Everything
+        // else is one frame.
         guard self.isMultiImageCube( properties: hdu.properties )
         else
         {
@@ -475,10 +475,14 @@ public enum FITSImageDecoder: ImageDecoding
     /// greater than zero, paired with the property snapshots of the section
     /// immediately preceding it.
     ///
+    /// This is the single home for the FITS image-HDU selection rule, so
+    /// ``frames(in:)`` and any consumer navigating a file's sections apply the same
+    /// rule rather than re-deriving it.
+    ///
     /// - Parameter sections: The file's sections, in file order.
     /// - Returns: The HDU's raw bytes and its owning header's property snapshots.
     /// - Throws: ``Error`` when the file contains no image data section.
-    private static func imageHDU( in sections: [ FITSSection ] ) throws -> ( data: Data, properties: [ FITSPropertySnapshot ] )
+    public static func imageHDU( in sections: [ FITSSection ] ) throws -> ( data: Data, properties: [ FITSPropertySnapshot ] )
     {
         guard let dataIndex = sections.firstIndex( where: { $0.kind == .data } ), dataIndex > 0
         else

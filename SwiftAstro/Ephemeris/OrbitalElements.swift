@@ -79,7 +79,7 @@ struct OrbitalElements
             eccentric -= delta
             iteration += 1
 
-            if abs( delta ) < Self.keplerTolerance
+            if Swift.abs( delta ) < Self.keplerTolerance
             {
                 break
             }

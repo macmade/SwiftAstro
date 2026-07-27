@@ -357,7 +357,7 @@ public struct MatchedFilterStarDetector: StarDetecting
             }
 
             let next      = Swift.min( Swift.max( median, 1 ), 40 )
-            let converged = abs( next - fwhm ) <= ( 0.1 * fwhm )
+            let converged = Swift.abs( next - fwhm ) <= ( 0.1 * fwhm )
 
             fwhm = next
 
@@ -427,8 +427,8 @@ public struct MatchedFilterStarDetector: StarDetecting
 
         if let fit = GaussianFit.fit( samples: fitSamples, initialGuess: seed )
         {
-            let sigmaMajor = Swift.max( abs( fit.sigmaX ), abs( fit.sigmaY ) )
-            let sigmaMinor = Swift.min( abs( fit.sigmaX ), abs( fit.sigmaY ) )
+            let sigmaMajor = Swift.max( Swift.abs( fit.sigmaX ), Swift.abs( fit.sigmaY ) )
+            let sigmaMinor = Swift.min( Swift.abs( fit.sigmaX ), Swift.abs( fit.sigmaY ) )
 
             width = Self.fwhmPerSigma * ( sigmaMajor * sigmaMinor ).squareRoot()
         }
@@ -733,14 +733,14 @@ public struct MatchedFilterStarDetector: StarDetecting
         {
             // The fit converged to a physical Gaussian: use its sub-pixel centre
             // and shape (`GaussianFit.fit` already guarantees positive axis widths).
-            let sigmaMajor = Swift.max( abs( fit.sigmaX ), abs( fit.sigmaY ) )
-            let sigmaMinor = Swift.min( abs( fit.sigmaX ), abs( fit.sigmaY ) )
+            let sigmaMajor = Swift.max( Swift.abs( fit.sigmaX ), Swift.abs( fit.sigmaY ) )
+            let sigmaMinor = Swift.min( Swift.abs( fit.sigmaX ), Swift.abs( fit.sigmaY ) )
 
             centerX       = fit.x
             centerY       = fit.y
             fwhmStar      = Self.fwhmPerSigma * ( sigmaMajor * sigmaMinor ).squareRoot()
             eccentricity  = Swift.max( 0, 1 - ( ( sigmaMinor * sigmaMinor ) / ( sigmaMajor * sigmaMajor ) ) ).squareRoot()
-            flux          = 2 * Double.pi * fit.amplitude * abs( fit.sigmaX ) * abs( fit.sigmaY )
+            flux          = 2 * Double.pi * fit.amplitude * Swift.abs( fit.sigmaX ) * Swift.abs( fit.sigmaY )
             hfrBackground = fit.background
         }
         else

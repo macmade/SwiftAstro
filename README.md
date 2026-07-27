@@ -190,7 +190,7 @@ RUN_BENCHMARKS=1 swift test -c release --filter Test_SwiftAstroBenchmarks
 ```
 
 Two files are written to `Docs/Benchmarks/` (override the directory with the
-`FITSCOPE_BENCH_OUT` environment variable): `swiftastro-baseline.json` — the
+`SWIFTASTRO_BENCH_OUT` environment variable): `swiftastro-baseline.json` — the
 machine-diffable source of truth — and `swiftastro-baseline.md` — a
 human-readable table generated from it. Each measurement records min / median /
 max wall-clock timing (the **min** is the least noisy estimate of intrinsic cost)

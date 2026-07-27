@@ -31,8 +31,8 @@ import SwiftPixel
 /// Every supported format — FITS, XISF, camera RAW and photographic — implements
 /// this same set of operations, so a caller reaches a detection image the same
 /// way regardless of which format it holds. The point is not the sharing itself:
-/// it is that the library's star detection and the application's star detection
-/// are then provably fed the *same* bytes, rather than agreeing by coincidence.
+/// it is that the library's own star detection and a consumer's are then provably
+/// fed the *same* bytes, rather than agreeing by coincidence.
 ///
 /// ## What belongs here
 ///

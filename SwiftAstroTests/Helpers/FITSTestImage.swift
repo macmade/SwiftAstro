@@ -33,8 +33,8 @@ import SwiftPixel
 /// This is the FITS counterpart to ``SyntheticStarField``: where that builds
 /// synthetic fixtures, this adapts a real FITS file into the same detector input
 /// type. It locates the committed fixture and decodes it through the library's
-/// own ``FITSImageDecoder`` — the same decode the application uses — so the tests
-/// exercise the shipping FITS path rather than a private copy of it.
+/// own ``FITSImageDecoder``, so the tests exercise the shipping FITS path rather
+/// than a private copy of it.
 enum FITSTestImage
 {
     /// The base name (without extension) of the real one-shot-colour light frame,
@@ -206,8 +206,8 @@ enum FITSTestImage
     /// The M42 462-frame stack mosaic as a detection-ready single-channel image.
     ///
     /// This large frame lives only in the `SwiftFITS` submodule's `Test Files`,
-    /// so it is resolved by path relative to this source file (the same approach
-    /// FITScope uses) rather than copied into this repository or bundled. The
+    /// so it is resolved by path relative to this source file rather than copied
+    /// into this repository or bundled. The
     /// `#filePath` path works under both `swift test` and the Xcode test target.
     static func m42Stack() throws -> PixelBuffer
     {

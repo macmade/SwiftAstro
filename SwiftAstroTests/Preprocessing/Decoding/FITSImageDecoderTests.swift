@@ -30,11 +30,11 @@ import Testing
 
 /// Behavioural tests for ``FITSImageDecoder`` against real committed FITS frames:
 /// the one-shot-colour light frames and the mono reference frame, decoded through
-/// the shared decoder the application also uses.
+/// the shared ``FITSImageDecoder``.
 ///
 /// RGB colour cubes and multi-image cubes are not among the frames committed to
-/// this repository's `Test Files`, so those geometries are covered by the
-/// application's golden detection-image baseline rather than here.
+/// this repository's `Test Files`, so those geometries are exercised by downstream
+/// end-to-end tests rather than here.
 struct FITSImageDecoderTests
 {
     /// Opens a committed FITS capture by file name.

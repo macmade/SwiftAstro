@@ -176,7 +176,7 @@ public struct TwilightEvents: Sendable, Equatable
 
             ut += error / 1.0027
 
-            if abs( error ) < 1e-4
+            if Swift.abs( error ) < 1e-4
             {
                 break
             }

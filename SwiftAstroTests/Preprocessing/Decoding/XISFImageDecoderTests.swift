@@ -31,7 +31,7 @@ import Testing
 /// Behavioural tests for ``XISFImageDecoder``: the properties-based sample decode,
 /// plane extraction, luminance and detection image over synthetic layouts, plus an
 /// end-to-end pass over the committed `S30-M42-Corrected.xisf` capture through the
-/// shared decoder the application also uses.
+/// shared ``XISFImageDecoder``.
 ///
 /// Synthetic bytes exercise the parts that need only a ``XISFImageProperties`` value —
 /// sample format, byte order, planar/interleaved storage — because building a real

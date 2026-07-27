@@ -38,7 +38,7 @@ import Testing
 /// ```
 ///
 /// The baseline is written to `SwiftAstro/Docs/Benchmarks` by default, or to the
-/// directory named by `FITSCOPE_BENCH_OUT` when that variable is set. See the
+/// directory named by `SWIFTASTRO_BENCH_OUT` when that variable is set. See the
 /// "Benchmarks" section of the SwiftAstro README for details.
 struct Test_SwiftAstroBenchmarks
 {

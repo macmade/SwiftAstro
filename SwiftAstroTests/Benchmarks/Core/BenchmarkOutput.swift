@@ -33,9 +33,9 @@ enum BenchmarkOutput
     /// When set to a non-empty path, the baseline is written there instead of the
     /// default location — the mechanism used to capture the baseline into a
     /// plan's folder without coupling the submodule to any superproject layout.
-    static let environmentKey = "FITSCOPE_BENCH_OUT"
+    static let environmentKey = "SWIFTASTRO_BENCH_OUT"
 
-    /// Resolves the output directory: the `FITSCOPE_BENCH_OUT` override if it is
+    /// Resolves the output directory: the `SWIFTASTRO_BENCH_OUT` override if it is
     /// set and non-empty, otherwise `defaultDirectory`.
     ///
     /// A tilde in the override is expanded, so `~/…` works from a shell.
