@@ -36,6 +36,9 @@ import Testing
 /// from bright nebulosity or double-counting the small ones.
 struct BrightStarDetectionTests
 {
+    /// For a 2D Gaussian, FWHM = 2√(2 ln 2)·σ.
+    private static let fwhmPerSigma = 2 * ( 2 * Foundation.log( 2.0 ) ).squareRoot()
+
     /// The planted large, round stars: two saturated, two not.
     private static let bigStars: [ ( x: Double, y: Double, peak: Double, sigma: Double ) ] =
         [
@@ -168,6 +171,75 @@ struct BrightStarDetectionTests
         let field = try MatchedFilterStarDetector().detectStars( in: image )
 
         #expect( field.count == 0 )
+    }
+
+    /// Nebulosity with real stars embedded in it yields the stars and nothing else.
+    ///
+    /// The property under test is that bright gas contributes no detections while
+    /// the compact sources standing on it are all still recovered — including at a
+    /// small detection scale, where the bright pass's minimum-radius cut is too
+    /// small to hide gas fragments behind.
+    ///
+    /// This is **characterization, not a regression guard** for the nebulosity false
+    /// positives observed on the real C6 frames: it passes against the previous
+    /// whole-image background too. Reproducing that defect synthetically needs gas
+    /// that fragments into star-sized components at the threshold, and gas smooth
+    /// enough to write down instead crosses as one sprawling component that the
+    /// oversize cut discards. The real-frame guard is
+    /// `RealFrameValidationTests.estimatesAStellarScaleOnABrightNebulosityFrame`.
+    @Test
+    func doesNotInventStarsFromNebulosityAroundRealOnes() throws
+    {
+        let planted: [ ( x: Double, y: Double ) ] =
+            [
+                ( 300, 300 ), ( 260, 340 ), ( 340, 260 ),
+                ( 380, 380 ), ( 220, 220 ),
+                ( 80, 520 ), ( 520, 80 ),
+            ]
+
+        // The gas is *lumpy*, as real nebulosity is — a sum of overlapping knots on
+        // many scales, not one smooth mound — and the frame is mostly sky, as a real
+        // one is, so the gas sits far above the whole-image median rather than
+        // setting it.
+        let knots: [ ( x: Double, y: Double, peak: Double, sigma: Double ) ] = ( 0 ..< 48 ).map
+        {
+            index -> ( x: Double, y: Double, peak: Double, sigma: Double ) in
+
+            let angle  = Double( index ) * 2.399963
+            let radius = 190.0 * ( Double( index % 7 ) / 6.0 ).squareRoot()
+
+            return (
+                x:     300 + ( radius * Foundation.cos( angle ) ),
+                y:     300 + ( radius * Foundation.sin( angle ) ),
+                peak:  1600 + Double( ( index * 137 ) % 900 ),
+                sigma: 12 + Double( ( index * 53 ) % 17 )
+            )
+        }
+
+        let gas   = knots.reduce( SyntheticStarField( width: 600, height: 600, background: 200 ) ) { $0.addingStar( cx: $1.x, cy: $1.y, peak: $1.peak, sigma: $1.sigma ) }
+        let image = try planted.reduce( gas ) { $0.addingStar( cx: $1.x, cy: $1.y, peak: 9000, sigma: 2 ) }
+            .addingNoise( seed: 21, amplitude: 8 )
+            .image()
+
+        // Pin the scale to the planted stars', so this isolates how the bright pass
+        // thresholds. Left to auto-estimate, an over-sized scale would hide the
+        // fragments behind the pass's minimum-radius cut instead of rejecting them
+        // for what they are, and the test would pass without testing anything.
+        let field = try MatchedFilterStarDetector( configuration: .init( expectedFWHM: 2 * Self.fwhmPerSigma ) ).detectStars( in: image )
+
+        let recovered = planted.filter
+        {
+            planted in
+
+            field.stars.contains { Foundation.hypot( $0.x - planted.x, $0.y - planted.y ) <= 2 }
+        }
+
+        // Every planted star is found, including those sitting on the brightest part
+        // of the gas...
+        #expect( recovered.count == planted.count )
+
+        // ...and the gas itself contributes nothing.
+        #expect( field.count == planted.count )
     }
 
     /// A single normal, bright star is detected exactly once — the bright pass

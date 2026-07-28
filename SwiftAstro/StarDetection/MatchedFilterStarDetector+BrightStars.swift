@@ -46,32 +46,41 @@ extension MatchedFilterStarDetector
     ///
     /// - Parameters:
     ///   - image:         The single-channel linear image.
+    ///   - background:    The frame's background map, supplying the local level and
+    ///                    noise the bright threshold stands on.
     ///   - fwhm:          The matched-filter FWHM, setting the blob size band.
     ///   - minSeparation: The minimum separation, in pixels, below which a bright
     ///                    candidate is treated as the same source as an existing
     ///                    detection.
     ///   - existing:      The stars the matched filter already found.
     /// - Returns: The additional bright stars to append.
-    func brightStars( in image: PixelBuffer, fwhm: Double, minSeparation: Double, excluding existing: [ Star ] ) -> [ Star ]
+    func brightStars( in image: PixelBuffer, background: LocalBackground, fwhm: Double, minSeparation: Double, excluding existing: [ Star ] ) -> [ Star ]
     {
-        let background = PixelUtilities.median( image.pixels ) ?? 0
-        let noise      = ( PixelUtilities.medianAbsoluteDeviation( image.pixels, around: background ) ?? 0 ) * Self.madToSigma
-
-        guard noise > 0
+        guard background.noises.contains( where: { $0 > 0 } )
         else
         {
             return []
         }
 
-        let level     = background + ( self.configuration.brightStarThresholdSigma * noise )
         let minRadius = self.configuration.brightStarMinRadiusFactor * fwhm
         let maxRadius = self.configuration.brightStarMaxRadiusFactor * fwhm
         let minArea   = Double.pi * minRadius * minRadius
         let maxArea   = Double.pi * maxRadius * maxRadius
 
-        let candidates = Self.brightComponents( in: image, level: level, maxSamples: Int( maxArea.rounded( .up ) ) ).compactMap
+        // Grow the blobs above the *local* level. Against a single global level a
+        // flat patch of bright nebulosity clears the threshold everywhere at once,
+        // and the noise riding on it fragments that patch into round, PSF-sized
+        // blobs that pass every remaining purity cut — the nebulosity false
+        // positives this pass is otherwise prone to. Measured against the local
+        // level, the same gas is background and only what genuinely stands above its
+        // own surroundings survives to be measured.
+        let candidates = Self.brightComponents( in: image, maxSamples: Int( maxArea.rounded( .up ) ) )
         {
-            self.measureBright( component: $0, in: image, background: background, noise: noise, fwhm: fwhm, minArea: minArea )
+            background.threshold( atX: Double( $0 % image.width ), y: Double( $0 / image.width ), sigmas: self.configuration.brightStarThresholdSigma )
+        }
+        .compactMap
+        {
+            self.measureBright( component: $0, in: image, background: background, fwhm: fwhm, minArea: minArea )
         }
 
         return self.merge( candidates, into: existing, minSeparation: minSeparation )
@@ -90,16 +99,27 @@ extension MatchedFilterStarDetector
     /// - Returns: The measured star, or `nil` if the blob is too small, saturated
     ///   (when ``Configuration/saturationLevel`` is set), too elongated, or clipped
     ///   by the edge.
-    private func measureBright( component: [ ( x: Double, y: Double, value: Double ) ], in image: PixelBuffer, background: Double, noise: Double, fwhm: Double, minArea: Double ) -> Star?
+    private func measureBright( component: [ ( x: Double, y: Double, value: Double ) ], in image: PixelBuffer, background: LocalBackground, fwhm: Double, minArea: Double ) -> Star?
     {
         // Detection: decide star-or-not from the detection footprint against the
-        // global background. Size and position are gated here on the detection
-        // footprint; the roundness cut, however, is applied after refinement to the
-        // refined eccentricity that is actually reported (CR-5), so the emitted star
-        // can never be less round than its own limit.
+        // background map, read at the blob's own centre. Size and position are gated
+        // here on the detection footprint; the roundness cut, however, is applied
+        // after refinement to the refined eccentricity that is actually reported
+        // (CR-5), so the emitted star can never be less round than its own limit.
+        guard component.isEmpty == false
+        else
+        {
+            return nil
+        }
+
+        let centreX = component.reduce( 0.0 ) { $0 + $1.x } / Double( component.count )
+        let centreY = component.reduce( 0.0 ) { $0 + $1.y } / Double( component.count )
+        let level   = background.level( atX: centreX, y: centreY )
+        let noise   = background.noise( atX: centreX, y: centreY )
+
         guard Double( component.count ) >= minArea,
               let peak = component.map( { $0.value } ).max(),
-              let base = StarMoments( samples: component, background: background )
+              let base = StarMoments( samples: component, background: level )
         else
         {
             return nil
@@ -141,7 +161,7 @@ extension MatchedFilterStarDetector
         { let d = Foundation.hypot( $0.x - base.x, $0.y - base.y )
             return d > aperture && d <= skyOuter
         }
-        let local       = PixelUtilities.median( skySamples.map { $0.value } ) ?? background
+        let local       = PixelUtilities.median( skySamples.map { $0.value } ) ?? level
 
         // Optional local-contrast cut (disabled by default): reject a blob whose
         // peak does not stand above its local background — a knot of bright
@@ -154,8 +174,8 @@ extension MatchedFilterStarDetector
         }
 
         // Size against the sky-annulus background so a nebula pedestal beneath the
-        // star is not counted as its flux. Fall back to the global background if the
-        // local level leaves no positive flux to measure, so a star on bright
+        // star is not counted as its flux. Fall back to the mapped background level
+        // if the annulus leaves no positive flux to measure, so a star on bright
         // nebulosity is re-sized, never dropped.
         let refined:           StarMoments
         let refinedBackground: Double
@@ -165,27 +185,35 @@ extension MatchedFilterStarDetector
             refined           = localMoments
             refinedBackground = local
         }
-        else if let globalMoments = StarMoments( samples: coreSamples, background: background )
+        else if let mappedMoments = StarMoments( samples: coreSamples, background: level )
         {
-            refined           = globalMoments
-            refinedBackground = background
+            refined           = mappedMoments
+            refinedBackground = level
         }
         else
         {
             refined           = base
-            refinedBackground = background
+            refinedBackground = level
         }
 
         let hfr = StarMoments.halfFluxRadius( samples: coreSamples, background: refinedBackground, aroundX: refined.x, y: refined.y, withinRadius: StarMoments.hfrApertureRadiusFactor * refined.fwhm )
 
-        // Count the distinct stellar peaks the blob is built from, above the same
-        // local noise floor that formed it. A genuine star — however large or bright
-        // — is a single peak; a blended pair or a crowded cluster core (a globular,
-        // say) is several, measured together as one broad source with inflated
-        // metrics. This discriminates on structure, not size, so a genuinely large
-        // single star is kept however broad it is, while a multi-star clump measured
-        // as one giant spurious "star" is dropped.
-        let peakLevel = local + ( self.configuration.brightStarThresholdSigma * noise )
+        // Count the distinct stellar peaks the blob is built from. A genuine star —
+        // however large or bright — is a single peak; a blended pair or a crowded
+        // cluster core (a globular, say) is several, measured together as one broad
+        // source with inflated metrics. This discriminates on structure, not size, so
+        // a genuinely large single star is kept however broad it is, while a
+        // multi-star clump measured as one giant spurious "star" is dropped.
+        //
+        // The peaks are counted against the *mapped sky*, not the sky annulus that
+        // sets the photometry. The two answer different questions, and conflating
+        // them blinds this cut exactly where it is needed most: for a blob inside a
+        // nebula core the annulus is itself on bright gas, so it lands the counting
+        // level just under the saturation ceiling and no peak can be seen at all —
+        // a cluster core then reports as one giant star. The annulus remains right
+        // for photometry, where the gas pedestal genuinely is this source's
+        // background; "how many stars are in here?" is asked relative to sky.
+        let peakLevel = level + ( self.configuration.brightStarThresholdSigma * noise )
         let peaks     = MatchedFilterStarDetector.peakCount( around: refined.x, y: refined.y, radius: aperture, above: peakLevel, in: image )
 
         // Reject a degenerate or non-round measurement, or a multi-peak blend. A
@@ -248,11 +276,13 @@ extension MatchedFilterStarDetector
     ///
     /// - Parameters:
     ///   - image:      The single-channel image.
-    ///   - level:      The value a pixel must exceed to belong to a component.
     ///   - maxSamples: The largest component, in pixels, to collect; larger ones
     ///                 are discarded.
+    ///   - level:      The value a pixel at a given index must exceed to belong to a
+    ///                 component — position-dependent, so the threshold follows the
+    ///                 local background rather than one global level.
     /// - Returns: The collected components, each a list of samples.
-    private static func brightComponents( in image: PixelBuffer, level: Double, maxSamples: Int ) -> [ [ ( x: Double, y: Double, value: Double ) ] ]
+    private static func brightComponents( in image: PixelBuffer, maxSamples: Int, level: ( Int ) -> Double ) -> [ [ ( x: Double, y: Double, value: Double ) ] ]
     {
         let width   = image.width
         let height  = image.height
@@ -263,7 +293,7 @@ extension MatchedFilterStarDetector
         {
             start in
 
-            guard visited[ start ] == false, image.pixels[ start ] > level
+            guard visited[ start ] == false, image.pixels[ start ] > level( start )
             else
             {
                 return
@@ -275,7 +305,7 @@ extension MatchedFilterStarDetector
 
             while let current = stack.popLast()
             {
-                guard visited[ current ] == false, image.pixels[ current ] > level
+                guard visited[ current ] == false, image.pixels[ current ] > level( current )
                 else
                 {
                     continue

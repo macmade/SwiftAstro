@@ -46,6 +46,13 @@ enum FITSTestImage
     /// (`m35_40min_blue.fits`): a clean, non-mosaiced single-channel star field.
     static let esaM35BlueFrameName = "m35_40min_blue"
 
+    /// The base name (without extension) of a single Celestron C6 / ZWO ASI585MC
+    /// light frame of M42 (`C6-ASI585-M42-Light.fits`): a one-shot-colour sub over
+    /// the Orion nebula's bright core. Its large area of bright gas is the fixture
+    /// for nebulosity false positives — the case a global detection threshold
+    /// fragments into spurious star-shaped blobs.
+    static let c6ASI585M42FrameName = "C6-ASI585-M42-Light"
+
     /// The base name (without extension) of a single, short ZWO Seestar S30 light
     /// frame of M42 under light pollution (`Light_M 42_10.0s_LP_20260101-234803.fit`):
     /// a 10 s, 16-bit, `GRBG` one-shot-colour sub whose faint, low-SNR stars over
@@ -193,6 +200,14 @@ enum FITSTestImage
     static func esaM35BlueDetection() throws -> PixelBuffer
     {
         try self.detection( contentsOf: try self.url( resource: self.esaM35BlueFrameName ) )
+    }
+
+    /// The Celestron C6 / ASI585MC M42 sub, demosaiced to a detection-ready
+    /// grayscale image — the bright-nebulosity frame the detector must not invent
+    /// stars from.
+    static func c6ASI585M42Detection() throws -> PixelBuffer
+    {
+        try self.detection( contentsOf: try self.url( resource: self.c6ASI585M42FrameName ) )
     }
 
     /// The single short Seestar S30 M42 sub, demosaiced to a detection-ready

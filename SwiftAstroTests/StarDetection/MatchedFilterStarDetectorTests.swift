@@ -195,18 +195,226 @@ struct MatchedFilterStarDetectorTests
         #expect( estimated < 2.0 * Self.fwhmPerSigma * sigma )
     }
 
-    /// The FWHM bootstrap reads its background from the window's outer annulus, not
-    /// the whole window (IMP-12). A bright star's core fills the fixed radius-10
-    /// bootstrap window, so a whole-window median reads the star itself as
-    /// "background", lands the footprint level inside the core, and sizes the star
-    /// well below its true scale. The annulus reads true sky beyond the core, so
-    /// these bright, window-filling stars size to a larger, more stellar FWHM.
+    /// A dense field of small stars carrying a few bright, bloomed ones is detected
+    /// at the small population's scale, not at the bloomed stars' scale.
+    ///
+    /// This is the shape of a real cluster frame: a long exposure grows the handful
+    /// of brightest stars into broad, saturated blooms several times the size of the
+    /// field's typical star. A scale that reads the bloom width instead of the
+    /// population's makes the matched filter and its size-band purity cut reject the
+    /// whole real population.
+    ///
+    /// This is **characterization, not a regression guard** for the dense-field
+    /// collapse: it passes against the previous scale estimate too, which took the
+    /// median of a bounded sample of the brightest peaks and so needed a majority of
+    /// that sample to be bloomed before it ran away. Sizing a fixture to that bound
+    /// would be encoding a removed implementation detail. The real-frame guard is
+    /// `RealFrameValidationTests.detectsWellFormedStarsInTheM35Cluster`.
+    @Test
+    func detectsThePopulationOfADenseFieldWithBloomedBrightStars() throws
+    {
+        let sigma   = 1.2
+        let planted: [ ( x: Double, y: Double, peak: Double ) ] = ( 0 ..< 34 ).flatMap
+        {
+            row -> [ ( x: Double, y: Double, peak: Double ) ] in
+
+            ( 0 ..< 34 ).map
+            {
+                column -> ( x: Double, y: Double, peak: Double ) in
+
+                let x = 10.0 + ( Double( column ) * 8.0 )
+                let y = 10.0 + ( Double( row ) * 8.0 )
+
+                return ( x: x, y: y, peak: ( ( row + column ) % 4 == 0 ) ? 9000 : 3000 )
+            }
+        }
+
+        // The bloomed giants: far brighter than the field, and saturating, so they
+        // dominate any "measure the brightest peaks" estimate.
+        let bloomed: [ ( x: Double, y: Double ) ] =
+            [
+                ( 60, 60 ), ( 150, 60 ), ( 240, 60 ),
+                ( 60, 150 ), ( 240, 150 ),
+                ( 60, 240 ), ( 150, 240 ), ( 240, 240 ),
+            ]
+
+        let small = planted.reduce( SyntheticStarField( width: 300, height: 300, background: 200 ) )
+        {
+            $0.addingStar( cx: $1.x, cy: $1.y, peak: $1.peak, sigma: sigma )
+        }
+
+        let image = try bloomed.reduce( small ) { $0.addingStar( cx: $1.x, cy: $1.y, peak: 150_000, sigma: 6 ) }
+            .saturating( at: 60000 )
+            .addingNoise( seed: 22, amplitude: 8 )
+            .image()
+
+        let field = try MatchedFilterStarDetector().detectStars( in: image )
+
+        // The great majority of the planted field, not the few dozen an inflated
+        // scale leaves behind.
+        #expect( field.count >= ( planted.count * 8 ) / 10 )
+
+        let measured = try #require( field.medianFWHM )
+
+        #expect( Swift.abs( measured - ( Self.fwhmPerSigma * sigma ) ) < 0.3 * Self.fwhmPerSigma * sigma )
+    }
+
+    /// Builds a field of identical broad, defocused stars on a 5×5 lattice.
+    ///
+    /// - Parameter sigma: The stars' Gaussian sigma, in pixels.
+    /// - Returns: The planted centres and the rendered image.
+    private func defocusedField( sigma: Double ) throws -> ( planted: [ ( x: Double, y: Double ) ], image: PixelBuffer )
+    {
+        let planted: [ ( x: Double, y: Double ) ] = ( 0 ..< 5 ).flatMap
+        {
+            row -> [ ( x: Double, y: Double ) ] in
+
+            ( 0 ..< 5 ).map
+            {
+                column -> ( x: Double, y: Double ) in
+
+                let x = 80.0 + ( Double( column ) * 110.0 )
+                let y = 80.0 + ( Double( row ) * 110.0 )
+
+                return ( x: x, y: y )
+            }
+        }
+
+        let base  = SyntheticStarField( width: 640, height: 640, background: 300 )
+        let image = try planted.reduce( base ) { $0.addingStar( cx: $1.x, cy: $1.y, peak: 20000, sigma: sigma ) }
+            .addingNoise( seed: 31, amplitude: 13 )
+            .image()
+
+        return ( planted: planted, image: image )
+    }
+
+    /// How many of a planted field's stars a detection recovered.
+    ///
+    /// - Parameters:
+    ///   - planted: The planted centres.
+    ///   - field:   The detected field.
+    ///   - within:  How far, in pixels, a detection may sit from a planted centre.
+    /// - Returns: The number of planted stars matched.
+    private func recovered( _ planted: [ ( x: Double, y: Double ) ], in field: StarField, within: Double ) -> Int
+    {
+        planted.filter
+        {
+            planted in
+
+            field.stars.contains { Foundation.hypot( $0.x - planted.x, $0.y - planted.y ) <= within }
+        }
+        .count
+    }
+
+    /// A crowded field of moderately-sized stars is detected at its own scale — the
+    /// widening that rescues a broad star must not fire here.
+    ///
+    /// The scale bootstrap sizes each bright star over a window. When a star is
+    /// broader than that window its footprint is cut off and sizes small, so the
+    /// window has to widen. But widening on a *crowded* field does the opposite of a
+    /// correction: the wider window reaches into the neighbours, merges them, and
+    /// drives the scale up, at which point the size-band purity cut rejects the whole
+    /// real population. These stars are ~5.9 px on a ~13 px lattice — comfortably
+    /// inside the window, so nothing is clipped and nothing needs widening.
+    @Test
+    func detectsACrowdedFieldOfModerateStars() throws
+    {
+        let sigma   = 2.5
+        let planted: [ ( x: Double, y: Double ) ] = ( 0 ..< 20 ).flatMap
+        {
+            row -> [ ( x: Double, y: Double ) ] in
+
+            ( 0 ..< 20 ).map
+            {
+                column -> ( x: Double, y: Double ) in
+
+                let x = 176.0 + ( Double( column ) * 13.0 )
+                let y = 176.0 + ( Double( row ) * 13.0 )
+
+                return ( x: x, y: y )
+            }
+        }
+
+        let base  = SyntheticStarField( width: 600, height: 600, background: 1000 )
+        let image = try planted.reduce( base ) { $0.addingStar( cx: $1.x, cy: $1.y, peak: 30000, sigma: sigma ) }
+            .addingNoise( seed: 41, amplitude: 10 )
+            .image()
+
+        let field = try MatchedFilterStarDetector().detectStars( in: image )
+
+        #expect( field.count >= ( planted.count * 9 ) / 10 )
+
+        let measured = try #require( field.medianFWHM )
+
+        #expect( Swift.abs( measured - ( Self.fwhmPerSigma * sigma ) ) < 0.3 * Self.fwhmPerSigma * sigma )
+    }
+
+    /// Broad, defocused stars are detected — the case where a source is comparable
+    /// to the background map's own tile.
+    ///
+    /// The map's per-tile median and MAD only describe *sky* while the sources
+    /// occupy a minority of a tile. A defocused frame — exactly what an autofocus
+    /// run produces, and this library reports HFR for focusing — breaks that: a star
+    /// tens of pixels across can fill a whole tile, so the tile's statistics measure
+    /// the star instead. The inflated tile noise then drives every threshold above
+    /// the star itself, no peak can be sized, the scale estimate collapses to its
+    /// default, and the size band throws the whole frame away. Worse, whether a
+    /// given star survives depends on where it happens to fall on the fixed mesh, so
+    /// results would not even be repeatable across dithered subs.
+    @Test
+    func detectsBroadDefocusedStars() throws
+    {
+        let ( planted, image ) = try self.defocusedField( sigma: 14 )
+        let field              = try MatchedFilterStarDetector().detectStars( in: image )
+
+        #expect( self.recovered( planted, in: field, within: 4 ) == planted.count )
+    }
+
+    /// Stars far broader still — deep enough into defocus to swamp the *default*
+    /// background tile — are detected, and measured at something like their true
+    /// size rather than as a scatter of fragments.
+    ///
+    /// The mesh's rescue of a source that fills its own tile has a ceiling, and past
+    /// it the failure is silent rather than loud: the detector reports stars, but
+    /// each defocused disc breaks into small pieces whose half-flux radius is a
+    /// fraction of the truth. A focus routine reading that HFR would be steered by a
+    /// number with no relation to the focus position, which is worse than no reading
+    /// at all. The tile therefore has to grow with the stars it finds.
+    @Test
+    func detectsAndSizesDeeplyDefocusedStars() throws
+    {
+        let sigma              = 20.0
+        let ( planted, image ) = try self.defocusedField( sigma: sigma )
+        let field              = try MatchedFilterStarDetector().detectStars( in: image )
+
+        #expect( self.recovered( planted, in: field, within: 6 ) >= planted.count - 1 )
+
+        // A Gaussian's half-flux radius is σ√(π/2); fragments read a small fraction
+        // of it, so this bound separates a real measurement from a shattered one.
+        let expectedHFR = sigma * ( Double.pi / 2 ).squareRoot()
+        let medianHFR   = try #require( field.medianHFR )
+
+        #expect( medianHFR > 0.6 * expectedHFR )
+        #expect( medianHFR < 1.6 * expectedHFR )
+    }
+
+    /// The FWHM bootstrap sizes bright, window-filling stars correctly, from a sky
+    /// annulus that clears the star.
+    ///
+    /// Two things have to hold. The background must be read from the window's outer
+    /// annulus rather than the whole window (IMP-12): a bright star's core fills the
+    /// window, so a whole-window median reads the star itself as "background", lands
+    /// the footprint level inside the core, and sizes the star well below its true
+    /// scale. And the window must be wide enough for that annulus to sit *outside*
+    /// the star: a star broader than the first-pass window has its footprint clipped
+    /// by that window, and the second pass re-measures it over a window scaled to
+    /// the first estimate.
     @Test
     func bootstrapSizesBrightWindowFillingStarsFromTheSkyAnnulus() throws
     {
-        // Bright stars whose above-noise skirt reaches past the fixed radius-10
-        // bootstrap window, so a whole-window background read is inflated by the
-        // star's own flux.
+        // Bright stars whose above-noise skirt reaches well past the first-pass
+        // radius-10 bootstrap window, so a whole-window background read is inflated
+        // by the star's own flux and a single fixed-window pass clips the footprint.
         let places: [ ( x: Double, y: Double ) ] =
             [
                 ( 60, 60 ), ( 150, 60 ), ( 240, 60 ),
@@ -221,14 +429,14 @@ struct MatchedFilterStarDetectorTests
 
         let estimated = try #require( MatchedFilterStarDetector.estimateFWHM( in: image ) )
 
-        // The annulus read sizes these ~8.6 px; a whole-window read reads the cores
-        // as background and shrinks the footprint, sizing them ~7.6 px. The bound
-        // sits between the two, guarding the annulus-sky robustness. Both under-size
-        // the planted 14.1 px because the fixed bootstrap window clips the footprint
-        // — the refinement corrects that downstream; the bootstrap only needs a
-        // sound seed, which the whole-window read under-delivers here.
-        #expect( estimated > 8.0 )
-        #expect( estimated < 12 )
+        // The bootstrap recovers the planted 14.1 px scale (measured: 13.6, −3.5 %).
+        // The band is set at 15 % to leave room for the crowding in this fixture,
+        // but the two failure modes it has to catch land far outside it anyway: a
+        // whole-window background read sizes these ~7.6 px, and a single fixed
+        // radius-10 pass — whose annulus falls inside a star this broad — sizes them
+        // ~8.6 px. There is no downstream correction left to lean on, so the
+        // bootstrap must be right here, not merely a sound seed.
+        #expect( Swift.abs( estimated - ( Self.fwhmPerSigma * 6 ) ) < 0.15 * Self.fwhmPerSigma * 6 )
     }
 
     /// A manual FWHM override bypasses auto-estimation and still detects stars.

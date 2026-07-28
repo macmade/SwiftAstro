@@ -79,10 +79,31 @@ struct RealFrameValidationTests
 
         // The headline assertion: median HFR ≈ the reported 3.69 px.
         #expect( Swift.abs( medianHFR - Self.reportedHFR ) <= Self.hfrTolerance * Self.reportedHFR )
+
+        // No detection is grossly wider than the population it sits in. This frame
+        // covers the Orion nebula, and its core is the hard case for the bright-star
+        // pass: a saturated cluster of stars on gas so bright that the sky annulus
+        // used for photometry lies *inside* the nebulosity. Counting the blob's
+        // stellar peaks against that annulus puts the counting level within a few
+        // hundred ADU of the saturation ceiling, so no peak is visible, the
+        // multiplicity cut cannot fire, and the whole core is reported as one giant
+        // "star" — it measured HFR 13.8 against this frame's 4.0 median. Counting
+        // against the mapped sky instead sees its eight peaks and drops it.
+        let widest = try #require( field.stars.map { $0.hfr }.max() )
+
+        #expect( widest < 2 * Self.reportedHFR )
     }
 
-    /// In the rich M35 star cluster the detector finds a plausible population of
-    /// well-formed stars with a stellar — not sub-pixel-noise — median HFR.
+    /// In the rich M35 star cluster the detector finds the cluster's *population* of
+    /// well-formed stars, with a stellar — not sub-pixel-noise — median HFR.
+    ///
+    /// This crop is the dense-field regression fixture. The detection scale decides
+    /// how many stars survive here: sized from the frame's bloomed brightest stars
+    /// it reads ~15 px against a true ~3 px, and the matched filter's kernel and
+    /// size-band cut then reject essentially the entire cluster — this crop returned
+    /// **29** stars where it holds several hundred. Grounding the scale in the local
+    /// background instead recovers them, so the count bound below is deliberately
+    /// far above what the collapsed behaviour could reach.
     @Test
     func detectsWellFormedStarsInTheM35Cluster() throws
     {
@@ -90,9 +111,14 @@ struct RealFrameValidationTests
         let image = try FITSTestImage.crop( full, x: ( full.width - 512 ) / 2, y: ( full.height - 512 ) / 2, width: 512, height: 512 )
         let field = try MatchedFilterStarDetector().detectStars( in: image )
 
-        #expect( field.count >= 5 )
+        #expect( field.count >= 200 )
 
-        let medianHFR = try #require( field.medianHFR )
+        let medianFWHM = try #require( field.medianFWHM )
+        let medianHFR  = try #require( field.medianHFR )
+
+        // The population's own scale — a few pixels — not the bloomed bright stars'.
+        #expect( medianFWHM > 2 )
+        #expect( medianFWHM < 5 )
 
         // A stellar, not sub-pixel-noise, median. The upper bound is a "not blown
         // up" sanity guard, loosened from the pre-rewrite value: the NINA half-flux
@@ -140,6 +166,30 @@ struct RealFrameValidationTests
         #expect( medianFWHM < 12 )
         #expect( medianEcc >= 0 )
         #expect( medianEcc <= 1 )
+    }
+
+    /// On a real frame dominated by bright nebulosity the auto-estimated detection
+    /// scale still describes the frame's stars.
+    ///
+    /// This is the failure a global background produces at its starkest. Over this
+    /// C6 / ASI585 M42 sub, 4.8% of the pixels sit above the whole-image
+    /// `median + 10σ`, so the scale bootstrap's "brightest stars" scan returns
+    /// **24 137** peaks — noise ripples riding on the gas — on a frame holding a few
+    /// dozen stars. Their slivers of footprint sized the frame at **1.99 px** against
+    /// a true ~7.8 px, which both starves the matched filter's size band and, at that
+    /// scale, lets the bright pass fragment the gas into scores of spurious "stars".
+    /// Measured against the local background the gas is background, and the scale
+    /// comes back to the stars.
+    @Test
+    func estimatesAStellarScaleOnABrightNebulosityFrame() throws
+    {
+        let image     = try FITSTestImage.c6ASI585M42Detection()
+        let estimated = try #require( MatchedFilterStarDetector.estimateFWHM( in: image ) )
+
+        // The frame's own star population reads ~7.8 px; the bound brackets it well
+        // clear of the ~2 px a nebulosity-poisoned estimate returns.
+        #expect( estimated > 5 )
+        #expect( estimated < 11 )
     }
 
     /// Over M42's bright core the matched filter does not latch onto the

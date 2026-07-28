@@ -43,6 +43,22 @@ import SwiftPixel
 /// sub-exposures — it often fails to converge, so the robust footprint-moment
 /// measurement stands in for it rather than the star being dropped.
 ///
+/// The two decisions taken over the **whole frame at once** — the scale estimate
+/// and the bright pass's blob threshold — are measured against a
+/// **spatially-varying** ``LocalBackground`` rather than one whole-image level and
+/// noise. On a frame carrying large-area structure (nebulosity, light pollution,
+/// vignetting) a global pair puts a wide swathe of the frame many sigmas above the
+/// median, which both poisons the scale estimate and turns a bright patch of gas
+/// into a scatter of spurious detections.
+///
+/// The two decisions that are *already* local need no map: the matched filter's own
+/// gate is a threshold on the convolved response, and a zero-sum filter has removed
+/// the smooth background before that threshold is applied; and a candidate's
+/// footprint level comes from its own measurement window. Measurement stays on the
+/// raw samples throughout — the one place a mapped value is reported is the bright
+/// pass, where the mapped level stands in as the photometric zero for a blob whose
+/// sky annulus yields no measurable flux.
+///
 /// The matched-filter scale is auto-estimated from the image's brightest stars
 /// unless a ``Configuration/expectedFWHM`` override is set. The detector optimizes
 /// for purity — it would rather miss a faint star than report a false one — with
@@ -69,10 +85,10 @@ public struct MatchedFilterStarDetector: StarDetecting
         /// leaving the faint-star detections untouched.
         public var detectsBrightStars: Bool
 
-        /// How many noise sigmas above the background a pixel must exceed to belong
-        /// to a bright blob in the bright-star pass. Higher isolates only the very
-        /// brightest sources; lower lets the pass reach dimmer, larger stars — at
-        /// the cost of admitting more nebulosity and noise.
+        /// How many noise sigmas above the **local** background a pixel must exceed
+        /// to belong to a bright blob in the bright-star pass. Higher isolates only
+        /// the very brightest sources; lower lets the pass reach dimmer, larger
+        /// stars — at the cost of admitting more nebulosity and noise.
         public var brightStarThresholdSigma: Double
 
         /// The smallest bright-blob radius, as a multiple of the matched-filter
@@ -192,20 +208,50 @@ public struct MatchedFilterStarDetector: StarDetecting
     /// The factor converting a median absolute deviation to a robust standard
     /// deviation, sourced from the shared
     /// ``SwiftPixel/PixelUtilities/madStandardDeviationScale`` so the detector,
-    /// ``SignalToNoise`` and ``SkyBackground`` all use one value and cannot drift.
-    /// Internal (like ``neighborOffsets``) so the bright-star extension shares it.
-    static let madToSigma = PixelUtilities.madStandardDeviationScale
+    /// ``SignalToNoise``, ``SkyBackground`` and ``LocalBackground`` all use one
+    /// value and cannot drift.
+    private static let madToSigma = PixelUtilities.madStandardDeviationScale
 
     /// The FWHM used when auto-estimation finds no stars to size.
     private static let defaultFWHM = 3.0
 
-    /// How many noise sigmas above the background the FWHM bootstrap thresholds
-    /// at, to isolate only the brightest, unambiguous stars.
+    /// How many noise sigmas above the local background the FWHM bootstrap
+    /// thresholds at, to isolate only the brightest, unambiguous stars.
     private static let bootstrapSigma = 10.0
 
-    /// The half-size, in pixels, of the window the FWHM bootstrap measures each
-    /// bright star over.
+    /// The half-size, in pixels, of the window the FWHM bootstrap first measures
+    /// each bright star over.
     private static let bootstrapWindowRadius = 10
+
+    /// The bootstrap's second-pass window half-size, as a multiple of the first
+    /// pass's measured FWHM.
+    ///
+    /// A bright star's footprint — the patch standing `footprintSigma` above the
+    /// sky — reaches `σ·√(2 ln(A / 3σ_noise))`, about `1.6 × FWHM` for a peak a
+    /// thousand times the noise. The sky annulus starts at `0.65 ×` the window, so
+    /// the window must be at least `1.6 / 0.65 ≈ 2.5 × FWHM` for that annulus to
+    /// clear the star. Any less and the "sky" is read on the star's own skirt,
+    /// which raises the footprint level, clips the footprint, and sizes the star
+    /// small — the very error this second pass exists to correct.
+    private static let bootstrapWindowScale = 2.5
+
+    /// The largest half-size, in pixels, the bootstrap's second-pass window may
+    /// reach, bounding the per-star cost on a frame of very broad sources.
+    ///
+    /// This caps accuracy as well as cost. By ``bootstrapWindowScale``'s derivation
+    /// the sky annulus only clears the star while the window is at least `2.5 ×` the
+    /// FWHM, so past a FWHM of about `16` px the annulus re-enters the skirt and the
+    /// second pass under-sizes again — measured, a `33` px star reads `18.8`.
+    ///
+    /// The *scale* being short does not stop detection, because the size band is
+    /// generous relative to that error, but it does bound how far into defocus the
+    /// detector remains useful. Measured on synthetic discs: at a true FWHM of `33`
+    /// px every star is found and reported at `33.0`; at `47` px they are all found
+    /// and reported at `32`, with a half-flux radius `29 %` short; at `59` px the
+    /// count starts to fall; beyond about `70` px detection collapses. A focus
+    /// routine sweeping through defocus should treat readings past ~`50` px FWHM as
+    /// a lower bound rather than a measurement.
+    private static let bootstrapWindowMaxRadius = 40
 
     /// The number of noise multiples above the local background a pixel must exceed
     /// to belong to a star's connected footprint.
@@ -250,7 +296,17 @@ public struct MatchedFilterStarDetector: StarDetecting
             return StarField( stars: [] )
         }
 
-        let fwhm     = self.configuration.expectedFWHM.map { Swift.max( $0, 1 ) } ?? Self.refinedFWHM( in: image, configuration: self.configuration )
+        // Measure the background *map*, and let every detection decision below read
+        // it locally. A single global median / MAD pair describes a frame with
+        // large-area structure — nebulosity, light pollution, vignetting — so badly
+        // that the scale estimate itself is wrong by several fold on such frames
+        // (see ``LocalBackground``); everything downstream then inherits that error.
+        guard let ( background, fwhm ) = Self.scale( of: image, configuration: self.configuration )
+        else
+        {
+            return StarField( stars: [] )
+        }
+
         let sigma    = fwhm / Self.fwhmPerSigma
         let kernel   = GaussianKernel( sigma: sigma )
         let response = Convolution.zeroSumResponse( of: image, kernel: kernel )
@@ -280,164 +336,131 @@ public struct MatchedFilterStarDetector: StarDetecting
             return StarField( stars: stars )
         }
 
-        let bright = self.brightStars( in: image, fwhm: fwhm, minSeparation: minSeparation, excluding: stars )
+        let bright = self.brightStars( in: image, background: background, fwhm: fwhm, minSeparation: minSeparation, excluding: stars )
 
         return StarField( stars: stars + bright )
     }
 
     // MARK: - FWHM auto-estimation
 
-    /// The largest number of candidate peaks the FWHM refinement measures — a bound
-    /// so a rich, many-megapixel frame costs the same as a modest one.
-    private static let refinementSampleSize = 120
-
-    /// The smallest ``sampleWidth`` window radius, in pixels, independent of the
-    /// current FWHM estimate. It keeps the sky annulus clear of a large or
-    /// saturated star's core even when the bootstrap scale is badly underestimated,
-    /// so the refinement can climb out of a too-small starting point instead of
-    /// stalling because every sample's window falls inside its own star.
-    private static let sampleWidthMinRadius = 8
-
-    /// Refines the matched-filter scale by grounding it in the widths of the stars
-    /// the frame actually contains, rather than the brightest-peak bootstrap alone.
+    /// The smallest background tile, as a multiple of the stellar FWHM, at which the
+    /// mesh still describes sky rather than the stars sitting on it.
     ///
-    /// The bootstrap (``estimateFWHM(in:)``) sizes a handful of bright peaks, and on
-    /// awkward frames — a dense, drizzled master of tiny stars; a nebula sub whose
-    /// bright peaks are bloated — it can miss the true scale several-fold, which then
-    /// makes the size-band purity cut reject the whole real star population.
+    /// A tile is measured by its own median and MAD, so it reports sky only while
+    /// stars are a minority of it. Measured against a synthetic defocused field, a
+    /// tile holds up to roughly `0.7 ×` its edge in FWHM at the mesh interior and
+    /// `0.5 ×` at a mesh corner (where the median filter's edge clamp weakens it);
+    /// `3` sits beyond the corner case with margin.
+    private static let backgroundTileScale = 3.0
+
+    /// The largest background tile, in pixels, the widening search will try. At this
+    /// point the mesh is coarse enough that it no longer follows sky structure
+    /// usefully, so widening further trades the map's whole purpose for a scale
+    /// estimate.
+    private static let backgroundMaxTileSize = 512
+
+    /// The background map to detect against, and the matched-filter scale to detect
+    /// at — resolved together, because each constrains the other.
     ///
-    /// This finds candidate star peaks once (a single matched-filter pass at the
-    /// bootstrap scale, which is sensitive enough to surface them), then takes a
-    /// bounded sample and re-measures their median width over a window that grows
-    /// with the estimate, iterating until it settles. The window converging on the
-    /// true scale is what lets a badly-off bootstrap recover, and sampling keeps the
-    /// cost flat — no repeated full detections.
+    /// The mesh only describes sky while the sources are a minority of a tile, and
+    /// how large the sources are is exactly what the scale estimate is for. A
+    /// heavily defocused frame — which an autofocus run produces by design, and this
+    /// library reports HFR for — breaks that circle: its stars can fill a whole
+    /// default tile, the mesh then measures the stars, every threshold rises above
+    /// them, and the scale estimate collapses to its default while the detector goes
+    /// on to report confidently wrong widths for the fragments it finds.
+    ///
+    /// So the tile widens until it is comfortably larger than the stars it has
+    /// measured. A frame of ordinary stars settles on the first tile and pays for
+    /// exactly one map, as before; only a frame that cannot be resolved at the
+    /// default tile pays for another.
     ///
     /// - Parameters:
     ///   - image:         The single-channel image.
-    ///   - configuration: The detector's configuration (for the detection threshold).
-    /// - Returns: The refined FWHM, in pixels, at least `1`.
-    private static func refinedFWHM( in image: PixelBuffer, configuration: Configuration ) -> Double
+    ///   - configuration: The detection parameters, for the ``Configuration/expectedFWHM``
+    ///                    override.
+    /// - Returns: The map and the scale, or `nil` when the image yields no
+    ///   measurable background at all.
+    private static func scale( of image: PixelBuffer, configuration: Configuration ) -> ( background: LocalBackground, fwhm: Double )?
     {
-        var fwhm = Swift.max( Self.estimateFWHM( in: image ) ?? Self.defaultFWHM, 1 )
-
-        let background = PixelUtilities.median( image.pixels ) ?? 0
-        let noise      = ( PixelUtilities.medianAbsoluteDeviation( image.pixels, around: background ) ?? 0 ) * Self.madToSigma
-
-        guard noise > 0
-        else
+        // A caller-supplied scale needs no search — it sizes the mesh directly. It is
+        // also sanitized here: `expectedFWHM` is public, and a non-finite value would
+        // otherwise survive every clamp below and trap on conversion to `Int`.
+        if let expected = configuration.expectedFWHM
         {
-            return fwhm
+            let fwhm = expected.isFinite ? Swift.max( expected, 1 ) : Self.defaultFWHM
+
+            guard let background = LocalBackground.estimate( in: image, tileSize: Self.tileSize( for: fwhm ) )
+            else
+            {
+                return nil
+            }
+
+            return ( background: background, fwhm: fwhm )
         }
 
-        // Surface candidate star peaks directly from the raw image — the brightest
-        // local maxima — rather than a second matched-filter convolution, so the
-        // refinement costs a peak scan, not another full pass. The brightest peaks
-        // are unambiguous stars, exactly the sample the width measurement wants.
-        let threshold = background + ( Self.bootstrapSigma * noise )
-        let peaks     = Self.localMaxima( in: image.pixels, width: image.width, height: image.height, threshold: threshold )
-        let sample    = peaks.sorted { $0.value > $1.value }.prefix( Self.refinementSampleSize ).map { $0.index }
+        var tile     = LocalBackground.defaultTileSize
+        var fallback = LocalBackground?.none
 
-        guard sample.isEmpty == false
-        else
+        while tile <= Self.backgroundMaxTileSize
         {
-            return fwhm
-        }
+            guard let background = LocalBackground.estimate( in: image, tileSize: tile )
+            else
+            {
+                return nil
+            }
 
-        // Re-measure the sample's median width, letting the measurement window grow
-        // with the estimate until it settles on the true scale.
-        for _ in 0 ..< 3
-        {
-            let widths = sample.compactMap { Self.sampleWidth( around: $0, in: image, fwhm: fwhm, background: background, noise: noise ) }
+            fallback = fallback ?? background
 
-            guard let median = PixelUtilities.median( widths ), median.isFinite, median > 0
+            let estimate = Self.estimateScale( in: image, background: background )
+
+            if let fwhm = estimate.fwhm, tile >= Self.tileSize( for: fwhm )
+            {
+                return ( background: background, fwhm: Swift.max( fwhm, 1 ) )
+            }
+
+            // Nothing anywhere on the frame rises above its own local background —
+            // a dark, a bias, a flat, a starless sub. Widening cannot conjure a
+            // source to size, so stop instead of rebuilding the map three more
+            // times. A frame that *has* peaks but cannot size them is the opposite
+            // case: there, the tile is what is standing in the way, so it widens.
+            guard estimate.foundPeaks
             else
             {
                 break
             }
 
-            let next      = Swift.min( Swift.max( median, 1 ), 40 )
-            let converged = Swift.abs( next - fwhm ) <= ( 0.1 * fwhm )
-
-            fwhm = next
-
-            if converged
-            {
-                break
-            }
+            tile *= 2
         }
 
-        return fwhm
-    }
-
-    /// Measures one candidate peak's FWHM the same way ``measure(peak:in:fwhm:)``
-    /// does — a local-background connected footprint, a Gaussian fit for its width
-    /// with the footprint moments as fallback — but without the purity cuts, so a
-    /// sample can be sized to refine the scale.
-    ///
-    /// - Returns: The peak's FWHM, or `nil` when it cannot be sized.
-    private static func sampleWidth( around index: Int, in image: PixelBuffer, fwhm: Double, background: Double, noise: Double ) -> Double?
-    {
-        // Size the window generously — with a floor independent of the possibly
-        // underestimated `fwhm` — and read the sky from its outer annulus rather
-        // than its full extent. The brightest sample peaks are often the large,
-        // saturated stars whose flat core fills a tight window, so a whole-window
-        // median would read the star itself as "background": the footprint level
-        // would land at the core, the footprint would collapse below the minimum,
-        // and every sample would fail to size — stalling the refinement at the
-        // bootstrap scale. The annulus sits beyond the core, on true sky.
-        let radius     = Swift.max( Self.sampleWidthMinRadius, Int( ( 2.0 * fwhm ).rounded() ) )
-        let samples    = Self.window( around: index, radius: radius, in: image )
-        let peakX      = Double( index % image.width )
-        let peakY      = Double( index / image.width )
-        let skyInner   = Double( radius ) * 0.65
-        let annulus    = samples.filter { Foundation.hypot( $0.x - peakX, $0.y - peakY ) >= skyInner }.map { $0.value }
-        let localBg    = PixelUtilities.median( annulus ) ?? ( PixelUtilities.median( samples.map { $0.value } ) ?? background )
-        let localNoise = ( PixelUtilities.medianAbsoluteDeviation( annulus, around: localBg ) ?? 0 ) * Self.madToSigma
-        let level      = localBg + ( Self.footprintSigma * Swift.max( localNoise, noise ) )
-        let footprint  = Self.connectedFootprint( around: index, radius: radius, level: level, in: image )
-
-        guard footprint.count >= Self.minFootprintSamples, let moments = StarMoments( samples: footprint, background: localBg )
+        // No tile resolved a scale: detect at the default scale against the
+        // default-tile map, rather than reporting nothing.
+        guard let fallback
         else
         {
             return nil
         }
 
-        let seed = GaussianFit.Parameters( moments: moments, amplitude: image.pixels[ index ] - localBg, background: localBg )
+        return ( background: fallback, fwhm: Self.defaultFWHM )
+    }
 
-        // Bound the Gaussian fit to the star's actual extent (IMP-5). The window is
-        // sized generously from `fwhm` for the annulus and footprint search, but when
-        // the bootstrap over-shoots — the very case this refinement exists to correct
-        // — that window can reach ~160×160, and the per-sample fit, run for every
-        // sampled peak on every iteration, then dominates the cost. The connected
-        // footprint is the star's true extent, so fitting over it plus a background
-        // margin fully encloses the star: the measured width is unchanged to within
-        // noise while the wasted work on distant sky is cut. The bound only ever
-        // shrinks the fit set (a `filter` of the window), never grows it; for a small
-        // or normally-sized star it already exceeds the window, so the fit set is the
-        // full window as before, and it engages for an inflated bootstrap or a
-        // genuinely large star, where the enclosed core still pins the width. Only the
-        // internal scale refinement reads this width; the reported `measure` is
-        // untouched.
-        let footprintReach = footprint.reduce( 0.0 ) { Swift.max( $0, Foundation.hypot( $1.x - peakX, $1.y - peakY ) ) }
-        let fitRadius      = footprintReach + Double( Self.sampleWidthMinRadius )
-        let fitSamples     = fitRadius < Double( radius ) ? samples.filter { Foundation.hypot( $0.x - peakX, $0.y - peakY ) <= fitRadius } : samples
+    /// The background tile a frame of the given stellar width needs.
+    ///
+    /// - Parameter fwhm: The stellar FWHM, in pixels.
+    /// - Returns: The tile edge, in pixels, never below ``LocalBackground/defaultTileSize``.
+    private static func tileSize( for fwhm: Double ) -> Int
+    {
+        let needed = Self.backgroundTileScale * fwhm
 
-        let width: Double
-
-        if let fit = GaussianFit.fit( samples: fitSamples, initialGuess: seed )
-        {
-            let sigmaMajor = Swift.max( Swift.abs( fit.sigmaX ), Swift.abs( fit.sigmaY ) )
-            let sigmaMinor = Swift.min( Swift.abs( fit.sigmaX ), Swift.abs( fit.sigmaY ) )
-
-            width = Self.fwhmPerSigma * ( sigmaMajor * sigmaMinor ).squareRoot()
-        }
+        guard needed.isFinite, needed > Double( LocalBackground.defaultTileSize )
         else
         {
-            width = moments.fwhm
+            return LocalBackground.defaultTileSize
         }
 
-        return ( width.isFinite && width > 0 ) ? width : nil
+        // Bound in `Double` before converting: a huge but finite `fwhm` would
+        // otherwise overflow the conversion and trap before the `min` could apply.
+        return Int( Swift.min( needed.rounded( .up ), Double( Self.backgroundMaxTileSize ) ) )
     }
 
     /// Estimates the stellar FWHM from an image's brightest stars: it finds the
@@ -450,49 +473,132 @@ public struct MatchedFilterStarDetector: StarDetecting
     /// local noise floor) is compact and yields a stable, self-contained FWHM for
     /// the detection scale.
     ///
+    /// This is the detector's own scale bootstrap, offered on its own for a caller
+    /// that wants a frame's stellar width without paying for a full detection — a
+    /// focus or frame-grading routine, say, which needs the number but not the star
+    /// list, and would otherwise fit a Gaussian to every star to get it. It measures
+    /// the background map itself; ``detectStars(in:)`` builds that map once and uses
+    /// an overload that takes it.
+    ///
+    /// **Accuracy bounds.** The measurement is made over a window that grows with the
+    /// first estimate but stops at ``bootstrapWindowMaxRadius``, so it is reliable for
+    /// ordinary stellar widths and progressively short for broad ones: a frame of
+    /// 33 px stars reads 33, one of 47 px stars reads about 32, and past roughly
+    /// 70 px nothing can be sized at all. Treat a reading above ~50 px as a lower
+    /// bound rather than a measurement.
+    ///
     /// - Parameter image: The single-channel image to size.
     /// - Returns: The median FWHM, in pixels, or `nil` when no bright star can be
-    ///   sized.
-    static func estimateFWHM( in image: PixelBuffer ) -> Double?
+    ///   sized — a frame with no sources above its local background, or one whose
+    ///   samples are all non-finite.
+    public static func estimateFWHM( in image: PixelBuffer ) -> Double?
     {
-        guard image.channels == 1, image.width > 0, image.height > 0
+        guard let background = LocalBackground.estimate( in: image )
         else
         {
             return nil
         }
 
-        let background = PixelUtilities.median( image.pixels ) ?? 0
-        let noise      = ( PixelUtilities.medianAbsoluteDeviation( image.pixels, around: background ) ?? 0 ) * Self.madToSigma
+        return Self.estimateScale( in: image, background: background ).fwhm
+    }
 
-        guard noise > 0
+    /// Estimates the stellar FWHM against an already-measured background map, in two
+    /// passes: a fixed-window measurement of the frame's bright stars, then — when
+    /// that seed implies stars broader than the window could hold — one re-measure
+    /// over a window scaled to it.
+    ///
+    /// - Parameters:
+    ///   - image:      The single-channel image to size.
+    ///   - background: The frame's background map, supplying the local level and
+    ///                 noise every threshold below is measured against.
+    /// - Returns: The median FWHM in pixels — `nil` when no bright star could be
+    ///   sized — and whether the frame offered any bright peak to size at all. The
+    ///   two differ: a frame with no peaks has nothing to measure, while a frame
+    ///   with peaks it cannot size is one whose background map is standing in the
+    ///   way.
+    private static func estimateScale( in image: PixelBuffer, background: LocalBackground ) -> ( fwhm: Double?, foundPeaks: Bool )
+    {
+        guard image.channels == 1, image.width > 0, image.height > 0, background.noises.contains( where: { $0 > 0 } )
         else
         {
-            return nil
+            return ( fwhm: nil, foundPeaks: false )
         }
 
-        let highThreshold = background + ( Self.bootstrapSigma * noise )
-        let maxima        = Self.localMaxima( in: image.pixels, width: image.width, height: image.height, threshold: highThreshold )
+        // Threshold against the *local* level and noise. Globally, a frame carrying
+        // bright nebulosity puts a large share of its area many sigmas above the
+        // whole-image median, so this scan returns tens of thousands of noise
+        // ripples riding on the gas instead of the frame's handful of bright stars —
+        // and their slivers of footprint then size the detection scale several-fold
+        // too small.
+        let maxima = Self.localMaxima( in: image.pixels, width: image.width, height: image.height )
+        {
+            background.threshold( atX: Double( $0 % image.width ), y: Double( $0 / image.width ), sigmas: Self.bootstrapSigma )
+        }
 
-        // Size each bright star over its connected footprint, but prefer footprints
-        // that have *not* merged a neighbouring bright star. A blob of several merged
-        // stars sizes several times too large; on a dense field of small stars (a
-        // drizzled master) that inflated scale then makes the size-band cut reject
-        // the whole real population. A footprint containing only its own peak is a
-        // single, isolated star that sizes the point spread correctly.
+        guard let seed = Self.medianFootprintWidth( of: maxima, in: image, background: background, radius: Self.bootstrapWindowRadius )
+        else
+        {
+            return ( fwhm: nil, foundPeaks: maxima.isEmpty == false )
+        }
+
+        // A star broader than the fixed window is measured against a sky annulus that
+        // falls inside the star itself, which reads the star as its own background,
+        // collapses the footprint toward the core, and sizes the star far below the
+        // truth. Re-measure over a window scaled to the seed, where the annulus
+        // clears the star.
+        //
+        // The wider window is only trustworthy if it still sees *single* stars. On a
+        // crowded field it reaches into the neighbours instead, and the footprints
+        // that merge them are dropped by the isolation test — so the wide pass falls
+        // back to sizing merged blobs, which reads several times too large. That is
+        // the runaway that collapses a rich cluster to a handful of detections, so
+        // the wide pass is accepted only while it still rests on about as many
+        // unmerged stars as the seed did; otherwise the seed stands.
+        let wide = Swift.min( Int( ( Self.bootstrapWindowScale * seed.fwhm ).rounded() ), Self.bootstrapWindowMaxRadius )
+
+        guard wide > Self.bootstrapWindowRadius,
+              let widened = Self.medianFootprintWidth( of: maxima, in: image, background: background, radius: wide ),
+              ( widened.isolated * 2 ) >= seed.isolated
+        else
+        {
+            return ( fwhm: seed.fwhm, foundPeaks: true )
+        }
+
+        return ( fwhm: widened.fwhm, foundPeaks: true )
+    }
+
+    /// The median width of a frame's bright stars, sized over a given window.
+    ///
+    /// Footprints that have *not* merged a neighbouring bright star are preferred: a
+    /// blob of several merged stars sizes several times too large, and on a dense
+    /// field of small stars (a drizzled master) that inflated scale then makes the
+    /// size-band cut reject the whole real population. A footprint containing only
+    /// its own peak is a single, isolated star that sizes the point spread
+    /// correctly. When every bright star is crowded, the merged footprints are used
+    /// anyway rather than reporting no scale at all.
+    ///
+    /// - Parameters:
+    ///   - maxima:     The bright peaks to size.
+    ///   - image:      The single-channel image.
+    ///   - background: The frame's background map.
+    ///   - radius:     The half-size, in pixels, of the window each star is sized
+    ///                 over.
+    /// - Returns: The median FWHM in pixels, and how many stars it rests on that were
+    ///   sized *without* merging a neighbour — `0` when every star was crowded and
+    ///   the merged footprints had to be used; `nil` when no peak can be sized.
+    private static func medianFootprintWidth( of maxima: [ ( index: Int, value: Double ) ], in image: PixelBuffer, background: LocalBackground, radius: Int ) -> ( fwhm: Double, isolated: Int )?
+    {
         let peaks    = Set( maxima.map { $0.index } )
-        let isolated = maxima.compactMap { Self.footprintWidth( around: $0.index, in: image, background: background, noise: noise, isolatedAmong: peaks ) }
+        let isolated = maxima.compactMap { Self.footprintWidth( around: $0.index, in: image, background: background, radius: radius, isolatedAmong: peaks ) }
+        let measured = isolated.isEmpty ? maxima.compactMap { Self.footprintWidth( around: $0.index, in: image, background: background, radius: radius, isolatedAmong: nil ) } : isolated
 
-        guard isolated.isEmpty
+        guard let median = PixelUtilities.median( measured )
         else
         {
-            return PixelUtilities.median( isolated )
+            return nil
         }
 
-        // Every bright star is crowded (no isolated footprint): size over the merged
-        // footprints anyway, rather than reporting no scale at all.
-        let merged = maxima.compactMap { Self.footprintWidth( around: $0.index, in: image, background: background, noise: noise, isolatedAmong: nil ) }
-
-        return PixelUtilities.median( merged )
+        return ( fwhm: median, isolated: isolated.count )
     }
 
     /// Sizes a bright star by the geometric-mean width (FWHM) of its connected
@@ -506,33 +612,32 @@ public struct MatchedFilterStarDetector: StarDetecting
     /// - Parameters:
     ///   - index:         The star's peak pixel index.
     ///   - image:         The single-channel image.
-    ///   - background:    The global background, the final fallback when neither the
-    ///                    sky annulus nor the whole window yields a median.
-    ///   - noise:         The robust background noise.
+    ///   - background:    The frame's background map, supplying both the fallback
+    ///                    level when the sky annulus yields no median and the local
+    ///                    noise the footprint level stands on.
+    ///   - radius:        The half-size, in pixels, of the window the star is sized
+    ///                    over.
     ///   - isolatedAmong: The set of bright-peak indices to test the footprint
     ///                    against, or `nil` to skip the merge test.
     /// - Returns: The star's FWHM (the footprint's geometric-mean width), or `nil`
     ///   when it cannot be sized or its footprint merged a neighbour.
-    private static func footprintWidth( around index: Int, in image: PixelBuffer, background: Double, noise: Double, isolatedAmong: Set< Int >? ) -> Double?
+    private static func footprintWidth( around index: Int, in image: PixelBuffer, background: LocalBackground, radius: Int, isolatedAmong: Set< Int >? ) -> Double?
     {
         // Read the sky from the window's outer annulus, not its whole extent
-        // (IMP-12), giving the bootstrap seed the annulus-sky robustness the
-        // refinement's `sampleWidth` already has. A bright star's core fills much of
-        // this fixed-radius window, so a whole-window median reads the star itself as
-        // "background" — landing the footprint level inside the core, so the
-        // footprint shrinks toward the core and the star sizes small. The annulus
-        // sits beyond the core, on true sky. Only the *background* is read from the
-        // annulus; the level keeps the global `noise` (unlike `sampleWidth`, whose
-        // window grows with the estimate, this fixed radius-10 annulus straddles a
-        // moderate star's skirt, so its local MAD would be skirt-driven, not sky).
-        let radius          = Self.bootstrapWindowRadius
+        // (IMP-12). A bright star's core fills much of this window, so a whole-window
+        // median reads the star itself as "background" — landing the footprint level
+        // inside the core, so the footprint shrinks toward the core and the star
+        // sizes small. The annulus sits beyond the core, on true sky. Only the
+        // *background* is read from the annulus; the level's noise term comes from
+        // the background map, because this annulus straddles a moderate star's skirt,
+        // so its own MAD would be skirt-driven rather than sky-driven.
         let window          = Self.window( around: index, radius: radius, in: image )
         let peakX           = Double( index % image.width )
         let peakY           = Double( index / image.width )
         let skyInner        = Double( radius ) * 0.65
         let annulus         = window.filter { Foundation.hypot( $0.x - peakX, $0.y - peakY ) >= skyInner }.map { $0.value }
-        let localBackground = PixelUtilities.median( annulus ) ?? ( PixelUtilities.median( window.map { $0.value } ) ?? background )
-        let level           = localBackground + ( Self.footprintSigma * noise )
+        let localBackground = PixelUtilities.median( annulus ) ?? ( PixelUtilities.median( window.map { $0.value } ) ?? background.level( atX: peakX, y: peakY ) )
+        let level           = localBackground + ( Self.footprintSigma * background.noise( atX: peakX, y: peakY ) )
         let body            = Self.connectedFootprint( around: index, radius: radius, level: level, in: image )
 
         guard body.count >= Self.minFootprintSamples
@@ -567,9 +672,33 @@ public struct MatchedFilterStarDetector: StarDetecting
 
     // MARK: - Peak detection
 
-    /// Finds the strict 8-neighbourhood local maxima of a sample grid that exceed
-    /// a threshold.
+    /// Finds the strict 8-neighbourhood local maxima of a sample grid that exceed a
+    /// uniform threshold.
+    ///
+    /// - Parameters:
+    ///   - values:    The sample grid.
+    ///   - width:     The grid width, in samples.
+    ///   - height:    The grid height, in samples.
+    ///   - threshold: The value a sample must exceed to be a candidate peak.
+    /// - Returns: The qualifying peaks and their values.
     private static func localMaxima( in values: [ Double ], width: Int, height: Int, threshold: Double ) -> [ ( index: Int, value: Double ) ]
+    {
+        Self.localMaxima( in: values, width: width, height: height ) { _ in threshold }
+    }
+
+    /// Finds the strict 8-neighbourhood local maxima of a sample grid that exceed a
+    /// **position-dependent** threshold — the form a spatially-varying background
+    /// needs, where "above the background" means a different value in every part of
+    /// the frame.
+    ///
+    /// - Parameters:
+    ///   - values:    The sample grid.
+    ///   - width:     The grid width, in samples.
+    ///   - height:    The grid height, in samples.
+    ///   - threshold: The value a sample at a given index must exceed to be a
+    ///                candidate peak.
+    /// - Returns: The qualifying peaks and their values.
+    private static func localMaxima( in values: [ Double ], width: Int, height: Int, threshold: ( Int ) -> Double ) -> [ ( index: Int, value: Double ) ]
     {
         values.indices.compactMap
         {
@@ -577,7 +706,7 @@ public struct MatchedFilterStarDetector: StarDetecting
 
             let value = values[ index ]
 
-            guard value > threshold
+            guard value > threshold( index )
             else
             {
                 return nil

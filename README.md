@@ -82,6 +82,12 @@ target is up and where to point.
   the same target against one another.
 - **`SkyBackground`** — a robust sky-background level and noise estimate (image
   median and `1.4826 × MAD`), in native ADU and as a fraction of the image range.
+- **`LocalBackground`** — the *spatially-varying* counterpart: a median-filtered
+  mesh of per-tile medians and `1.4826 × MAD`, interpolated back to pixel
+  resolution, so "above the background" means something on a frame carrying
+  nebulosity, a light-pollution gradient or vignetting. Star detection measures
+  its whole-frame thresholds — the scale estimate and the bright-star pass —
+  against it.
 
 ### Requirements & Portability
 
